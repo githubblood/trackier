@@ -1,0 +1,38 @@
+<h4 class="fw-bold mb-4">Manage Advertisers</h4>
+<div class="card border-0 shadow-sm">
+    <div class="card-body">
+        <div class="d-flex justify-content-between mb-3">
+            <input type="text" class="form-control w-25" placeholder="Search advertisers...">
+            <button class="btn btn-primary"><i class="fas fa-plus"></i> Add Advertiser</button>
+        </div>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="bg-light table-light text-uppercase small text-muted">
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Status</th>
+                        <th>Account Manager</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let a of advertisers">
+                        <td class="text-muted fw-bold">{{a.id}}</td>
+                        <td class="fw-bold text-primary"><a href="#" class="text-decoration-none">{{a.name}}</a></td>
+                        <td>{{a.email}}</td>
+                        <td>
+                            <span class="badge"
+                                [ngClass]="a.status === 'Active' ? 'bg-success' : 'bg-secondary'">{{a.status}}</span>
+                        </td>
+                        <td>{{a.manager}}</td>
+                        <td>
+                            <button class="btn btn-sm btn-light border"><i class="fas fa-edit text-muted"></i></button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

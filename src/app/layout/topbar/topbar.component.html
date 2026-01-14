@@ -1,0 +1,51 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-white"
+    style="height: 70px; box-shadow: rgb(225, 225, 225) 1px 1px 1px 0px;">
+    <div class="container-fluid">
+        <button class="btn btn-light border me-3" id="sidebarToggle"><i class="fas fa-bars"></i></button>
+
+        <form class="d-none d-md-flex ms-2">
+            <div class="input-group input-group-sm">
+                <span class="input-group-text bg-light border-end-0"><i class="fas fa-search text-muted"></i></span>
+                <input class="form-control border-start-0 ps-0 bg-light" type="search" placeholder="Search..."
+                    aria-label="Search" style="width: 250px;">
+            </div>
+        </form>
+
+        <div class="navbar-collapse collapse">
+            <ul class="navbar-nav ms-auto mb-0 align-items-center">
+                <li class="nav-item mx-2">
+                    <button class="btn btn-primary btn-sm px-3" style="font-size: 13px;"><i
+                            class="fas fa-plus me-1"></i> Actions</button>
+                </li>
+                <li class="nav-item mx-2">
+                    <a class="nav-link text-muted position-relative p-2" href="#">
+                        <i class="fas fa-bell fa-lg"></i>
+                        <span
+                            class="position-absolute top-0 start-100 translate-middle p-1 bg-danger border border-light rounded-circle"
+                            style="width: 8px; height: 8px;">
+                            <span class="visually-hidden">New alerts</span>
+                        </span>
+                    </a>
+                </li>
+                <li class="nav-item dropdown ms-2">
+                    <a class="nav-link dropdown-toggle d-flex align-items-center p-0" href="#" id="navbarDropdown"
+                        role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center me-2 fw-bold"
+                            style="width: 36px; height: 36px; background-color: #138fc2; color: white;">P</div>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0" aria-labelledby="navbarDropdown">
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2 text-muted"></i> Profile</a>
+                        </li>
+                        <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2 text-muted"></i> Settings</a>
+                        </li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li><a class="dropdown-item text-danger" href="/login"><i class="fas fa-sign-out-alt me-2"></i>
+                                Logout</a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>

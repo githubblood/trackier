@@ -1,0 +1,30 @@
+<h4 class="fw-bold mb-4">Saved Reports</h4>
+<div class="card border-0 shadow-sm">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="bg-light table-light text-uppercase small text-muted">
+                    <tr>
+                        <th>Report Name</th>
+                        <th>Type</th>
+                        <th>Date Range</th>
+                        <th>Format</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let r of reports">
+                        <td class="fw-bold text-primary">{{r.name}}</td>
+                        <td><span class="badge bg-info text-dark bg-opacity-25">{{r.type}}</span></td>
+                        <td class="text-muted">{{r.date}}</td>
+                        <td>{{r.format}}</td>
+                        <td>
+                            <button class="btn btn-sm btn-outline-primary"><i class="fas fa-download me-1"></i>
+                                Download</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

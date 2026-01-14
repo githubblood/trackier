@@ -1,0 +1,49 @@
+:host {
+    display: block;
+    height: 100%;
+}
+
+.sidebar-heading {
+    background: rgba(0, 0, 0, 0.15);
+    letter-spacing: 0.5px;
+    font-weight: 600;
+}
+
+.list-group-item {
+    color: rgba(255, 255, 255, 0.8);
+    transition: all 0.2s ease-in-out;
+    border: none;
+    background-color: transparent;
+
+    i {
+        width: 24px;
+        text-align: center;
+        margin-right: 8px;
+    }
+
+    &:hover {
+        color: #fff;
+        background-color: rgba(0, 0, 0, 0.1) !important;
+    }
+
+    &.active {
+        color: #fff;
+        background-color: rgba(0, 0, 0, 0.2) !important;
+        font-weight: 600;
+    }
+}
+
+// Submenu items
+.collapse .list-group-item {
+    padding-left: 3.5rem;
+    font-size: 0.9rem;
+
+    &.active {
+        color: #fff;
+        font-weight: 500;
+    }
+
+    &:hover {
+        background-color: rgba(0, 0, 0, 0.08) !important;
+    }
+}

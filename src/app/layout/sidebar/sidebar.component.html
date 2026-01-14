@@ -1,0 +1,51 @@
+<div class="sidebar-heading text-center py-4 fs-4 fw-bold text-uppercase border-bottom text-white">
+    Spaxads
+</div>
+<div class="list-group list-group-flush my-3">
+    <!-- Dashboard -->
+    <a routerLink="/dashboard" routerLinkActive="active"
+        class="list-group-item list-group-item-action bg-transparent fw-bold">
+        <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+    </a>
+
+    <!-- Campaigns -->
+    <a class="list-group-item list-group-item-action bg-transparent fw-bold" data-bs-toggle="collapse"
+        href="#campaignsMenu" role="button" aria-expanded="false" aria-controls="campaignsMenu">
+        <i class="fas fa-bullhorn me-2"></i> Campaigns <i class="fas fa-chevron-down float-end mt-1 small"></i>
+    </a>
+    <div class="collapse" id="campaignsMenu">
+        <div class="list-group list-group-flush ms-3 bg-transparent">
+            <a routerLink="/campaigns/manage" routerLinkActive="active"
+                class="list-group-item list-group-item-action bg-transparent border-0 small">Manage Campaigns</a>
+            <a href="#" class="list-group-item list-group-item-action bg-transparent border-0 small">Create Campaign</a>
+            <a href="#" class="list-group-item list-group-item-action bg-transparent border-0 small">Campaign Wizard</a>
+        </div>
+    </div>
+
+    <!-- Reports -->
+    <a class="list-group-item list-group-item-action bg-transparent fw-bold" data-bs-toggle="collapse"
+        href="#reportsMenu" role="button" aria-expanded="false" aria-controls="reportsMenu">
+        <i class="fas fa-chart-bar me-2"></i> Reports <i class="fas fa-chevron-down float-end mt-1 small"></i>
+    </a>
+    <div class="collapse" id="reportsMenu">
+        <div class="list-group list-group-flush ms-3 bg-transparent">
+            <a routerLink="/reports/campaign" routerLinkActive="active"
+                class="list-group-item list-group-item-action bg-transparent border-0 small">Campaign Report</a>
+            <a href="#" class="list-group-item list-group-item-action bg-transparent border-0 small">Daily Report</a>
+            <a href="#" class="list-group-item list-group-item-action bg-transparent border-0 small">Conversion
+                Report</a>
+        </div>
+    </div>
+
+    <!-- Publishers -->
+    <a routerLink="/publishers/manage" routerLinkActive="active"
+        class="list-group-item list-group-item-action bg-transparent fw-bold">
+        <i class="fas fa-users me-2"></i> Publishers
+    </a>
+
+    <!-- Advertisers -->
+    <a routerLink="/advertisers/manage" routerLinkActive="active"
+        class="list-group-item list-group-item-action bg-transparent fw-bold">
+        <i class="fas fa-briefcase me-2"></i> Advertisers
+    </a>
+</div>

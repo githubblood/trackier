@@ -1,0 +1,71 @@
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="fw-bold m-0" style="color: #444; font-size: 18px;">Manage Campaigns</h4>
+    <div>
+        <button class="btn btn-primary btn-sm me-2"><i class="fas fa-plus me-1"></i> New Campaign</button>
+        <button class="btn btn-outline-secondary btn-sm"><i class="fas fa-filter me-1"></i> Filter</button>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body" style="padding: 20px 24px;">
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <div class="input-group input-group-sm" style="max-width: 300px;">
+                    <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
+                    <input type="text" class="form-control" placeholder="Search campaigns...">
+                </div>
+            </div>
+            <div class="col-md-6 text-end">
+                <button class="btn btn-light btn-sm border me-1"><i class="fas fa-file-csv me-1"></i> CSV</button>
+                <button class="btn btn-light btn-sm border"><i class="fas fa-file-excel me-1"></i> Excel</button>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th scope="col" style="width: 40px;"><input type="checkbox" class="form-check-input"></th>
+                        <th scope="col">ID</th>
+                        <th scope="col">Status</th>
+                        <th scope="col" style="min-width: 200px;">Title</th>
+                        <th scope="col">Advertiser</th>
+                        <th scope="col">Geo</th>
+                        <th scope="col">Payout</th>
+                        <th scope="col">Revenue</th>
+                        <th scope="col">Visibility</th>
+                        <th scope="col">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let c of campaigns">
+                        <td><input type="checkbox" class="form-check-input"></td>
+                        <td class="fw-bold text-muted">{{c.id}}</td>
+                        <td><span [ngClass]="getStatusClass(c.status)">{{c.status}}</span></td>
+                        <td><a href="#" class="text-decoration-none fw-bold" style="color: #138fc2;">{{c.name}}</a></td>
+                        <td>{{c.advertiser}}</td>
+                        <td>{{c.geo}}</td>
+                        <td>{{c.payout}}</td>
+                        <td>{{c.revenue}}</td>
+                        <td><span class="badge bg-light text-dark border">{{c.visibility}}</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-link text-muted p-0"><i
+                                    class="fas fa-ellipsis-v"></i></button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
+            <small class="text-muted">Showing 5 of 5 entries</small>
+            <nav>
+                <ul class="pagination pagination-sm m-0">
+                    <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
+                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">Next</a></li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>

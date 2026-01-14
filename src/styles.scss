@@ -1,0 +1,46 @@
+/* You can add global styles to this file, and also import other style files */
+@import url('https://fonts.googleapis.com/css2?family=Fira+Sans:wght@400;500;600;700&display=swap');
+
+body {
+    font-family: 'Fira Sans', sans-serif;
+    font-size: 15.2px;
+    color: #444;
+    background-color: #f2f4f8;
+}
+
+.card {
+    border-radius: 10px;
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 4px 10px 0px;
+    border: none;
+}
+
+.btn-primary {
+    background-color: #138fc2;
+    border-color: #138fc2;
+    border-radius: 28px;
+    padding: 6px 18px;
+
+    &:hover,
+    &:focus,
+    &:active {
+        background-color: #0f7aa8;
+        border-color: #0f7aa8;
+    }
+}
+
+.btn {
+    border-radius: 28px;
+}
+
+.table {
+    font-size: 14px;
+
+    thead th {
+        font-weight: 600;
+        font-size: 13px;
+        text-transform: uppercase;
+        color: #6c757d;
+        background-color: #f8f9fa;
+        border-bottom: 2px solid #dee2e6;
+    }
+}

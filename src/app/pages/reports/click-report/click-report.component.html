@@ -1,0 +1,227 @@
+<div class="report-container">
+    <div class="page-header">
+        <h4 class="page-title">Click Report</h4>
+    </div>
+
+    <div class="content-card">
+        <!-- Top Controls / Toolbar -->
+        <div class="table-toolbar">
+            <div class="toolbar-left d-flex align-items-center">
+                <span class="total-count fw-bold me-3">{{totalClicks}} Clicks</span>
+                <a href="#" class="small text-muted text-decoration-none">To know more, click here. <i
+                        class="fas fa-external-link-alt small"></i></a>
+            </div>
+
+            <div class="toolbar-right d-flex align-items-center gap-2">
+                <!-- Pagination (Simple Mock) -->
+                <div class="pagination-controls btn-group btn-group-sm me-2">
+                    <button class="btn btn-outline-secondary">«</button>
+                    <button class="btn btn-outline-secondary">‹</button>
+                    <button class="btn btn-primary">1</button>
+                    <button class="btn btn-outline-secondary">2</button>
+                    <button class="btn btn-outline-secondary">3</button>
+                    <button class="btn btn-outline-secondary">›</button>
+                    <button class="btn btn-outline-secondary">»</button>
+                </div>
+
+                <!-- Rows Per Page -->
+                <select class="form-select form-select-sm w-auto" [(ngModel)]="rowsPerPage">
+                    <option [value]="50">50</option>
+                    <option [value]="100">100</option>
+                    <option [value]="200">200</option>
+                </select>
+
+                <!-- Date Range -->
+                <div class="input-group input-group-sm w-auto">
+                    <span class="input-group-text bg-white"><i class="far fa-calendar-alt"></i></span>
+                    <input type="text" class="form-control" [value]="dateRange" readonly style="width: 170px;">
+                </div>
+
+                <!-- Export -->
+                <button class="btn btn-outline-secondary btn-sm" title="Export" (click)="downloadCSV()">
+                    <i class="fas fa-download"></i>
+                </button>
+
+                <!-- Filter Toggle -->
+                <button class="btn btn-outline-secondary btn-sm" title="Filter" (click)="toggleFilterPanel()">
+                    <i class="fas fa-filter"></i>
+                </button>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-striped align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th *ngFor="let col of visibleColumns">{{col.label}}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let log of filteredLogs">
+                        <ng-container *ngFor="let col of visibleColumns">
+                            <!-- Publisher Column - Clickable -->
+                            <td *ngIf="col.key === 'publisher'">
+                                <a [routerLink]="['/publishers', log.publisherId || '101']"
+                                    class="text-info text-decoration-none">
+                                    {{log.publisher || '--'}}
+                                </a>
+                            </td>
+
+                            <!-- Campaign Column - Clickable -->
+                            <td *ngIf="col.key === 'campaign'">
+                                <a [routerLink]="['/campaigns', log.campaignId]"
+                                    class="text-primary text-decoration-none">
+                                    (ID: {{log.campaignId}}) {{log.campaignName}}
+                                </a>
+                            </td>
+
+                            <!-- Country Column - With Flag -->
+                            <td *ngIf="col.key === 'countryCode'">
+                                <span class="me-1">{{getFlagEmoji(log.countryCode)}}</span> {{log.countryCode}}
+                            </td>
+
+                            <!-- All Other Columns -->
+                            <td *ngIf="col.key !== 'publisher' && col.key !== 'campaign' && col.key !== 'countryCode'">
+                                {{getValue(log, col.key)}}
+                            </td>
+                        </ng-container>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+
+        <!-- Bottom Pagination Info -->
+        <div class="pagination-info p-3 text-muted small border-top">
+            Showing 1 to {{filteredLogs.length}} of {{totalClicks}} entries
+        </div>
+    </div>
+
+    <!-- Filter Overlay -->
+    <div class="filter-overlay" *ngIf="showFilterPanel" (click)="closeFilterPanel()"></div>
+
+    <!-- Filter Panel -->
+    <div class="filter-panel" [class.open]="showFilterPanel">
+        <div class="filter-header d-flex justify-content-between align-items-center p-3 border-bottom">
+            <h5 class="mb-0"><i class="fas fa-filter me-2"></i> Filters</h5>
+            <button type="button" class="btn-close" (click)="closeFilterPanel()"></button>
+        </div>
+
+        <div class="filter-body p-3">
+            <!-- Filter Fields -->
+            <div class="mb-3">
+                <label class="form-label small fw-bold">Campaign</label>
+                <input type="text" class="form-control form-control-sm" [(ngModel)]="filters.campaign"
+                    placeholder="Search">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label small fw-bold">Publisher</label>
+                <input type="text" class="form-control form-control-sm" [(ngModel)]="filters.publisher"
+                    placeholder="Search">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label small fw-bold">Click ID</label>
+                <input type="text" class="form-control form-control-sm" [(ngModel)]="filters.clickId"
+                    placeholder="Enter Click ID">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label small fw-bold">Click IP</label>
+                <input type="text" class="form-control form-control-sm" [(ngModel)]="filters.clickIp"
+                    placeholder="Enter Click IP">
+            </div>
+
+            <div class="row">
+                <div class="col-6 mb-3">
+                    <label class="form-label small fw-bold">Region</label>
+                    <input type="text" class="form-control form-control-sm" [(ngModel)]="filters.region"
+                        placeholder="Search">
+                </div>
+                <div class="col-6 mb-3">
+                    <label class="form-label small fw-bold">City</label>
+                    <input type="text" class="form-control form-control-sm" [(ngModel)]="filters.city"
+                        placeholder="Search">
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label small fw-bold">Source</label>
+                <input type="text" class="form-control form-control-sm" [(ngModel)]="filters.source"
+                    placeholder="Search">
+            </div>
+
+            <div class="row">
+                <div class="col-4 mb-3">
+                    <label class="form-label small fw-bold">Sub ID</label>
+                    <select class="form-select form-select-sm" [(ngModel)]="filters.subIdKey">
+                        <option value="">--</option>
+                        <option *ngFor="let opt of subIdOptions" [value]="opt">{{opt}}</option>
+                    </select>
+                </div>
+                <div class="col-8 mb-3">
+                    <label class="form-label small fw-bold">Sub ID Value</label>
+                    <input type="text" class="form-control form-control-sm" [(ngModel)]="filters.subIdValue">
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-6 mb-3">
+                    <label class="form-label small fw-bold">Is Unique</label>
+                    <select class="form-select form-select-sm" [(ngModel)]="filters.isUnique">
+                        <option value="">--</option>
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
+                    </select>
+                </div>
+                <div class="col-6 mb-3">
+                    <label class="form-label small fw-bold">Is Rejected</label>
+                    <select class="form-select form-select-sm" [(ngModel)]="filters.isRejected">
+                        <option value="">--</option>
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-6 mb-3">
+                    <label class="form-label small fw-bold">Start Time</label>
+                    <select class="form-select form-select-sm" [(ngModel)]="filters.startTime">
+                        <option value="">--</option>
+                        <option *ngFor="let time of timeOptions" [value]="time">{{time}}</option>
+                    </select>
+                </div>
+                <div class="col-6 mb-3">
+                    <label class="form-label small fw-bold">End Time</label>
+                    <select class="form-select form-select-sm" [(ngModel)]="filters.endTime">
+                        <option value="">--</option>
+                        <option *ngFor="let time of timeOptions" [value]="time">{{time}}</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Report Options Toggle section at bottom -->
+            <div class="mt-4 border-top pt-3">
+                <h6 class="small fw-bold mb-2">Report Options ({{filteredMetricsOptions.length}})</h6>
+                <div class="d-flex gap-2 mb-2">
+                    <input type="text" class="form-control form-control-sm" [(ngModel)]="metricsSearch"
+                        placeholder="Search Columns">
+                </div>
+                <div class="report-options-grid"
+                    style="max-height: 250px; overflow-y: auto; display: grid; grid-template-columns: 1fr 1fr; gap: 5px;">
+                    <div class="form-check" *ngFor="let metric of filteredMetricsOptions">
+                        <input class="form-check-input" type="checkbox" [(ngModel)]="metric.checked" [id]="metric.key">
+                        <label class="form-check-label small" [for]="metric.key">{{metric.label}}</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="filter-footer p-3 border-top d-flex gap-2">
+            <button class="btn btn-primary rounded-pill px-4 btn-sm" (click)="applyFilters()">Apply</button>
+            <button class="btn btn-light rounded-pill px-4 btn-sm border" (click)="closeFilterPanel()">Close</button>
+        </div>
+    </div>
+</div>

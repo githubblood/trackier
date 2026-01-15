@@ -17,8 +17,12 @@
         <div class="list-group list-group-flush ms-3 bg-transparent">
             <a routerLink="/campaigns/manage" routerLinkActive="active"
                 class="list-group-item list-group-item-action bg-transparent border-0 small">Manage Campaigns</a>
-            <a href="#" class="list-group-item list-group-item-action bg-transparent border-0 small">Create Campaign</a>
-            <a href="#" class="list-group-item list-group-item-action bg-transparent border-0 small">Campaign Wizard</a>
+            <a routerLink="/campaigns/create" routerLinkActive="active"
+                class="list-group-item list-group-item-action bg-transparent border-0 small">Create Campaign</a>
+            <a routerLink="/campaigns/wizard" routerLinkActive="active"
+                class="list-group-item list-group-item-action bg-transparent border-0 small">Campaign Wizard</a>
+            <a routerLink="/campaigns/access" routerLinkActive="active"
+                class="list-group-item list-group-item-action bg-transparent border-0 small">Campaign Access</a>
         </div>
     </div>
 
@@ -30,10 +34,40 @@
     <div class="collapse" id="reportsMenu">
         <div class="list-group list-group-flush ms-3 bg-transparent">
             <a routerLink="/reports/campaign" routerLinkActive="active"
-                class="list-group-item list-group-item-action bg-transparent border-0 small">Campaign Report</a>
-            <a href="#" class="list-group-item list-group-item-action bg-transparent border-0 small">Daily Report</a>
-            <a href="#" class="list-group-item list-group-item-action bg-transparent border-0 small">Conversion
-                Report</a>
+                class="list-group-item list-group-item-action bg-transparent border-0 small">Campaigns Report</a>
+            <a routerLink="/reports/publishers" routerLinkActive="active"
+                class="list-group-item list-group-item-action bg-transparent border-0 small">Publishers Report</a>
+            <a routerLink="/reports/advertisers" routerLinkActive="active"
+                class="list-group-item list-group-item-action bg-transparent border-0 small">Advertisers Report</a>
+            <a routerLink="/reports/daily" routerLinkActive="active"
+                class="list-group-item list-group-item-action bg-transparent border-0 small">Daily Report</a>
+            <a routerLink="/reports/goals" routerLinkActive="active"
+                class="list-group-item list-group-item-action bg-transparent border-0 small">Goals Report</a>
+            <a routerLink="/reports/cohort" routerLinkActive="active"
+                class="list-group-item list-group-item-action bg-transparent border-0 small">Cohort Report</a>
+
+            <!-- Additional Reports -->
+            <div class="mt-2 mb-1 text-muted small fw-bold ps-2">Additional Reports</div>
+            <a routerLink="/reports/cap" routerLinkActive="active"
+                class="list-group-item list-group-item-action bg-transparent border-0 small">CAP Report</a>
+            <a routerLink="/reports/sampling" routerLinkActive="active"
+                class="list-group-item list-group-item-action bg-transparent border-0 small">Sampling Report</a>
+            <a routerLink="/reports/comparison" routerLinkActive="active"
+                class="list-group-item list-group-item-action bg-transparent border-0 small">Comparison Report</a>
+            <a routerLink="/reports/referral" routerLinkActive="active"
+                class="list-group-item list-group-item-action bg-transparent border-0 small">Referral Report</a>
+            <a routerLink="/reports/click" routerLinkActive="active"
+                class="list-group-item list-group-item-action bg-transparent border-0 small">Click Report</a>
+            <a routerLink="/reports/conversion" routerLinkActive="active"
+                class="list-group-item list-group-item-action bg-transparent border-0 small">Conversion Report</a>
+            <a routerLink="/reports/impression" routerLinkActive="active"
+                class="list-group-item list-group-item-action bg-transparent border-0 small">Impression Report</a>
+            <a routerLink="/reports/postback-logs" routerLinkActive="active"
+                class="list-group-item list-group-item-action bg-transparent border-0 small">Postback Sent Logs</a>
+            <a routerLink="/reports/recent-exports" routerLinkActive="active"
+                class="list-group-item list-group-item-action bg-transparent border-0 small">Recent Exports</a>
+            <a routerLink="/reports/scheduled" routerLinkActive="active"
+                class="list-group-item list-group-item-action bg-transparent border-0 small">Scheduled Reports</a>
         </div>
     </div>
 

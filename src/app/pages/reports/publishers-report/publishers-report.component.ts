@@ -3,37 +3,25 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 @Component({
-  selector: 'app-reports',
+  selector: 'app-publishers-report',
   standalone: true,
   imports: [CommonModule, FormsModule],
-  templateUrl: './reports.component.html',
-  styleUrls: ['./reports.component.scss']
+  templateUrl: './publishers-report.component.html',
+  styleUrls: ['./publishers-report.component.scss']
 })
-export class ReportsComponent {
-  // View toggle
+export class PublishersReportComponent {
   viewMode: 'table' | 'chart' = 'table';
-
-  // Date range
   startDate = '2026-01-15';
   endDate = '2026-01-15';
-
-  // Dropdowns
-  switchReport = 'campaign';
-  savedReports = '';
-
-  // Search
   searchQuery = '';
   groupBySearch = '';
   metricsSearch = '';
-
-  // Filter panel
   showFilterPanel = false;
-
-  // New Report Modal
   showNewReportModal = false;
   newReportName = '';
+  showDownloadMenu = false;
 
-  // Main filters
+  // Main filters - Same as Campaign Report
   filters = {
     campaign: '',
     campaignSearchById: false,
@@ -41,7 +29,6 @@ export class ReportsComponent {
     publisherSearchById: false,
     advertiser: '',
     advertiserSearchById: false,
-    // Quick toggle filters
     campaignGeo: false,
     teamMember: false,
     advertiserTags: false,
@@ -51,16 +38,16 @@ export class ReportsComponent {
     smartLink: false
   };
 
-  // Group By options (complete list from Trackier)
+  // Group By options - Complete list from Trackier
   groupByOptions = [
-    { key: 'campaign', label: 'Campaign', checked: true },
+    { key: 'campaign', label: 'Campaign', checked: false },
     { key: 'campaignId', label: 'Campaign ID', checked: false },
     { key: 'campaignLongId', label: 'Campaign Long ID', checked: false },
     { key: 'campaignStatus', label: 'Campaign Status', checked: false },
     { key: 'campaignGeo', label: 'Campaign GEO', checked: false },
     { key: 'campaignAppName', label: 'Campaign App Name', checked: false },
     { key: 'objective', label: 'Objective', checked: false },
-    { key: 'publisher', label: 'Publisher', checked: false },
+    { key: 'publisher', label: 'Publisher', checked: true },
     { key: 'publisherId', label: 'Publisher ID', checked: false },
     { key: 'publisherLongId', label: 'Publisher Long ID', checked: false },
     { key: 'source', label: 'Source (Sub Publisher)', checked: false },
@@ -87,14 +74,12 @@ export class ReportsComponent {
     { key: 'category', label: 'Category', checked: false }
   ];
 
-  // Report Options / Metrics (complete list from Trackier)
+  // Report Options / Metrics - Complete list from Trackier
   metricsOptions = [
-    // Clicks
     { key: 'uniqueClicks', label: 'Unique Clicks', checked: false },
     { key: 'rejectedClicks', label: 'Rejected Clicks', checked: false },
     { key: 'clicks', label: 'Clicks', checked: false },
     { key: 'grossClicks', label: 'Gross Clicks', checked: true },
-    // Conversions
     { key: 'approvedConversions', label: 'Approved Conversions', checked: true },
     { key: 'pendingConversions', label: 'Pending Conversions', checked: false },
     { key: 'cancelledConversions', label: 'Cancelled Conversions', checked: false },
@@ -103,7 +88,6 @@ export class ReportsComponent {
     { key: 'sampledConversions', label: 'Sampled Conversions', checked: false },
     { key: 'grossConversions', label: 'Gross Conversions', checked: false },
     { key: 'conversionRate', label: 'Conversion Rate (CR)', checked: false },
-    // Financial
     { key: 'impressions', label: 'Impressions', checked: false },
     { key: 'campaignPayout', label: 'Campaign Payout', checked: false },
     { key: 'campaignRevenue', label: 'Campaign Revenue', checked: false },
@@ -123,10 +107,8 @@ export class ReportsComponent {
     { key: 'cancelledRevenue', label: 'Cancelled Revenue', checked: false },
     { key: 'rejectedPayout', label: 'Rejected Payout', checked: false },
     { key: 'rejectedRevenue', label: 'Rejected Revenue', checked: false },
-    // EPC, CTR
     { key: 'epc', label: 'Earning Per Click (EPC)', checked: false },
     { key: 'ctr', label: 'Click Through Rate (CTR)', checked: false },
-    // Sale Amount
     { key: 'saleAmount', label: 'Sale Amount', checked: false },
     { key: 'pendingSaleAmount', label: 'Pending Sale Amount', checked: false },
     { key: 'extendedSaleAmount', label: 'Extended Sale Amount', checked: false },
@@ -134,7 +116,6 @@ export class ReportsComponent {
     { key: 'rejectedSaleAmount', label: 'Rejected Sale Amount', checked: false },
     { key: 'sampledSaleAmount', label: 'Sampled Sale Amount', checked: false },
     { key: 'grossSaleAmount', label: 'Gross Sale Amount', checked: false },
-    // Net values
     { key: 'netConversions', label: 'Net Conversions', checked: false },
     { key: 'netSaleAmount', label: 'Net Sale Amount', checked: false },
     { key: 'netPayout', label: 'Net Payout', checked: false },
@@ -154,48 +135,20 @@ export class ReportsComponent {
   // Conditions
   conditions: any[] = [];
 
-  // Download menu
-  showDownloadMenu = false;
-
   // Report data
   reportData = [
-    { campaign: 'Boho- CA- Dec\'25', grossClicks: 0, approvedConversions: 1, payout: 1, revenue: 1, profit: 0 },
-    { campaign: 'Myrista - Loop', grossClicks: 2684, approvedConversions: 0, payout: 0, revenue: 0, profit: 0 },
-    { campaign: 'Dragonia- CA- Jan\'26', grossClicks: 2, approvedConversions: 0, payout: 0, revenue: 0, profit: 0 },
-    { campaign: 'BloodySlots GB', grossClicks: 0, approvedConversions: 0, payout: 0, revenue: 0, profit: 0 },
-    { campaign: 'Stox Razor', grossClicks: 14, approvedConversions: 0, payout: 0, revenue: 0, profit: 0 },
-    { campaign: 'Oceanpin- DE- Nov\'25', grossClicks: 1, approvedConversions: 0, payout: 0, revenue: 0, profit: 0 },
-    { campaign: 'Betsanc1ty- NL- Oct\'25', grossClicks: 1, approvedConversions: 0, payout: 0, revenue: 0, profit: 0 },
-    { campaign: 'Spinmania- CA- Dec\'25', grossClicks: 1, approvedConversions: 0, payout: 0, revenue: 0, profit: 0 },
-    { campaign: 'Bitsslot- NL- Nov\'25', grossClicks: 2, approvedConversions: 0, payout: 0, revenue: 0, profit: 0 },
-    { campaign: 'Golden Reels- NZ- Dec\'25', grossClicks: 2, approvedConversions: 0, payout: 0, revenue: 0, profit: 0 },
-    { campaign: 'Vipersain- AU- Dec\'25', grossClicks: 1, approvedConversions: 0, payout: 0, revenue: 0, profit: 0 },
-    { campaign: 'Tikitaka- NL- Nov\'25', grossClicks: 2, approvedConversions: 0, payout: 0, revenue: 0, profit: 0 },
-    { campaign: 'Loki Casino- UK- Dec\'25', grossClicks: 1, approvedConversions: 0, payout: 0, revenue: 0, profit: 0 },
-    { campaign: 'Cashpot- CA', grossClicks: 1, approvedConversions: 0, payout: 0, revenue: 0, profit: 0 },
-    { campaign: 'Rollstabo- CA- Jan\'26', grossClicks: 1, approvedConversions: 0, payout: 0, revenue: 0, profit: 0 },
-    { campaign: 'Winner Casino CA', grossClicks: 1, approvedConversions: 0, payout: 0, revenue: 0, profit: 0 },
-    { campaign: 'Velobet- AU- Nov\'25', grossClicks: 2, approvedConversions: 0, payout: 0, revenue: 0, profit: 0 },
-    { campaign: 'Spingranny- AU- Dec\'25', grossClicks: 1, approvedConversions: 0, payout: 0, revenue: 0, profit: 0 }
+    { publisher: 'ATUL Kumar', publisherId: 303, grossClicks: 12450, approvedConversions: 245, payout: 2450.00, revenue: 3200.00, profit: 750.00 },
+    { publisher: 'IG Link', publisherId: 404, grossClicks: 8920, approvedConversions: 178, payout: 1780.00, revenue: 2340.00, profit: 560.00 },
+    { publisher: 'Shivai Networks', publisherId: 405, grossClicks: 15670, approvedConversions: 312, payout: 3120.00, revenue: 4100.00, profit: 980.00 },
+    { publisher: 'Digital Media Pro', publisherId: 424, grossClicks: 6340, approvedConversions: 127, payout: 1270.00, revenue: 1650.00, profit: 380.00 },
+    { publisher: 'AdNetwork Plus', publisherId: 450, grossClicks: 9800, approvedConversions: 196, payout: 1960.00, revenue: 2580.00, profit: 620.00 }
   ];
 
-  // Report type options
-  reportTypes = [
-    { value: 'campaign', label: 'Campaign Report' },
-    { value: 'publisher', label: 'Publisher Report' },
-    { value: 'advertiser', label: 'Advertiser Report' },
-    { value: 'daily', label: 'Daily Report' },
-    { value: 'goals', label: 'Goals Report' }
-  ];
-
-  // Saved reports
   savedReportsList = [
     { value: '', label: '--' },
-    { value: 'report1', label: 'Weekly Overview' },
-    { value: 'report2', label: 'Monthly Summary' }
+    { value: 'report1', label: 'Weekly Publisher Overview' }
   ];
 
-  // Totals
   get totals() {
     return {
       grossClicks: this.reportData.reduce((sum, item) => sum + item.grossClicks, 0),
@@ -206,162 +159,44 @@ export class ReportsComponent {
     };
   }
 
-  // Filtered group by options
   get filteredGroupByOptions() {
     if (!this.groupBySearch) return this.groupByOptions;
-    return this.groupByOptions.filter(opt =>
-      opt.label.toLowerCase().includes(this.groupBySearch.toLowerCase())
-    );
+    return this.groupByOptions.filter(opt => opt.label.toLowerCase().includes(this.groupBySearch.toLowerCase()));
   }
 
-  // Filtered metrics options
   get filteredMetricsOptions() {
     if (!this.metricsSearch) return this.metricsOptions;
-    return this.metricsOptions.filter(opt =>
-      opt.label.toLowerCase().includes(this.metricsSearch.toLowerCase())
-    );
+    return this.metricsOptions.filter(opt => opt.label.toLowerCase().includes(this.metricsSearch.toLowerCase()));
   }
 
-  // View toggle
-  setViewMode(mode: 'table' | 'chart') {
-    this.viewMode = mode;
-  }
-
-  // Filter panel
-  toggleFilterPanel() {
-    this.showFilterPanel = !this.showFilterPanel;
-  }
-
-  closeFilterPanel() {
-    this.showFilterPanel = false;
-  }
-
-  applyFilters() {
-    console.log('Applying filters:', {
-      filters: this.filters,
-      groupBy: this.groupByOptions.filter(o => o.checked),
-      metrics: this.metricsOptions.filter(o => o.checked),
-      otherOptions: this.otherOptions,
-      conditions: this.conditions
-    });
-    this.closeFilterPanel();
-  }
-
-  // Clear all group by
-  clearGroupBy() {
-    this.groupByOptions.forEach(opt => opt.checked = false);
-  }
-
-  // Select all group by
-  selectAllGroupBy() {
-    this.filteredGroupByOptions.forEach(opt => opt.checked = true);
-  }
-
-  // Clear all metrics
-  clearMetrics() {
-    this.metricsOptions.forEach(opt => opt.checked = false);
-  }
-
-  // Select all metrics
-  selectAllMetrics() {
-    this.filteredMetricsOptions.forEach(opt => opt.checked = true);
-  }
-
-  // Add condition
-  addCondition() {
-    this.conditions.push({
-      field: '',
-      operator: 'equals',
-      value: ''
-    });
-  }
-
-  // Remove condition
-  removeCondition(index: number) {
-    this.conditions.splice(index, 1);
-  }
-
-  // Download menu
-  toggleDownloadMenu() {
-    this.showDownloadMenu = !this.showDownloadMenu;
-  }
-
-  downloadCSV() {
-    const headers = 'Campaign,Gross Clicks,Approved Conversions,Payout,Revenue,Profit\n';
-    const csv = headers + this.reportData.map(item =>
-      `"${item.campaign}",${item.grossClicks},${item.approvedConversions},${item.payout},${item.revenue},${item.profit}`
-    ).join('\n');
-
-    this.downloadFile(csv, 'campaign_report.csv', 'text/csv');
-    this.showDownloadMenu = false;
-  }
-
-  downloadExcel() {
-    const headers = 'Campaign\tGross Clicks\tApproved Conversions\tPayout\tRevenue\tProfit\n';
-    const excel = headers + this.reportData.map(item =>
-      `${item.campaign}\t${item.grossClicks}\t${item.approvedConversions}\t${item.payout}\t${item.revenue}\t${item.profit}`
-    ).join('\n');
-
-    this.downloadFile(excel, 'campaign_report.xls', 'application/vnd.ms-excel');
-    this.showDownloadMenu = false;
-  }
-
-  downloadPDF() {
-    alert('PDF export - In production, use a library like jsPDF');
-    this.showDownloadMenu = false;
-  }
-
-  downloadFile(content: string, filename: string, type: string) {
-    const blob = new Blob([content], { type });
-    const url = window.URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = filename;
-    link.click();
-    window.URL.revokeObjectURL(url);
-  }
-
-  // New report modal
-  createNewReport() {
-    this.newReportName = '';
-    this.showNewReportModal = true;
-  }
-
-  closeNewReportModal() {
-    this.showNewReportModal = false;
-    this.newReportName = '';
-  }
-
-  confirmNewReport() {
-    if (this.newReportName.trim()) {
-      console.log('Creating new report:', this.newReportName);
-      // Add the new report to saved reports list
-      this.savedReportsList.push({
-        value: 'report_' + Date.now(),
-        label: this.newReportName
-      });
-      alert('Report "' + this.newReportName + '" created successfully!');
-      this.closeNewReportModal();
-    } else {
-      alert('Please enter a report name');
-    }
-  }
-
-  // Format currency
-  formatCurrency(value: number): string {
-    return '₹ ' + value.toFixed(2);
-  }
-
-  // Format number
-  formatNumber(value: number): string {
-    return value.toLocaleString();
-  }
-
-  // Filter data by search
   get filteredData() {
     if (!this.searchQuery) return this.reportData;
-    return this.reportData.filter(item =>
-      item.campaign.toLowerCase().includes(this.searchQuery.toLowerCase())
-    );
+    return this.reportData.filter(item => item.publisher.toLowerCase().includes(this.searchQuery.toLowerCase()));
   }
+
+  setViewMode(mode: 'table' | 'chart') { this.viewMode = mode; }
+  toggleFilterPanel() { this.showFilterPanel = !this.showFilterPanel; }
+  closeFilterPanel() { this.showFilterPanel = false; }
+  applyFilters() { console.log('Applying filters:', this.filters); this.closeFilterPanel(); }
+  clearGroupBy() { this.groupByOptions.forEach(opt => opt.checked = false); }
+  selectAllGroupBy() { this.filteredGroupByOptions.forEach(opt => opt.checked = true); }
+  clearMetrics() { this.metricsOptions.forEach(opt => opt.checked = false); }
+  selectAllMetrics() { this.filteredMetricsOptions.forEach(opt => opt.checked = true); }
+  toggleDownloadMenu() { this.showDownloadMenu = !this.showDownloadMenu; }
+  downloadCSV() { console.log('Downloading CSV'); this.showDownloadMenu = false; }
+  downloadExcel() { console.log('Downloading Excel'); this.showDownloadMenu = false; }
+  downloadPDF() { console.log('Downloading PDF'); this.showDownloadMenu = false; }
+  createNewReport() { this.newReportName = ''; this.showNewReportModal = true; }
+  closeNewReportModal() { this.showNewReportModal = false; this.newReportName = ''; }
+  addCondition() { this.conditions.push({ field: '', operator: 'equals', value: '' }); }
+  removeCondition(index: number) { this.conditions.splice(index, 1); }
+  confirmNewReport() {
+    if (this.newReportName.trim()) {
+      this.savedReportsList.push({ value: 'report_' + Date.now(), label: this.newReportName });
+      alert('Report "' + this.newReportName + '" created successfully!');
+      this.closeNewReportModal();
+    } else { alert('Please enter a report name'); }
+  }
+  formatCurrency(value: number): string { return '₹ ' + value.toFixed(2); }
+  formatNumber(value: number): string { return value.toLocaleString(); }
 }

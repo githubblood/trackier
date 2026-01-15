@@ -1,0 +1,188 @@
+:host {
+    display: block;
+    width: 100%;
+    overflow: hidden;
+    /* Prevent host expansion */
+}
+
+.report-container {
+    padding: 20px;
+    width: 100%;
+    /* Ensure this container creates a new formatting context but doesn't overflow */
+    box-sizing: border-box;
+    overflow-x: hidden;
+}
+
+.page-header {
+    margin-bottom: 20px;
+
+    .page-title {
+        font-size: 24px;
+        font-weight: 500;
+        color: #333;
+    }
+}
+
+.content-card {
+    background: #fff;
+    border: 1px solid #e9ecef;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    width: 100%;
+    overflow: hidden;
+}
+
+.table-toolbar {
+    padding: 15px;
+    border-bottom: 1px solid #e9ecef;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    width: 100%;
+}
+
+.table-responsive {
+    display: block;
+    width: 100%;
+
+    /* 
+       FORCE CONSTRAINED WIDTH 
+       This prevents the table from pushing the page width out.
+       We assume ~260px sidebar + 40px padding.
+    */
+    max-width: calc(100vw - 300px);
+
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    border-bottom: 1px solid #e9ecef;
+
+    .table {
+        margin-bottom: 0;
+        width: max-content;
+        /* Ensure table takes up space needed for single-line text */
+
+        thead {
+            th {
+                background-color: #f8f9fa;
+                border-bottom: 2px solid #dee2e6;
+                color: #495057;
+                font-weight: 600;
+                font-size: 13px;
+                padding: 12px;
+                white-space: nowrap;
+
+                /* Sticky Header */
+                position: sticky;
+                top: 0;
+                z-index: 10;
+                box-shadow: 0 2px 2px -1px rgba(0, 0, 0, 0.1);
+                /* Separator shadow */
+            }
+        }
+
+        tbody {
+            td {
+                padding: 12px;
+                font-size: 13px;
+                color: #333;
+                border-bottom: 1px solid #dee2e6;
+                white-space: nowrap;
+                vertical-align: middle;
+
+                a {
+                    color: #0d6efd;
+                    text-decoration: none;
+                }
+            }
+
+            tr:hover {
+                background-color: #f8f9fa;
+            }
+        }
+    }
+}
+
+/* Scrollbar Styling */
+.table-responsive::-webkit-scrollbar {
+    height: 10px;
+    width: 10px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 4px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* Responsive adjustments for mobile/tablet where sidebar might be hidden */
+@media (max-width: 991px) {
+    .table-responsive {
+        max-width: calc(100vw - 40px);
+        /* Just padding */
+    }
+}
+
+// Filter Panel Styles (unchanged)
+.filter-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.2);
+    z-index: 1040;
+}
+
+.filter-panel {
+    position: fixed;
+    top: 0;
+    right: -400px;
+    width: 400px;
+    height: 100%;
+    background: #fff;
+    z-index: 1050;
+    transition: right 0.3s ease-in-out;
+    display: flex;
+    flex-direction: column;
+    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+
+    &.open {
+        right: 0;
+    }
+
+    .filter-header {
+        background-color: #fff;
+    }
+
+    .filter-body {
+        flex: 1;
+        overflow-y: auto;
+    }
+
+    .filter-footer {
+        background-color: #fff;
+    }
+}
+
+// Utilities (unchanged)
+.text-decoration-none {
+    text-decoration: none !important;
+}
+
+.fw-bold {
+    font-weight: 600 !important;
+}
+
+.small {
+    font-size: 0.875rem;
+}

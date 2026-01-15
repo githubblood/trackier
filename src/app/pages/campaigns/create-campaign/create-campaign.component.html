@@ -1,0 +1,613 @@
+<div class="create-campaign-container">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="fw-medium m-0" style="color: #444; font-size: 18px;">Create Campaign</h4>
+    </div>
+
+    <!-- Details Section -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white border-bottom py-3">
+            <h5 class="mb-0 fw-medium">Details</h5>
+        </div>
+        <div class="card-body">
+            <!-- Advertiser -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Advertiser <span class="text-danger">*</span></label>
+                    <select class="form-select" [(ngModel)]="campaign.advertiser">
+                        <option value="">Select Advertiser</option>
+                        <option *ngFor="let adv of advertisers" [value]="adv.id">{{adv.name}} (ID: {{adv.id}})</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Title -->
+            <div class="row mb-3">
+                <div class="col-md-12">
+                    <label class="form-label">Title <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" [(ngModel)]="campaign.title"
+                        placeholder="Enter campaign title">
+                </div>
+            </div>
+
+            <!-- Description -->
+            <div class="row mb-3">
+                <div class="col-md-12">
+                    <label class="form-label">Description (Optional)</label>
+                    <div class="rich-text-editor">
+                        <!-- Toolbar -->
+                        <div class="editor-toolbar">
+                            <div class="toolbar-group">
+                                <button type="button" class="toolbar-btn dropdown-toggle" title="Style">
+                                    <i class="fas fa-magic"></i>
+                                </button>
+                                <button type="button" class="toolbar-btn" title="Bold" (click)="formatText('bold')">
+                                    <b>B</b>
+                                </button>
+                                <button type="button" class="toolbar-btn" title="Underline"
+                                    (click)="formatText('underline')">
+                                    <u>U</u>
+                                </button>
+                                <button type="button" class="toolbar-btn" title="Clear Formatting">
+                                    <i class="fas fa-eraser"></i>
+                                </button>
+                            </div>
+                            <div class="toolbar-divider"></div>
+                            <div class="toolbar-group">
+                                <select class="toolbar-select" title="Font Family">
+                                    <option>Fira Sans</option>
+                                    <option>Arial</option>
+                                    <option>Helvetica</option>
+                                    <option>Times New Roman</option>
+                                    <option>Georgia</option>
+                                </select>
+                            </div>
+                            <div class="toolbar-divider"></div>
+                            <div class="toolbar-group">
+                                <button type="button" class="toolbar-btn" title="Font Color"
+                                    style="background: #ffff00; padding: 2px 8px;">
+                                    <b>A</b>
+                                </button>
+                                <button type="button" class="toolbar-btn dropdown-toggle">
+                                    <i class="fas fa-caret-down" style="font-size: 10px;"></i>
+                                </button>
+                            </div>
+                            <div class="toolbar-divider"></div>
+                            <div class="toolbar-group">
+                                <button type="button" class="toolbar-btn" title="Unordered List"
+                                    (click)="formatText('insertUnorderedList')">
+                                    <i class="fas fa-list-ul"></i>
+                                </button>
+                                <button type="button" class="toolbar-btn" title="Ordered List"
+                                    (click)="formatText('insertOrderedList')">
+                                    <i class="fas fa-list-ol"></i>
+                                </button>
+                                <button type="button" class="toolbar-btn" title="Indent">
+                                    <i class="fas fa-indent"></i>
+                                </button>
+                            </div>
+                            <div class="toolbar-divider"></div>
+                            <div class="toolbar-group">
+                                <button type="button" class="toolbar-btn dropdown-toggle" title="Paragraph">
+                                    <i class="fas fa-align-left"></i>
+                                </button>
+                            </div>
+                            <div class="toolbar-divider"></div>
+                            <div class="toolbar-group">
+                                <button type="button" class="toolbar-btn" title="Table">
+                                    <i class="fas fa-table"></i>
+                                </button>
+                                <button type="button" class="toolbar-btn" title="Link">
+                                    <i class="fas fa-link"></i>
+                                </button>
+                                <button type="button" class="toolbar-btn" title="Image">
+                                    <i class="fas fa-image"></i>
+                                </button>
+                                <button type="button" class="toolbar-btn" title="Video">
+                                    <i class="fas fa-video"></i>
+                                </button>
+                            </div>
+                            <div class="toolbar-divider"></div>
+                            <div class="toolbar-group">
+                                <button type="button" class="toolbar-btn" title="Fullscreen">
+                                    <i class="fas fa-expand"></i>
+                                </button>
+                                <button type="button" class="toolbar-btn" title="Code View">
+                                    &lt;/&gt;
+                                </button>
+                                <button type="button" class="toolbar-btn" title="Help">
+                                    <i class="fas fa-question"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <!-- Second toolbar row -->
+                        <div class="editor-toolbar border-top-0">
+                            <div class="toolbar-group">
+                                <select class="toolbar-select" style="width: 60px;" title="Font Size">
+                                    <option>15</option>
+                                    <option>12</option>
+                                    <option>14</option>
+                                    <option>16</option>
+                                    <option>18</option>
+                                    <option>20</option>
+                                    <option>24</option>
+                                    <option>28</option>
+                                    <option>32</option>
+                                </select>
+                            </div>
+                        </div>
+                        <!-- Editor Content -->
+                        <div class="editor-content" contenteditable="true" (input)="onDescriptionInput($event)"
+                            [innerHTML]="campaign.description">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Allowed Traffic Channels -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Allowed Traffic Channels</label>
+                    <select class="form-select" multiple [(ngModel)]="campaign.trafficChannels">
+                        <option *ngFor="let channel of trafficChannelOptions" [value]="channel">{{channel}}</option>
+                    </select>
+                    <small class="text-muted">Hold Ctrl/Cmd to select multiple</small>
+                </div>
+            </div>
+
+            <!-- Preview URL -->
+            <div class="row mb-3">
+                <div class="col-md-12">
+                    <label class="form-label">Preview URL</label>
+                    <input type="url" class="form-control" [(ngModel)]="campaign.previewUrl"
+                        placeholder="https://example.com/landing-page">
+                </div>
+            </div>
+
+
+            <!-- Default Campaign URL -->
+            <div class="row mb-3">
+                <div class="col-md-12">
+                    <label class="form-label">Default Campaign URL</label>
+                    <textarea class="form-control" rows="3" [(ngModel)]="campaign.defaultCampaignUrl"
+                        placeholder="https://example.com/offer?click_id={click_id}"></textarea>
+                    <div class="mt-2 d-flex flex-wrap gap-1">
+                        <span class="text-muted small me-2">Add Token:</span>
+                        <button *ngFor="let token of urlTokens" type="button" class="btn btn-outline-secondary btn-sm"
+                            (click)="addToken(token.token)">
+                            {{token.token}}
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Terms and Conditions -->
+            <div class="row mb-3">
+                <div class="col-md-12">
+                    <label class="form-label">Terms and Conditions</label>
+                    <textarea class="form-control" rows="3" [(ngModel)]="campaign.termsAndConditions"
+                        placeholder="Enter terms and conditions"></textarea>
+                </div>
+            </div>
+
+            <!-- Require Terms and Conditions -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Require Terms and Conditions</label>
+                    <div class="d-flex gap-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="requireTerms" id="requireTermsYes"
+                                [value]="true" [(ngModel)]="campaign.requireTerms">
+                            <label class="form-check-label" for="requireTermsYes">Yes</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="requireTerms" id="requireTermsNo"
+                                [value]="false" [(ngModel)]="campaign.requireTerms">
+                            <label class="form-check-label" for="requireTermsNo">No</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Status -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Status</label>
+                    <select class="form-select" [(ngModel)]="campaign.status">
+                        <option *ngFor="let status of statusOptions" [value]="status">{{status}}</option>
+                    </select>
+                    <small class="text-muted">Active for publishers to run, paused, pending, deleted will visible to
+                        publishers.</small>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+
+    <!-- Revenue and Payout Section -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white border-bottom py-3">
+            <h5 class="mb-0 fw-medium">Revenue and Payout</h5>
+        </div>
+        <div class="card-body">
+            <!-- Method -->
+            <div class="row mb-3">
+                <div class="col-md-12">
+                    <label class="form-label">Method</label>
+                    <div class="d-flex gap-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="method" id="methodDefault"
+                                value="default" [(ngModel)]="revenueAndPayout.method">
+                            <label class="form-check-label" for="methodDefault">Default</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Currency -->
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label class="form-label">Currency <span class="text-danger">*</span></label>
+                    <select class="form-select" [(ngModel)]="revenueAndPayout.currency">
+                        <option *ngFor="let curr of currencies" [value]="curr">{{curr}}</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Revenue -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Revenue <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <span class="input-group-text">{{revenueAndPayout.currency}}</span>
+                        <input type="number" class="form-control" [(ngModel)]="revenueAndPayout.revenue"
+                            placeholder="Charged from advertiser. Eg 0.5">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Geo Coverage -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Geo Coverage</label>
+                    <select class="form-select" multiple [(ngModel)]="revenueAndPayout.geoCoverage"
+                        style="height: 150px;">
+                        <option *ngFor="let country of countries" [value]="country.code">
+                            {{country.code}} - {{country.name}}
+                        </option>
+                    </select>
+                    <small class="text-muted">Hold Ctrl/Cmd to select multiple countries</small>
+                </div>
+            </div>
+
+            <!-- Payout -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Payout <span class="text-danger">*</span></label>
+                    <div class="input-group">
+                        <span class="input-group-text">{{revenueAndPayout.currency}}</span>
+                        <input type="number" class="form-control" [(ngModel)]="revenueAndPayout.payout"
+                            placeholder="Pay to publisher">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Advanced Settings Section -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center"
+            style="cursor: pointer;" (click)="toggleAdvancedSettings()">
+            <h5 class="mb-0 fw-medium">Advanced Settings</h5>
+            <i class="fas" [ngClass]="showAdvancedSettings ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+        </div>
+        <div class="card-body" *ngIf="showAdvancedSettings">
+            <!-- Visibility -->
+            <div class="row mb-3">
+                <div class="col-md-12">
+                    <label class="form-label">Visibility</label>
+                    <div class="d-flex gap-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="visibility" id="visPublic" value="public"
+                                [(ngModel)]="advancedSettings.visibility">
+                            <label class="form-check-label" for="visPublic">Public</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="visibility" id="visPrivate"
+                                value="private" [(ngModel)]="advancedSettings.visibility">
+                            <label class="form-check-label" for="visPrivate">Private</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="visibility" id="visPermission"
+                                value="permission" [(ngModel)]="advancedSettings.visibility">
+                            <label class="form-check-label" for="visPermission">Ask for Permission</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Default Goal Name & Cutout Rate -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Default Goal Name</label>
+                    <input type="text" class="form-control" [(ngModel)]="advancedSettings.defaultGoalName"
+                        placeholder="Enter default goal name">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Cutout Rate (in percent)</label>
+                    <div class="input-group">
+                        <input type="number" class="form-control" [(ngModel)]="advancedSettings.cutoutRate"
+                            placeholder="Enter percentage" min="0" max="100">
+                        <span class="input-group-text">%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Default Landing Page Name -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Default Landing Page Name</label>
+                    <input type="text" class="form-control" [(ngModel)]="advancedSettings.defaultLandingPageName"
+                        placeholder="Enter default landing page name">
+                </div>
+            </div>
+
+            <!-- App Name -->
+            <div class="row mb-3">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">App Name</label>
+                    <input type="text" class="form-control" [(ngModel)]="advancedSettings.appName"
+                        placeholder="Enter app name">
+                </div>
+
+                <!-- App ID & Conversion Flow -->
+                <div class="col-md-6">
+                    <label class="form-label">App ID</label>
+                    <input type="text" class="form-control" [(ngModel)]="advancedSettings.appId"
+                        placeholder="Enter app ID">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Conversion Flow</label>
+                    <input type="text" class="form-control" [(ngModel)]="advancedSettings.conversionFlow"
+                        placeholder="Enter conversion flow">
+                </div>
+            </div>
+
+            <!-- Unsubscribe URL & Suppression URL -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Unsubscribe URL</label>
+                    <input type="url" class="form-control" [(ngModel)]="advancedSettings.unsubscribeUrl"
+                        placeholder="https://example.com/unsubscribe">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Suppression URL</label>
+                    <input type="url" class="form-control" [(ngModel)]="advancedSettings.suppressionUrl"
+                        placeholder="https://example.com/suppression">
+                </div>
+            </div>
+
+            <!-- External Offer ID & Redirect Type -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">External Offer ID</label>
+                    <input type="text" class="form-control" [(ngModel)]="advancedSettings.externalOfferId"
+                        placeholder="Enter external offer ID">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Redirect Type</label>
+                    <select class="form-select" [(ngModel)]="advancedSettings.redirectType">
+                        <option *ngFor="let type of redirectTypes" [value]="type">{{type}}</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Unique Click Session Duration & Duplicate Click Action -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Unique Click Session Duration <i
+                            class="fas fa-info-circle text-muted"></i></label>
+                    <input type="number" class="form-control" [(ngModel)]="advancedSettings.uniqueClickSessionDuration"
+                        placeholder="Hours">
+                    <small class="text-muted">If left empty, a default value of 168 hours will be considered by
+                        system</small>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Duplicate Click Action</label>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox"
+                            [(ngModel)]="advancedSettings.duplicateClickAction" style="width: 40px; height: 20px;">
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Devices -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Devices</label>
+                    <div class="device-badges">
+                        <span class="badge bg-info me-1" *ngFor="let device of advancedSettings.devices">
+                            {{device}} <i class="fas fa-times ms-1" style="cursor: pointer;"></i>
+                        </span>
+                    </div>
+                    <select class="form-select form-select-sm mt-2" [(ngModel)]="advancedSettings.devices" multiple>
+                        <option *ngFor="let device of deviceOptions" [value]="device">{{device}}</option>
+                    </select>
+                    <small class="text-muted">Device to be used when working with smart link</small>
+                </div>
+            </div>
+
+            <!-- Operating System -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Operating System</label>
+                    <select class="form-select" [(ngModel)]="advancedSettings.operatingSystem">
+                        <option *ngFor="let os of osOptions" [value]="os">{{os}}</option>
+                    </select>
+                </div>
+            </div>
+
+
+            <!-- Deep Link & Allowed Tracking Link Format -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Deep Link</label>
+                    <select class="form-select" [(ngModel)]="advancedSettings.deepLink">
+                        <option *ngFor="let opt of deepLinkOptions" [value]="opt">{{opt}}</option>
+                    </select>
+                    <small class="text-muted">Used to Enable/Disable Deep Link option while generating tracking
+                        link</small>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Allowed Tracking Link Format</label>
+                    <select class="form-select" [(ngModel)]="advancedSettings.allowedTrackingLinkFormat">
+                        <option *ngFor="let format of trackingLinkFormats" [value]="format.value">{{format.label}}
+                        </option>
+                    </select>
+                    <small class="text-muted">Sets the preferred identifier format used in tracking links</small>
+                </div>
+            </div>
+
+            <!-- Campaign Start/End Date -->
+            <div class="row mb-3">
+                <div class="col-md-12">
+                    <label class="form-label">Campaign Start/End Date</label>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox"
+                            [(ngModel)]="advancedSettings.enableStartEndDate" style="width: 40px; height: 20px;">
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mb-3" *ngIf="advancedSettings.enableStartEndDate">
+                <div class="col-md-4">
+                    <label class="form-label">Start Date <span class="text-danger">*</span></label>
+                    <input type="datetime-local" class="form-control" [(ngModel)]="advancedSettings.startDate"
+                        placeholder="Select start date time for starting campaign">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">End Date <span class="text-danger">*</span></label>
+                    <input type="datetime-local" class="form-control" [(ngModel)]="advancedSettings.endDate"
+                        placeholder="Select end date time for stopping campaign">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Campaign Status</label>
+                    <select class="form-select" [(ngModel)]="advancedSettings.campaignStatus">
+                        <option *ngFor="let status of campaignStatusAfterOptions" [value]="status">{{status}}</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Schedule Status Change -->
+            <div class="row mb-3">
+                <div class="col-md-12">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox"
+                            [(ngModel)]="advancedSettings.scheduleStatusChange" id="scheduleStatusChange">
+                        <label class="form-check-label" for="scheduleStatusChange">Schedule Status Change</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Time Targeting Section -->
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-white border-bottom py-3 d-flex justify-content-between align-items-center"
+            style="cursor: pointer;" (click)="toggleTimeTargeting()">
+            <h5 class="mb-0 fw-medium">Time Targeting</h5>
+            <i class="fas" [ngClass]="showTimeTargeting ? 'fa-chevron-up' : 'fa-chevron-down'"></i>
+        </div>
+        <div class="card-body" *ngIf="showTimeTargeting">
+            <!-- Enable Time Targeting -->
+            <div class="row mb-4 align-items-center">
+                <div class="col-md-3">
+                    <label class="form-label mb-0">Enable Time Targeting</label>
+                </div>
+                <div class="col-md-9">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" [(ngModel)]="timeTargeting.enabled"
+                            id="enableTimeTargeting">
+                        <label class="form-check-label" for="enableTimeTargeting">Yes</label>
+                    </div>
+                </div>
+            </div>
+
+            <div *ngIf="timeTargeting.enabled">
+                <!-- Timezone -->
+                <div class="row mb-4 align-items-start">
+                    <div class="col-md-3">
+                        <label class="form-label mb-0">Timezone</label>
+                    </div>
+                    <div class="col-md-9">
+                        <select class="form-select" [(ngModel)]="timeTargeting.timezone">
+                            <option *ngFor="let tz of timezones" [value]="tz">{{tz}}</option>
+                        </select>
+                        <small class="text-muted d-block mt-1">Time targeting follows 24 hour rule support. Choose the
+                            timezone and start/end date keeping that in mind.</small>
+                    </div>
+                </div>
+
+                <!-- Start Hour -->
+                <div class="row mb-4 align-items-center">
+                    <div class="col-md-3">
+                        <label class="form-label mb-0">Start Hour (24 Hour format)</label>
+                    </div>
+                    <div class="col-md-9">
+                        <input type="number" class="form-control" [(ngModel)]="timeTargeting.startHour" min="0" max="23"
+                            placeholder="0">
+                    </div>
+                </div>
+
+                <!-- End Hour -->
+                <div class="row mb-4 align-items-center">
+                    <div class="col-md-3">
+                        <label class="form-label mb-0">End Hour (24 Hour format)</label>
+                    </div>
+                    <div class="col-md-9">
+                        <input type="number" class="form-control" [(ngModel)]="timeTargeting.endHour" min="0" max="23"
+                            placeholder="0">
+                    </div>
+                </div>
+
+                <!-- Enable Inactive Hours -->
+                <div class="row mb-4 align-items-center">
+                    <div class="col-md-3">
+                        <label class="form-label mb-0">Enable Inactive hours</label>
+                    </div>
+                    <div class="col-md-9">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox"
+                                [(ngModel)]="timeTargeting.enableInactiveHours" id="enableInactiveHours">
+                            <label class="form-check-label" for="enableInactiveHours">Deactivate campaign in provided
+                                time range and days.</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Days -->
+                <div class="row mb-4 align-items-start">
+                    <div class="col-md-3">
+                        <label class="form-label mb-0">Days</label>
+                    </div>
+                    <div class="col-md-9">
+                        <select class="form-select" multiple [(ngModel)]="timeTargeting.days" style="height: 100px;">
+                            <option value="" disabled>Choose one or many days</option>
+                            <option *ngFor="let day of daysOfWeek" [value]="day">{{day}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sticky Footer with Create Button -->
+    <div class="sticky-footer">
+        <button class="btn btn-primary" (click)="createCampaign()">
+            <i class="fas fa-plus me-2"></i> Create
+        </button>
+    </div>
+</div>

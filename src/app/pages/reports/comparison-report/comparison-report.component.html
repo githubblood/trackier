@@ -1,0 +1,180 @@
+<div class="report-container">
+    <div class="page-header">
+        <h4 class="page-title">Comparison Report</h4>
+    </div>
+
+    <div class="content-card">
+        <div class="table-toolbar">
+            <div class="export-buttons">
+                <button class="btn btn-outline-secondary btn-sm" (click)="copyToClipboard()">Copy</button>
+                <button class="btn btn-outline-secondary btn-sm" (click)="downloadCSV()">CSV</button>
+                <button class="btn btn-outline-secondary btn-sm" (click)="downloadExcel()">Excel</button>
+                <button class="btn btn-outline-secondary btn-sm" (click)="downloadPDF()">PDF</button>
+                <button class="btn btn-outline-secondary btn-sm" (click)="printTable()">Print</button>
+                <a href="#" class="ms-2 small text-muted">For more, click here!</a>
+            </div>
+            <div class="search-box">
+                <label>Search:</label>
+                <input type="text" class="form-control form-control-sm" [(ngModel)]="searchQuery">
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-striped comparison-table align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th class="publisher-col sortable">Publisher <i class="fas fa-sort ms-1"></i></th>
+                        <th class="metric-col text-center">%</th>
+                        <th class="metric-col text-center sortable">Gross Clicks <i class="fas fa-sort ms-1"></i></th>
+                        <th class="metric-col text-center">%</th>
+                        <th class="metric-col text-center sortable">Approved Conversions <i
+                                class="fas fa-sort ms-1"></i></th>
+                        <th class="metric-col text-center">%</th>
+                        <th class="metric-col text-center sortable">Payout <i class="fas fa-sort ms-1"></i></th>
+                        <th class="metric-col text-center">%</th>
+                        <th class="metric-col text-center sortable">Revenue <i class="fas fa-sort ms-1"></i></th>
+                        <th class="metric-col text-center">%</th>
+                        <th class="metric-col text-center sortable">Profit <i class="fas fa-sort ms-1"></i></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let item of filteredData">
+                        <td class="publisher-cell"><a href="#" class="item-link">{{item.publisher}}</a></td>
+                        <td class="percent-cell text-center" [class]="getPercentageClass(item.grossClicks)">
+                            {{calculatePercentage(item.grossClicks)}}</td>
+                        <td class="value-cell text-center"><span
+                                class="comparison-values">{{formatComparison(item.grossClicks)}}</span></td>
+                        <td class="percent-cell text-center" [class]="getPercentageClass(item.approvedConversions)">
+                            {{calculatePercentage(item.approvedConversions)}}</td>
+                        <td class="value-cell text-center"><span
+                                class="comparison-values">{{formatComparison(item.approvedConversions)}}</span></td>
+                        <td class="percent-cell text-center" [class]="getPercentageClass(item.payout)">
+                            {{calculatePercentage(item.payout)}}</td>
+                        <td class="value-cell text-center"><span
+                                class="comparison-values">{{formatComparison(item.payout)}}</span></td>
+                        <td class="percent-cell text-center" [class]="getPercentageClass(item.revenue)">
+                            {{calculatePercentage(item.revenue)}}</td>
+                        <td class="value-cell text-center"><span
+                                class="comparison-values">{{formatComparison(item.revenue)}}</span></td>
+                        <td class="percent-cell text-center" [class]="getPercentageClass(item.profit)">
+                            {{calculatePercentage(item.profit)}}</td>
+                        <td class="value-cell text-center"><span
+                                class="comparison-values">{{formatComparison(item.profit)}}</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="pagination-info">Showing 1 to {{filteredData.length}} of {{filteredData.length}} entries</div>
+    </div>
+
+    <!-- Floating Filter Button -->
+    <button class="filter-fab" (click)="toggleFilterPanel()" title="Advanced Filter"><i
+            class="fas fa-filter"></i></button>
+    <div class="filter-overlay" *ngIf="showFilterPanel" (click)="closeFilterPanel()"></div>
+
+    <!-- Advanced Filter Panel - Exact Trackier Layout -->
+    <div class="filter-panel" [class.open]="showFilterPanel">
+        <div class="filter-header">
+            <h5 class="mb-0"><i class="fas fa-filter me-2"></i> Advanced Filter</h5>
+            <button type="button" class="btn-close-white" (click)="closeFilterPanel()"><i
+                    class="fas fa-times"></i></button>
+        </div>
+        <div class="filter-body">
+            <!-- Date Ranges -->
+            <div class="filter-section pt-3">
+                <div class="row mb-3">
+                    <div class="col-6">
+                        <label class="form-label">Compare From</label>
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text bg-white border-end-0"><i
+                                    class="far fa-calendar-alt text-muted"></i></span>
+                            <input type="text" class="form-control border-start-0 ps-0"
+                                [value]="compareFromStart + ' - ' + compareFromEnd" readonly>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label">Compare with</label>
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text bg-white border-end-0"><i
+                                    class="far fa-calendar-alt text-muted"></i></span>
+                            <input type="text" class="form-control border-start-0 ps-0"
+                                [value]="compareWithStart + ' - ' + compareWithEnd" readonly>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Primary Filters -->
+            <div class="filter-section">
+                <div class="row">
+                    <div class="col-4">
+                        <label class="form-label">Campaign</label>
+                        <input type="text" class="form-control form-control-sm" [(ngModel)]="filters.campaign"
+                            placeholder="Start Typing to search campaigns">
+                    </div>
+                    <div class="col-4">
+                        <label class="form-label">Publisher</label>
+                        <input type="text" class="form-control form-control-sm" [(ngModel)]="filters.publisher"
+                            placeholder="Choose one or many Publisher">
+                    </div>
+                    <div class="col-4">
+                        <label class="form-label">Advertiser</label>
+                        <input type="text" class="form-control form-control-sm" [(ngModel)]="filters.advertiser"
+                            placeholder="Choose one or many advertisers">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Group By Section -->
+            <div class="filter-section">
+                <div class="section-header d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="section-title mb-0">Group By</h6>
+                    <div class="section-actions d-flex gap-2">
+                        <input type="text" class="form-control form-control-sm search-input rounded-pill"
+                            [(ngModel)]="groupBySearch" placeholder="Search">
+                        <button class="btn btn-xs btn-outline-info" (click)="clearGroupBy()"><i
+                                class="fas fa-undo me-1"></i> Clear</button>
+                        <button class="btn btn-xs btn-warning-light" (click)="selectAllGroupBy()"><i
+                                class="fas fa-check-double me-1"></i> Select All</button>
+                    </div>
+                </div>
+                <div class="checkbox-grid grid-3">
+                    <div class="form-check" *ngFor="let option of filteredGroupByOptions">
+                        <input class="form-check-input" type="checkbox" [(ngModel)]="option.checked"
+                            [id]="'group_' + option.key">
+                        <label class="form-check-label text-truncate" [for]="'group_' + option.key"
+                            [title]="option.label">{{option.label}}</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Report Options Section -->
+            <div class="filter-section border-bottom-0">
+                <div class="section-header d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="section-title mb-0">Report Options</h6>
+                    <div class="section-actions d-flex gap-2">
+                        <input type="text" class="form-control form-control-sm search-input rounded-pill"
+                            [(ngModel)]="metricsSearch" placeholder="Search Report Options">
+                        <button class="btn btn-xs btn-outline-info" (click)="clearMetrics()"><i
+                                class="fas fa-undo me-1"></i> Clear</button>
+                        <button class="btn btn-xs btn-warning-light" (click)="selectAllMetrics()"><i
+                                class="fas fa-check-double me-1"></i> Select All</button>
+                    </div>
+                </div>
+                <div class="checkbox-grid grid-3">
+                    <div class="form-check" *ngFor="let metric of filteredMetricsOptions">
+                        <input class="form-check-input" type="checkbox" [(ngModel)]="metric.checked"
+                            [id]="'metric_' + metric.key">
+                        <label class="form-check-label text-truncate" [for]="'metric_' + metric.key"
+                            [title]="metric.label">{{metric.label}}</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="filter-footer">
+            <button class="btn btn-primary rounded-pill px-4" (click)="applyFilters()"><i
+                    class="fas fa-search me-1"></i> Search</button>
+            <button class="btn btn-light rounded-pill px-4 border" (click)="closeFilterPanel()">Close</button>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,240 @@
+<div class="publisher-detail-container">
+    <!-- Breadcrumb Header -->
+    <div class="page-breadcrumb">
+        <a routerLink="/publishers/manage" class="breadcrumb-link">Publishers</a>
+        <span class="breadcrumb-separator">&gt;</span>
+        <span class="breadcrumb-current">ID: {{publisher.id}}</span>
+    </div>
+
+    <div class="row g-4">
+        <!-- Left Column -->
+        <div class="col-lg-5">
+            <!-- Publisher Profile Card -->
+            <div class="content-card profile-card mb-4">
+                <div class="profile-header-gradient">
+                    <div class="gradient-teal"></div>
+                    <div class="gradient-coral"></div>
+                </div>
+                <div class="profile-content">
+                    <div class="profile-top">
+                        <div class="profile-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="profile-actions">
+                            <button class="btn btn-clone btn-sm" (click)="clonePublisher()">
+                                <i class="fas fa-clone me-1"></i> Clone
+                            </button>
+                            <button class="btn btn-disable btn-sm" (click)="disablePublisher()">
+                                <i class="fas fa-ban me-1"></i> Disable
+                            </button>
+                            <button class="btn btn-edit btn-sm" (click)="editPublisher()">
+                                <i class="fas fa-edit me-1"></i> Edit
+                            </button>
+                        </div>
+                    </div>
+
+                    <h4 class="publisher-name">{{publisher.name}}</h4>
+
+                    <div class="info-table">
+                        <div class="info-row">
+                            <span class="info-label">ID</span>
+                            <span class="info-value">{{publisher.id}}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Email</span>
+                            <span class="info-value">{{publisher.email}}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Company</span>
+                            <span class="info-value">{{publisher.company}}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Country</span>
+                            <span class="info-value">
+                                <span class="country-flag">{{getFlagEmoji(publisher.countryCode)}}</span>
+                                {{publisher.country}}
+                            </span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Status</span>
+                            <span class="info-value">
+                                <span class="status-badge">{{publisher.status}}</span>
+                            </span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Created</span>
+                            <span class="info-value">{{publisher.created}}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Hash ID</span>
+                            <span class="info-value hash-value">{{publisher.hashId}}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="info-label">Publisher Manager</span>
+                            <span class="info-value">
+                                <a href="#" class="manager-link">{{publisher.publisherManager}}</a>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Generate API Key Card -->
+            <div class="content-card api-key-card mb-4">
+                <h5 class="card-title">Generate API Key</h5>
+                <p class="help-link-text">To know about This <a href="#" class="help-link">click here</a> <i
+                        class="fas fa-external-link-alt"></i></p>
+                <p class="api-text">You're ready to start developing with Trackier Publisher API</p>
+                <p class="api-status" *ngIf="!publisher.apiKeyGenerated">API key for this Publisher is not generated</p>
+                <button class="btn btn-api-key" (click)="generateApiKey()">
+                    Generate API Key
+                </button>
+            </div>
+
+            <!-- Notes Card -->
+            <div class="content-card notes-card">
+                <h5 class="card-title">Notes</h5>
+                <textarea class="form-control notes-textarea" rows="4" [(ngModel)]="noteText"
+                    placeholder="Enter note message"></textarea>
+                <button class="btn btn-add-note" (click)="addNote()">
+                    Add note
+                </button>
+            </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="col-lg-7">
+            <!-- Tracking Link Card -->
+            <div class="content-card tracking-card mb-4">
+                <div class="card-header-row">
+                    <h5 class="card-title mb-0">Tracking Link</h5>
+                    <div class="card-actions">
+                        <button class="btn btn-performance" (click)="viewPerformanceReport()">
+                            <i class="fas fa-chart-line me-1"></i> Performance Report
+                        </button>
+                        <button class="btn btn-manage-links" (click)="manageLinks()">
+                            <i class="fas fa-cog me-1"></i> Manage Links
+                        </button>
+                    </div>
+                </div>
+
+                <select class="form-select campaign-dropdown" [(ngModel)]="selectedCampaign"
+                    (change)="generateTrackingLink()">
+                    <option value="">Choose any Campaign to Generate its tracking Link</option>
+                    <option *ngFor="let campaign of campaigns" [value]="campaign.id">{{campaign.name}}</option>
+                </select>
+
+                <p class="tracking-help">To generate a tracking link, select an affiliate from below. Tracking links
+                    records click for reporting.</p>
+
+                <label class="generated-label">Generated Link</label>
+                <input type="text" class="form-control generated-input" [value]="generatedLink" readonly>
+
+                <div class="tracking-options">
+                    <div class="row">
+                        <div class="col-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" [(ngModel)]="trackingOptions.addSubIds"
+                                    id="addSubIds">
+                                <label class="form-check-label" for="addSubIds">Add SubIds</label>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" [(ngModel)]="trackingOptions.addSource"
+                                    id="addSource">
+                                <label class="form-check-label" for="addSource">Add Source (Sub Publisher)</label>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox"
+                                    [(ngModel)]="trackingOptions.addDeepLink" id="addDeepLink">
+                                <label class="form-check-label" for="addDeepLink">Add DeepLink</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox"
+                                    [(ngModel)]="trackingOptions.impressionPixel" id="impressionPixel">
+                                <label class="form-check-label" for="impressionPixel">Impression Pixel</label>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox"
+                                    [(ngModel)]="trackingOptions.changeTrackingDomain" id="changeTrackingDomain">
+                                <label class="form-check-label" for="changeTrackingDomain">Change Tracking
+                                    Domain</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Card -->
+            <div class="content-card settings-card mb-4">
+                <div class="card-header-row">
+                    <h5 class="card-title mb-0">Settings</h5>
+                    <button class="btn btn-settings-edit" (click)="editSettings()">
+                        <i class="fas fa-edit me-1"></i> Edit
+                    </button>
+                </div>
+
+                <div class="settings-info">
+                    <span class="setting-item">
+                        <span class="setting-label">Currency:</span> <span
+                            class="setting-value">{{publisher.currency}}</span>
+                    </span>
+                    <span class="setting-item">
+                        <span class="setting-label">Email Notifications :</span> <span
+                            class="setting-value-highlight">{{publisher.emailNotifications ? 'Yes' : 'No'}}</span>
+                    </span>
+                    <span class="setting-item">
+                        <span class="setting-label">Locale:</span> <span
+                            class="setting-value">{{publisher.locale}}</span>
+                    </span>
+                </div>
+                <div class="bank-row">
+                    <span class="setting-label">BANK:</span> <a href="#" class="bank-link">Details</a>
+                </div>
+            </div>
+
+            <!-- Account Users Card -->
+            <div class="content-card account-users-card mb-4">
+                <div class="card-header-row">
+                    <h5 class="card-title mb-0">Account Users</h5>
+                    <button class="btn btn-add-user" (click)="addUser()">
+                        <i class="fas fa-plus me-1"></i> Add
+                    </button>
+                </div>
+
+                <div class="empty-state" *ngIf="accountUsers.length === 0">
+                    <div class="empty-icon-box">
+                        <div class="inbox-icon">
+                            <i class="fas fa-inbox"></i>
+                        </div>
+                        <span class="no-data-label">No Data</span>
+                    </div>
+                    <p class="empty-message">No Subaccounts created for the Publisher</p>
+                </div>
+            </div>
+
+            <!-- Private Tracking Domain Card -->
+            <div class="content-card tracking-domain-card">
+                <h5 class="card-title">Private Tracking Domain</h5>
+                <div class="empty-state">
+                    <div class="empty-icon-box">
+                        <div class="inbox-icon">
+                            <i class="fas fa-inbox"></i>
+                        </div>
+                        <span class="no-data-label">No Data</span>
+                    </div>
+                    <p class="empty-message">No private tracking domain configured</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

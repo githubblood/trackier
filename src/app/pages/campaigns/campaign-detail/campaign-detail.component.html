@@ -1,0 +1,499 @@
+<div class="campaign-detail-container">
+    <!-- Breadcrumb Header -->
+    <div class="page-breadcrumb">
+        <a routerLink="/campaigns/manage" class="breadcrumb-link">Campaigns</a>
+        <span class="breadcrumb-separator">&gt;</span>
+        <span class="breadcrumb-current">ID: {{campaign.id}}</span>
+    </div>
+
+    <div class="row g-4">
+        <!-- Left Column -->
+        <div class="col-lg-6">
+            <!-- Details Card -->
+            <div class="content-card details-card mb-4">
+                <div class="card-header-row">
+                    <h5 class="card-title mb-0">Details <span class="title-id">(ID: {{campaign.id}})</span></h5>
+                    <div class="card-actions">
+                        <button class="btn btn-icon-action" (click)="cloneCampaign()" title="Clone">
+                            <i class="fas fa-clone"></i>
+                        </button>
+                        <button class="btn btn-icon-action" (click)="downloadCampaign()" title="Download">
+                            <i class="fas fa-download"></i>
+                        </button>
+                        <button class="btn btn-icon-action" (click)="editCampaign()" title="Edit">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="info-table">
+                    <div class="info-row">
+                        <span class="info-label">Title</span>
+                        <span class="info-value">{{campaign.title}}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Objective</span>
+                        <span class="info-value">{{campaign.objective}}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Visibility</span>
+                        <span class="info-value">{{campaign.visibility}}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Advertiser</span>
+                        <span class="info-value">
+                            <a href="#" class="advertiser-link">(ID: {{campaign.advertiser.id}})
+                                {{campaign.advertiser.name}}</a>
+                        </span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Status</span>
+                        <span class="info-value">
+                            <span class="status-badge status-active">{{campaign.status}}</span>
+                        </span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Currency</span>
+                        <span class="info-value">{{campaign.currency}}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Preview URL</span>
+                        <span class="info-value text-muted">{{campaign.previewUrl || '-'}}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">URL</span>
+                        <span class="info-value url-value">
+                            <a href="{{campaign.url}}" target="_blank" class="url-link">{{campaign.url}}</a>
+                            <button class="btn btn-copy-sm" (click)="copyLink()">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Devices</span>
+                        <span class="info-value">{{campaign.devices}}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">OS</span>
+                        <span class="info-value">{{campaign.os}}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Created</span>
+                        <span class="info-value">{{campaign.created}}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Activated Date</span>
+                        <span class="info-value">{{campaign.activatedDate}}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Unique ID</span>
+                        <span class="info-value hash-value">{{campaign.uniqueId}}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Revenue, Payout and Goals Card -->
+            <div class="content-card payout-card mb-4">
+                <div class="card-header-row">
+                    <div>
+                        <h5 class="card-title mb-1">Revenue, Payout and Goals</h5>
+                        <p class="card-subtitle">This section will help you set up and manage revenue, payouts, goals
+                            and capping overrides. To know more, <a href="#" class="help-link">click here</a> <i
+                                class="fas fa-external-link-alt"></i></p>
+                    </div>
+                    <button class="btn btn-manage-payouts" (click)="managePayoutsAndGoals()">
+                        <i class="fas fa-cog me-1"></i> Manage Payouts & Goals
+                    </button>
+                </div>
+
+                <div class="payout-table-wrapper">
+                    <table class="payout-table">
+                        <thead>
+                            <tr>
+                                <th>GOAL</th>
+                                <th>COUNTRY</th>
+                                <th>REGION</th>
+                                <th>REVENUE</th>
+                                <th>PAYOUT</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let item of payoutGoals">
+                                <td>
+                                    <div class="goal-cell">
+                                        <span class="goal-name">{{item.goal}}</span>
+                                        <span class="goal-id" *ngIf="item.goalId">{{item.goalId}}</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span *ngIf="item.countryCode"
+                                        class="country-flag">{{getFlagEmoji(item.countryCode)}}</span>
+                                    {{item.country}}
+                                </td>
+                                <td>{{item.region}}</td>
+                                <td>{{item.revenue}}</td>
+                                <td>{{item.payout}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Creatives Card -->
+            <div class="content-card creatives-card mb-4">
+                <div class="card-header-row">
+                    <div>
+                        <h5 class="card-title mb-0">Creatives</h5>
+                        <p class="card-subtitle">To know more, <a href="#" class="help-link">click here</a> <i
+                                class="fas fa-external-link-alt"></i></p>
+                    </div>
+                    <div class="card-actions">
+                        <button class="btn btn-download-dark" (click)="downloadCreatives()">
+                            <i class="fas fa-download"></i>
+                        </button>
+                        <button class="btn btn-upload" (click)="uploadCreative()">
+                            <i class="fas fa-upload"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="empty-state">
+                    <div class="empty-icon-box">
+                        <div class="inbox-icon">
+                            <i class="fas fa-inbox"></i>
+                        </div>
+                        <span class="no-data-label">No Data</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notes Card -->
+            <div class="content-card notes-card">
+                <h5 class="card-title">Notes</h5>
+
+                <!-- Rich Text Editor Toolbar -->
+                <div class="editor-toolbar">
+                    <div class="toolbar-group">
+                        <button class="toolbar-btn" title="Magic"><i class="fas fa-magic"></i></button>
+                    </div>
+                    <div class="toolbar-group">
+                        <button class="toolbar-btn" title="Bold"><i class="fas fa-bold"></i></button>
+                        <button class="toolbar-btn" title="Italic"><i class="fas fa-italic"></i></button>
+                        <button class="toolbar-btn" title="Underline"><i class="fas fa-underline"></i></button>
+                    </div>
+                    <div class="toolbar-group">
+                        <select class="toolbar-select font-family">
+                            <option>Fira Sans</option>
+                            <option>Arial</option>
+                            <option>Roboto</option>
+                        </select>
+                    </div>
+                    <div class="toolbar-group">
+                        <select class="toolbar-select font-size">
+                            <option>15</option>
+                            <option>12</option>
+                            <option>14</option>
+                            <option>16</option>
+                            <option>18</option>
+                        </select>
+                    </div>
+                    <div class="toolbar-group">
+                        <button class="toolbar-btn" title="Text Color"><i class="fas fa-font"></i> <span
+                                class="color-indicator"></span></button>
+                    </div>
+                    <div class="toolbar-group">
+                        <button class="toolbar-btn" title="Unordered List"><i class="fas fa-list-ul"></i></button>
+                        <button class="toolbar-btn" title="Ordered List"><i class="fas fa-list-ol"></i></button>
+                        <button class="toolbar-btn" title="Paragraph"><i class="fas fa-paragraph"></i></button>
+                    </div>
+                    <div class="toolbar-group">
+                        <button class="toolbar-btn" title="Table"><i class="fas fa-table"></i></button>
+                    </div>
+                    <div class="toolbar-group">
+                        <button class="toolbar-btn" title="Link"><i class="fas fa-link"></i></button>
+                        <button class="toolbar-btn" title="Image"><i class="fas fa-image"></i></button>
+                        <button class="toolbar-btn" title="Video"><i class="fas fa-video"></i></button>
+                    </div>
+                    <div class="toolbar-group">
+                        <button class="toolbar-btn" title="Code"><i class="fas fa-code"></i></button>
+                        <button class="toolbar-btn" title="Help"><i class="fas fa-question-circle"></i></button>
+                    </div>
+                </div>
+
+                <textarea class="form-control notes-textarea" rows="5" [(ngModel)]="noteText"
+                    placeholder="Enter note message"></textarea>
+
+                <button class="btn btn-add-note" (click)="addNote()">
+                    Add note
+                </button>
+            </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="col-lg-6">
+            <!-- Tracking Link Card -->
+            <div class="content-card tracking-card mb-4">
+                <div class="card-header-row">
+                    <div>
+                        <h5 class="card-title mb-0">Tracking Link</h5>
+                        <p class="card-subtitle">To know more, <a href="#" class="help-link">click here</a> <i
+                                class="fas fa-external-link-alt"></i></p>
+                    </div>
+                    <div class="card-actions">
+                        <button class="btn btn-report" (click)="viewReport()">
+                            <i class="fas fa-chart-line me-1"></i> Report
+                        </button>
+                        <button class="btn btn-manage-links" (click)="manageLinks()">
+                            <i class="fas fa-cog me-1"></i> Manage Links
+                        </button>
+                    </div>
+                </div>
+
+                <select class="form-select publisher-dropdown" [(ngModel)]="selectedPublisher"
+                    (change)="generateTrackingLink()">
+                    <option value="">Choose any publisher to Generate Its tracking Link</option>
+                    <option *ngFor="let pub of publishers" [value]="pub.id">{{pub.name}}</option>
+                </select>
+
+                <p class="tracking-help">To generate a tracking link, select an affiliate from below. Tracking links
+                    records click for reporting.</p>
+
+                <label class="generated-label">Generated Link</label>
+                <div class="generated-input-wrapper">
+                    <input type="text" class="form-control generated-input" [value]="generatedLink" readonly>
+                    <button class="btn btn-copy" (click)="copyLink()">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+
+                <div class="tracking-options">
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox"
+                                    [(ngModel)]="trackingOptions.addTrackingParam" id="addTrackingParam">
+                                <label class="form-check-label" for="addTrackingParam">Add Tracking Param</label>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" [(ngModel)]="trackingOptions.addSource"
+                                    id="addSource">
+                                <label class="form-check-label" for="addSource">Add Source (Sub Publisher)</label>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox"
+                                    [(ngModel)]="trackingOptions.changeTrackingDomain" id="changeTrackingDomain">
+                                <label class="form-check-label" for="changeTrackingDomain">Change Tracking
+                                    Domain</label>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox"
+                                    [(ngModel)]="trackingOptions.addDeepLink" id="addDeepLink">
+                                <label class="form-check-label" for="addDeepLink">Add DeepLink</label>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox"
+                                    [(ngModel)]="trackingOptions.googleAdsLink" id="googleAdsLink">
+                                <label class="form-check-label" for="googleAdsLink">Google Ads Link</label>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox"
+                                    [(ngModel)]="trackingOptions.generateShortLink" id="generateShortLink">
+                                <label class="form-check-label" for="generateShortLink">Generate Short Link</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Performance Report Card -->
+            <div class="content-card performance-card mb-4">
+                <div class="card-header-row">
+                    <h5 class="card-title mb-0">PERFORMANCE REPORT</h5>
+                    <div class="performance-controls">
+                        <select class="form-select filter-select">
+                            <option>ALL</option>
+                        </select>
+                        <input type="text" class="form-control date-range" value="2026-01-08 - 2026-01-15">
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <div class="chart-placeholder">
+                        <div class="chart-line"></div>
+                        <div class="chart-bars">
+                            <div class="chart-bar" style="height: 20%"></div>
+                            <div class="chart-bar" style="height: 15%"></div>
+                            <div class="chart-bar" style="height: 25%"></div>
+                            <div class="chart-bar" style="height: 30%"></div>
+                            <div class="chart-bar" style="height: 100%"></div>
+                            <div class="chart-bar" style="height: 80%"></div>
+                            <div class="chart-bar" style="height: 50%"></div>
+                            <div class="chart-bar" style="height: 40%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="chart-legend">
+                    <span class="legend-item"><span class="legend-dot clicks"></span> Clicks
+                        ({{performanceData.metrics.clicks}})</span>
+                    <span class="legend-item"><span class="legend-dot revenue"></span> Revenue
+                        ({{performanceData.metrics.revenue}})</span>
+                    <span class="legend-item"><span class="legend-dot conversions"></span> Conversions
+                        ({{performanceData.metrics.conversions}})</span>
+                    <span class="legend-item"><span class="legend-dot payout"></span> Payout
+                        ({{performanceData.metrics.payout}})</span>
+                    <span class="legend-item"><span class="legend-dot profit"></span> Profit
+                        ({{performanceData.metrics.profit}})</span>
+                    <span class="legend-item"><span class="legend-dot impressions"></span> Impressions
+                        ({{performanceData.metrics.impressions}})</span>
+                </div>
+            </div>
+
+            <!-- Targeting Card -->
+            <div class="content-card targeting-card mb-4">
+                <div class="card-header-row">
+                    <div>
+                        <h5 class="card-title mb-0">Targeting</h5>
+                        <p class="card-subtitle">To know more, <a href="#" class="help-link">click here</a> <i
+                                class="fas fa-external-link-alt"></i></p>
+                    </div>
+                    <button class="btn btn-edit-sm" (click)="editTargeting()">
+                        <i class="fas fa-edit me-1"></i> Edit
+                    </button>
+                </div>
+
+                <p class="targeting-info"><strong>Advanced Rules:</strong> {{targeting.advancedRules}}</p>
+            </div>
+
+            <!-- Settings Card -->
+            <div class="content-card settings-card mb-4">
+                <div class="card-header-row">
+                    <div>
+                        <h5 class="card-title mb-0">Settings</h5>
+                        <p class="card-subtitle">To know more, <a href="#" class="help-link">click here</a> <i
+                                class="fas fa-external-link-alt"></i></p>
+                    </div>
+                    <button class="btn btn-edit-sm" (click)="editSettings()">
+                        <i class="fas fa-edit me-1"></i> Edit
+                    </button>
+                </div>
+
+                <div class="settings-info">
+                    <p><strong>Global CAP:</strong> Type: {{settings.globalCap.type}} | Daily:
+                        {{settings.globalCap.daily}}</p>
+                    <p><strong>Impression Tracking:</strong> {{settings.impressionTracking}}</p>
+                    <p><strong>Attribution Window:</strong> {{settings.attributionWindow}}</p>
+                </div>
+            </div>
+
+            <!-- Conversion Tracking Card -->
+            <div class="content-card conversion-card mb-4">
+                <div class="card-header-row">
+                    <div>
+                        <h5 class="card-title mb-0">Conversion Tracking</h5>
+                        <p class="card-subtitle">To know more, <a href="#" class="help-link">click here</a> <i
+                                class="fas fa-external-link-alt"></i></p>
+                    </div>
+                    <span class="tracking-param-badge">Tracking Param</span>
+                </div>
+
+                <select class="form-select postback-dropdown" [(ngModel)]="selectedPostbackType">
+                    <option>Campaign Advertiser Global Postback</option>
+                    <option>Custom Postback</option>
+                </select>
+
+                <label class="generated-label">Generated Postback</label>
+                <div class="generated-input-wrapper">
+                    <input type="text" class="form-control generated-input" [value]="generatedPostback" readonly>
+                    <button class="btn btn-copy" (click)="copyPostback()">
+                        <i class="fas fa-copy"></i>
+                    </button>
+                </div>
+
+                <div class="postback-options">
+                    <div class="row g-2">
+                        <div class="col-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" [(ngModel)]="postbackOptions.passMacros"
+                                    id="passMacros">
+                                <label class="form-check-label" for="passMacros">Pass Macros</label>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" [(ngModel)]="postbackOptions.coupon"
+                                    id="coupon">
+                                <label class="form-check-label" for="coupon">Coupon</label>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" [(ngModel)]="postbackOptions.orderId"
+                                    id="orderId">
+                                <label class="form-check-label" for="orderId">Order ID</label>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" [(ngModel)]="postbackOptions.productSku"
+                                    id="productSku">
+                                <label class="form-check-label" for="productSku">Product SKU</label>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox"
+                                    [(ngModel)]="postbackOptions.addGoalValue" id="addGoalValue">
+                                <label class="form-check-label" for="addGoalValue">Add Goal Value</label>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" [(ngModel)]="postbackOptions.addGoalId"
+                                    id="addGoalId">
+                                <label class="form-check-label" for="addGoalId">Add Goal ID</label>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox"
+                                    [(ngModel)]="postbackOptions.changeDomain" id="changeDomain">
+                                <label class="form-check-label" for="changeDomain">Change Domain</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <select class="form-select goal-value-dropdown" [(ngModel)]="selectedGoalValue">
+                    <option value="">Select Goal Value</option>
+                </select>
+            </div>
+
+            <!-- Block Publishers Card -->
+            <div class="content-card block-publishers-card">
+                <h5 class="card-title">Block Publishers</h5>
+
+                <label class="input-label">Select Publishers</label>
+                <input type="text" class="form-control publisher-search" placeholder="Search and select publishers...">
+
+                <p class="block-note"><strong>Note:</strong> Publishers added to this block list will no longer be able
+                    to see the campaign on their panel or API. No Traffic will be allowed from these publishers on this
+                    campaign.</p>
+
+                <button class="btn btn-save" (click)="saveBlockedPublishers()">
+                    Save
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

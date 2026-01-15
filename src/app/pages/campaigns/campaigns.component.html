@@ -1,21 +1,386 @@
 <div class="d-flex justify-content-between align-items-center mb-3">
-    <h4 class="fw-bold m-0" style="color: #444; font-size: 18px;">Manage Campaigns</h4>
+    <h4 class="fw-medium m-0" style="color: #444; font-size: 18px;">Manage Campaigns</h4>
     <div>
-        <button class="btn btn-primary btn-sm me-2"><i class="fas fa-plus me-1"></i> New Campaign</button>
-        <button class="btn btn-outline-secondary btn-sm"><i class="fas fa-filter me-1"></i> Filter</button>
+        <button class="btn btn-primary btn-sm me-2" routerLink="/campaigns/create"><i class="fas fa-plus me-1"></i> New
+            Campaign</button>
+        <button class="btn btn-outline-secondary btn-sm" (click)="toggleFilterPanel()">
+            <i class="fas fa-filter me-1"></i> Filter
+        </button>
+    </div>
+</div>
+
+<!-- Filter Panel Overlay -->
+<div class="filter-overlay" *ngIf="showFilterPanel" (click)="closeFilterPanel()"></div>
+
+<!-- Filter Panel Sidebar -->
+<div class="filter-panel" [class.show]="showFilterPanel">
+    <div class="filter-panel-header">
+        <button class="btn btn-sm btn-dark rounded-0" (click)="closeFilterPanel()">
+            <i class="fas fa-times"></i>
+        </button>
+        <h5 class="mb-0 ms-3"><i class="fas fa-filter me-2"></i> Search Campaign</h5>
+        <div class="ms-auto">
+            <label class="form-check-label small me-2">
+                <input type="checkbox" class="form-check-input me-1" [(ngModel)]="filters.addDateRange">
+                Add Date Range
+            </label>
+        </div>
+    </div>
+
+    <div class="filter-panel-body">
+        <!-- Row 1: Campaign ID, Title, Category -->
+        <div class="row g-3 mb-3">
+            <div class="col-md-4">
+                <label class="form-label small text-muted">Campaign ID</label>
+                <input type="text" class="form-control form-control-sm" placeholder="Enter campaign id"
+                    [(ngModel)]="filters.campaignId">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label small text-muted">Title</label>
+                <input type="text" class="form-control form-control-sm" placeholder="Enter campaign Title"
+                    [(ngModel)]="filters.title">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label small text-muted">Category</label>
+                <input type="text" class="form-control form-control-sm" placeholder="" [(ngModel)]="filters.category">
+            </div>
+        </div>
+
+        <!-- Row 2: Advertiser, Advertiser Manager, Objective -->
+        <div class="row g-3 mb-3">
+            <div class="col-md-4">
+                <label class="form-label small text-muted">Advertiser</label>
+                <select class="form-select form-select-sm" [(ngModel)]="filters.advertiser">
+                    <option value="">Select Advertiser</option>
+                    <option value="App Company">App Company</option>
+                    <option value="AdNet">AdNet</option>
+                    <option value="SoftInc">SoftInc</option>
+                    <option value="BetKing">BetKing</option>
+                    <option value="DateMe">DateMe</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label small text-muted">Advertiser Manager</label>
+                <select class="form-select form-select-sm" [(ngModel)]="filters.advertiserManager">
+                    <option value="">Select Advertiser Manager</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label small text-muted">Objective</label>
+                <input type="text" class="form-control form-control-sm" placeholder="Objective"
+                    [(ngModel)]="filters.objective">
+            </div>
+        </div>
+
+        <!-- Row 3: Status, Geo, Visibility -->
+        <div class="row g-3 mb-3">
+            <div class="col-md-4">
+                <label class="form-label small text-muted">Status</label>
+                <select class="form-select form-select-sm" [(ngModel)]="filters.status">
+                    <option value="">Select Campaign Status</option>
+                    <option value="Active">Active</option>
+                    <option value="Paused">Paused</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Disabled">Disabled</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label small text-muted">Geo</label>
+                <select class="form-select form-select-sm" [(ngModel)]="filters.geo">
+                    <option value="">Select GEO/Country</option>
+                    <option value="US">US</option>
+                    <option value="GB">GB</option>
+                    <option value="DE">DE</option>
+                    <option value="CA">CA</option>
+                    <option value="Global">Global</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label small text-muted">Visibility</label>
+                <select class="form-select form-select-sm" [(ngModel)]="filters.visibility">
+                    <option value="">Campaign visibility</option>
+                    <option value="Public">Public</option>
+                    <option value="Private">Private</option>
+                    <option value="Permission Required">Permission Required</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Row 4: Device, App ID/Package Name, App Name -->
+        <div class="row g-3 mb-3">
+            <div class="col-md-4">
+                <label class="form-label small text-muted">Device</label>
+                <select class="form-select form-select-sm" [(ngModel)]="filters.device">
+                    <option value="">Select Device Type</option>
+                    <option value="Mobile">Mobile</option>
+                    <option value="Desktop">Desktop</option>
+                    <option value="Tablet">Tablet</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label small text-muted">App ID/Package Name</label>
+                <input type="text" class="form-control form-control-sm" placeholder="Enter App ID/Package !"
+                    [(ngModel)]="filters.appIdPackageName">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label small text-muted">App Name</label>
+                <input type="text" class="form-control form-control-sm" placeholder="Enter App Name"
+                    [(ngModel)]="filters.appName">
+            </div>
+        </div>
+
+        <!-- Row 5: External Offer ID, Min Payout, Max Payout -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <label class="form-label small text-muted">External Offer ID <i
+                        class="fas fa-info-circle text-muted"></i></label>
+                <input type="text" class="form-control form-control-sm" [(ngModel)]="filters.externalOfferId">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label small text-muted">Min Payout</label>
+                <input type="text" class="form-control form-control-sm" placeholder="Enter min payout in INR"
+                    [(ngModel)]="filters.minPayout">
+            </div>
+            <div class="col-md-4">
+                <label class="form-label small text-muted">Max Payout</label>
+                <input type="text" class="form-control form-control-sm" placeholder="Enter max payout in INR"
+                    [(ngModel)]="filters.maxPayout">
+            </div>
+        </div>
+
+        <!-- Columns Section -->
+        <div class="mb-3">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <label class="form-label small text-muted mb-0">Columns</label>
+                <div class="d-flex gap-2">
+                    <div class="input-group input-group-sm" style="width: 200px;">
+                        <input type="text" class="form-control" placeholder="Search" [(ngModel)]="columnSearch">
+                    </div>
+                    <button class="btn btn-outline-secondary btn-sm" (click)="clearColumns()">
+                        <i class="fas fa-eraser me-1"></i> Clear
+                    </button>
+                    <button class="btn btn-primary btn-sm" (click)="selectAllColumns()">
+                        <i class="fas fa-check-double me-1"></i> Select All
+                    </button>
+                </div>
+            </div>
+
+            <div class="columns-grid">
+                <div class="row g-2">
+                    <div class="col-3">
+                        <label class="form-check">
+                            <input type="checkbox" class="form-check-input" [(ngModel)]="columns.id"> ID
+                        </label>
+                    </div>
+                    <div class="col-3">
+                        <label class="form-check">
+                            <input type="checkbox" class="form-check-input" [(ngModel)]="columns.title"> Title
+                        </label>
+                    </div>
+                    <div class="col-3">
+                        <label class="form-check">
+                            <input type="checkbox" class="form-check-input" [(ngModel)]="columns.status"> Status
+                        </label>
+                    </div>
+                    <div class="col-3">
+                        <label class="form-check">
+                            <input type="checkbox" class="form-check-input" [(ngModel)]="columns.advertiserId">
+                            Advertiser ID
+                        </label>
+                    </div>
+                    <div class="col-3">
+                        <label class="form-check">
+                            <input type="checkbox" class="form-check-input" [(ngModel)]="columns.advertiser"> Advertiser
+                        </label>
+                    </div>
+                    <div class="col-3">
+                        <label class="form-check">
+                            <input type="checkbox" class="form-check-input" [(ngModel)]="columns.category"> Category
+                        </label>
+                    </div>
+                    <div class="col-3">
+                        <label class="form-check">
+                            <input type="checkbox" class="form-check-input" [(ngModel)]="columns.visibility"> Visibility
+                        </label>
+                    </div>
+                    <div class="col-3">
+                        <label class="form-check">
+                            <input type="checkbox" class="form-check-input" [(ngModel)]="columns.assignedPubs"> Assigned
+                            Pubs
+                        </label>
+                    </div>
+                    <div class="col-3">
+                        <label class="form-check">
+                            <input type="checkbox" class="form-check-input" [(ngModel)]="columns.objective"> Objective
+                        </label>
+                    </div>
+                    <div class="col-3">
+                        <label class="form-check">
+                            <input type="checkbox" class="form-check-input" [(ngModel)]="columns.geo"> Geo
+                        </label>
+                    </div>
+                    <div class="col-3">
+                        <label class="form-check">
+                            <input type="checkbox" class="form-check-input" [(ngModel)]="columns.payout"> Payout
+                        </label>
+                    </div>
+                    <div class="col-3">
+                        <label class="form-check">
+                            <input type="checkbox" class="form-check-input" [(ngModel)]="columns.revenue"> Revenue
+                        </label>
+                    </div>
+                    <div class="col-3">
+                        <label class="form-check">
+                            <input type="checkbox" class="form-check-input" [(ngModel)]="columns.externalOfferId">
+                            External Offer ID
+                        </label>
+                    </div>
+                    <div class="col-3">
+                        <label class="form-check">
+                            <input type="checkbox" class="form-check-input" [(ngModel)]="columns.device"> Device
+                        </label>
+                    </div>
+                    <div class="col-3">
+                        <label class="form-check">
+                            <input type="checkbox" class="form-check-input" [(ngModel)]="columns.operatingSystem">
+                            Operating System
+                        </label>
+                    </div>
+                    <div class="col-3">
+                        <label class="form-check">
+                            <input type="checkbox" class="form-check-input" [(ngModel)]="columns.dailyConversionCap">
+                            Daily Conversion CAP
+                        </label>
+                    </div>
+                    <div class="col-3">
+                        <label class="form-check">
+                            <input type="checkbox" class="form-check-input" [(ngModel)]="columns.appIdBundleId"> App
+                            ID/Bundle ID
+                        </label>
+                    </div>
+                    <div class="col-3">
+                        <label class="form-check">
+                            <input type="checkbox" class="form-check-input" [(ngModel)]="columns.appName"> App name
+                        </label>
+                    </div>
+                    <div class="col-3">
+                        <label class="form-check">
+                            <input type="checkbox" class="form-check-input" [(ngModel)]="columns.primaryTrackingDomain">
+                            Primary Tracking Domain
+                        </label>
+                    </div>
+                    <div class="col-3">
+                        <label class="form-check">
+                            <input type="checkbox" class="form-check-input" [(ngModel)]="columns.trackingMethod">
+                            Tracking Method
+                        </label>
+                    </div>
+                    <div class="col-3">
+                        <label class="form-check">
+                            <input type="checkbox" class="form-check-input"
+                                [(ngModel)]="columns.conversionTrackingDomain"> Conversion Tracking Domain
+                        </label>
+                    </div>
+                    <div class="col-3">
+                        <label class="form-check">
+                            <input type="checkbox" class="form-check-input" [(ngModel)]="columns.expiryDate"> Expiry
+                            Date
+                        </label>
+                    </div>
+                    <div class="col-3">
+                        <label class="form-check">
+                            <input type="checkbox" class="form-check-input" [(ngModel)]="columns.todayConversion"> Today
+                            Conversion
+                        </label>
+                    </div>
+                    <div class="col-3">
+                        <label class="form-check">
+                            <input type="checkbox" class="form-check-input" [(ngModel)]="columns.blockedPublisher">
+                            Blocked Publisher
+                        </label>
+                    </div>
+                    <div class="col-3">
+                        <label class="form-check">
+                            <input type="checkbox" class="form-check-input" [(ngModel)]="columns.createdDate"> Created
+                            Date
+                        </label>
+                    </div>
+                    <div class="col-3">
+                        <label class="form-check">
+                            <input type="checkbox" class="form-check-input" [(ngModel)]="columns.redirectType"> Redirect
+                            Type
+                        </label>
+                    </div>
+                    <div class="col-3">
+                        <label class="form-check">
+                            <input type="checkbox" class="form-check-input"
+                                [(ngModel)]="columns.trackMultipleConversions"> Track Multiple Conversions
+                        </label>
+                    </div>
+                    <div class="col-3">
+                        <label class="form-check">
+                            <input type="checkbox" class="form-check-input" [(ngModel)]="columns.tags"> Tags
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-3">
+                <label class="form-check">
+                    <input type="checkbox" class="form-check-input" [(ngModel)]="onlyExportSelectedField">
+                    Only Export Selected Field
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <div class="filter-panel-footer">
+        <button class="btn btn-info btn-sm text-white" (click)="applyFilters()">
+            <i class="fas fa-search me-1"></i> Search
+        </button>
+        <button class="btn btn-success btn-sm" (click)="exportFiltered()">
+            <i class="fas fa-file-export me-1"></i> Export
+        </button>
+        <button class="btn btn-outline-secondary btn-sm" (click)="closeFilterPanel()">
+            Close
+        </button>
     </div>
 </div>
 
 <div class="card">
     <div class="card-body" style="padding: 20px 24px;">
-        <div class="row mb-3">
-            <div class="col-md-6">
+        <!-- Bulk Action and Search Row -->
+        <div class="row mb-3 align-items-center">
+            <div class="col-md-6 d-flex align-items-center gap-3">
+                <!-- Bulk Action Dropdown -->
+                <div class="dropdown">
+                    <button class="btn btn-info btn-sm dropdown-toggle text-white" type="button" id="bulkActionDropdown"
+                        data-bs-toggle="dropdown" aria-expanded="false"
+                        style="background-color: #17a2b8; border-color: #17a2b8;">
+                        <i class="fas fa-cog me-1"></i> Bulk Action
+                    </button>
+                    <ul class="dropdown-menu shadow-sm" aria-labelledby="bulkActionDropdown"
+                        style="min-width: 250px; max-height: 400px; overflow-y: auto;">
+                        <li *ngFor="let action of bulkActions">
+                            <a class="dropdown-item py-2" href="javascript:void(0)"
+                                (click)="executeBulkAction(action.action)">
+                                <i class="fas {{action.icon}} me-2 text-muted" style="width: 16px;"></i>
+                                {{action.label}}
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Search -->
                 <div class="input-group input-group-sm" style="max-width: 300px;">
                     <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
                     <input type="text" class="form-control" placeholder="Search campaigns...">
                 </div>
             </div>
             <div class="col-md-6 text-end">
+                <span class="text-muted small me-3" *ngIf="getSelectedCount() > 0">
+                    {{getSelectedCount()}} selected
+                </span>
                 <button class="btn btn-light btn-sm border me-1"><i class="fas fa-file-csv me-1"></i> CSV</button>
                 <button class="btn btn-light btn-sm border"><i class="fas fa-file-excel me-1"></i> Excel</button>
             </div>
@@ -25,7 +390,10 @@
             <table class="table table-hover align-middle mb-0">
                 <thead>
                     <tr>
-                        <th scope="col" style="width: 40px;"><input type="checkbox" class="form-check-input"></th>
+                        <th scope="col" style="width: 40px;">
+                            <input type="checkbox" class="form-check-input" [checked]="selectAll"
+                                (change)="toggleSelectAll()">
+                        </th>
                         <th scope="col">ID</th>
                         <th scope="col">Status</th>
                         <th scope="col" style="min-width: 200px;">Title</th>
@@ -38,11 +406,14 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr *ngFor="let c of campaigns">
-                        <td><input type="checkbox" class="form-check-input"></td>
-                        <td class="fw-bold text-muted">{{c.id}}</td>
+                    <tr *ngFor="let c of campaigns" [class.table-active]="c.selected">
+                        <td>
+                            <input type="checkbox" class="form-check-input" [(ngModel)]="c.selected">
+                        </td>
+                        <td class="fw-medium text-muted">{{c.id}}</td>
                         <td><span [ngClass]="getStatusClass(c.status)">{{c.status}}</span></td>
-                        <td><a href="#" class="text-decoration-none fw-bold" style="color: #138fc2;">{{c.name}}</a></td>
+                        <td><a href="#" class="text-decoration-none fw-medium" style="color: #138fc2;">{{c.name}}</a>
+                        </td>
                         <td>{{c.advertiser}}</td>
                         <td>{{c.geo}}</td>
                         <td>{{c.payout}}</td>
@@ -58,7 +429,7 @@
         </div>
 
         <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
-            <small class="text-muted">Showing 5 of 5 entries</small>
+            <small class="text-muted">Showing {{campaigns.length}} of {{campaigns.length}} entries</small>
             <nav>
                 <ul class="pagination pagination-sm m-0">
                     <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>

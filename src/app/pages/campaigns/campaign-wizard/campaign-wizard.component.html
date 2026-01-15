@@ -1,0 +1,790 @@
+<div class="wizard-container">
+    <!-- Left Sidebar - Steps -->
+    <div class="wizard-sidebar">
+        <div class="step-item" *ngFor="let step of steps" [class.active]="currentStep === step.number"
+            [class.completed]="currentStep > step.number" (click)="goToStep(step.number)">
+            <div class="step-number">{{step.number}}.</div>
+            <div class="step-info">
+                <div class="step-title">{{step.title}}</div>
+                <div class="step-subtitle">{{step.subtitle}}</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="wizard-content">
+        <!-- Step 1: Basic Information -->
+        <div class="step-content" *ngIf="currentStep === 1">
+            <div class="step-header">
+                <h4>Setup Campaign</h4>
+                <a href="#" class="text-info small">To know more, click here <i
+                        class="fas fa-external-link-alt"></i></a>
+            </div>
+
+            <div class="form-section">
+                <!-- Advertiser -->
+                <div class="row mb-4 align-items-center">
+                    <div class="col-md-3">
+                        <label class="form-label mb-0">Advertiser <span class="text-danger">*</span></label>
+                    </div>
+                    <div class="col-md-9">
+                        <select class="form-select" [(ngModel)]="basicInfo.advertiser">
+                            <option value="">Select Advertiser</option>
+                            <option *ngFor="let adv of advertisers" [value]="adv.id">(ID: {{adv.id}}) {{adv.name}}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Title -->
+                <div class="row mb-4 align-items-center">
+                    <div class="col-md-3">
+                        <label class="form-label mb-0">Title <span class="text-danger">*</span></label>
+                    </div>
+                    <div class="col-md-9">
+                        <input type="text" class="form-control" [(ngModel)]="basicInfo.title"
+                            placeholder="Enter campaign title">
+                    </div>
+                </div>
+
+                <!-- Description -->
+                <div class="row mb-4 align-items-start">
+                    <div class="col-md-3">
+                        <label class="form-label mb-0">Description</label>
+                    </div>
+                    <div class="col-md-9">
+                        <div class="rich-text-editor">
+                            <div class="editor-toolbar">
+                                <button type="button" class="toolbar-btn"><b>B</b></button>
+                                <button type="button" class="toolbar-btn"><u>U</u></button>
+                                <select class="toolbar-select">
+                                    <option>Fira Sans</option>
+                                </select>
+                                <button type="button" class="toolbar-btn"><i class="fas fa-list-ul"></i></button>
+                                <button type="button" class="toolbar-btn"><i class="fas fa-list-ol"></i></button>
+                                <button type="button" class="toolbar-btn"><i class="fas fa-image"></i></button>
+                            </div>
+                            <div class="editor-content" contenteditable="true"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- KPI -->
+                <div class="row mb-4 align-items-start">
+                    <div class="col-md-3">
+                        <label class="form-label mb-0">KPI</label>
+                    </div>
+                    <div class="col-md-9">
+                        <div class="rich-text-editor">
+                            <div class="editor-toolbar">
+                                <button type="button" class="toolbar-btn"><b>B</b></button>
+                                <button type="button" class="toolbar-btn"><u>U</u></button>
+                                <select class="toolbar-select">
+                                    <option>Fira Sans</option>
+                                </select>
+                            </div>
+                            <div class="editor-content" contenteditable="true"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Preview URL -->
+                <div class="row mb-4 align-items-center">
+                    <div class="col-md-3">
+                        <label class="form-label mb-0">Preview URL</label>
+                    </div>
+                    <div class="col-md-9">
+                        <input type="url" class="form-control" [(ngModel)]="basicInfo.previewUrl"
+                            placeholder="https://example.com/landing">
+                    </div>
+                </div>
+
+                <!-- Conversion Tracking -->
+                <div class="row mb-4 align-items-center">
+                    <div class="col-md-3">
+                        <label class="form-label mb-0">Conversion Tracking <span class="text-danger">*</span></label>
+                    </div>
+                    <div class="col-md-9">
+                        <select class="form-select" [(ngModel)]="basicInfo.conversionTracking">
+                            <option *ngFor="let opt of conversionTrackingOptions" [value]="opt.value">{{opt.label}}
+                            </option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Default Campaign URL -->
+                <div class="row mb-4 align-items-start">
+                    <div class="col-md-3">
+                        <label class="form-label mb-0">Default Campaign URL <span class="text-danger">*</span></label>
+                    </div>
+                    <div class="col-md-9">
+                        <textarea class="form-control" rows="3" [(ngModel)]="basicInfo.defaultCampaignUrl"
+                            placeholder="https://example.com?click_id={click_id}"></textarea>
+                        <div class="mt-2">
+                            <small class="text-muted me-2">Most Used URL Tokens:</small>
+                            <button *ngFor="let token of urlTokens" type="button"
+                                class="btn btn-outline-secondary btn-sm me-1 mb-1"
+                                (click)="addToken(token)">{{token}}</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Status -->
+                <div class="row mb-4 align-items-center">
+                    <div class="col-md-3">
+                        <label class="form-label mb-0">Status</label>
+                    </div>
+                    <div class="col-md-9">
+                        <select class="form-select" [(ngModel)]="basicInfo.status">
+                            <option *ngFor="let status of statusOptions" [value]="status">{{status}}</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Devices & OS -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <label class="form-label mb-0">Targeting Quick Fields</label>
+                    </div>
+                    <div class="col-md-9">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <label class="form-label small">Devices</label>
+                                <select class="form-select form-select-sm" multiple [(ngModel)]="basicInfo.devices">
+                                    <option *ngFor="let device of deviceOptions" [value]="device">{{device}}</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small">Operating System</label>
+                                <select class="form-select form-select-sm" [(ngModel)]="basicInfo.operatingSystem">
+                                    <option *ngFor="let os of osOptions" [value]="os">{{os}}</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small">Category</label>
+                                <input type="text" class="form-control form-control-sm" [(ngModel)]="basicInfo.category"
+                                    placeholder="Enter category">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Optional Identifiers -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <label class="form-label mb-0">Optional Identifiers</label>
+                    </div>
+                    <div class="col-md-9">
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label small">External Offer ID</label>
+                                <input type="text" class="form-control form-control-sm"
+                                    [(ngModel)]="basicInfo.externalOfferId">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small">APP Name</label>
+                                <input type="text" class="form-control form-control-sm" [(ngModel)]="basicInfo.appName">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label class="form-label small">APP ID</label>
+                                <input type="text" class="form-control form-control-sm" [(ngModel)]="basicInfo.appId">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small">Default Landing Page Name</label>
+                                <input type="text" class="form-control form-control-sm"
+                                    [(ngModel)]="basicInfo.defaultLandingPageName" placeholder="Default">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Thumbnail -->
+                <div class="row mb-4 align-items-center">
+                    <div class="col-md-3">
+                        <label class="form-label mb-0">Thumbnail</label>
+                    </div>
+                    <div class="col-md-9">
+                        <input type="file" class="form-control" (change)="onThumbnailChange($event)" accept="image/*">
+                    </div>
+                </div>
+
+                <!-- Note -->
+                <div class="row mb-4 align-items-start">
+                    <div class="col-md-3">
+                        <label class="form-label mb-0">Note</label>
+                    </div>
+                    <div class="col-md-9">
+                        <textarea class="form-control" rows="3" [(ngModel)]="basicInfo.note"
+                            placeholder="Internal notes (not visible to advertisers or publishers)"></textarea>
+                        <small class="text-muted">This note will not be displayed to advertiser or publisher</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 2: Revenue, Payout & Goals -->
+        <div class="step-content" *ngIf="currentStep === 2">
+            <div class="step-header">
+                <h4>Setup Revenue, Payout & Goal</h4>
+                <a href="#" class="text-info small">To know more, click here <i
+                        class="fas fa-external-link-alt"></i></a>
+            </div>
+
+            <div class="form-section">
+                <!-- Choose Objective -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <label class="form-label mb-0">Choose Objective</label>
+                    </div>
+                    <div class="col-md-9">
+                        <div class="d-flex flex-wrap gap-2">
+                            <div *ngFor="let obj of objectives" class="objective-option"
+                                [class.selected]="revenuePayoutGoals.objective === obj.id"
+                                (click)="revenuePayoutGoals.objective = obj.id">
+                                <i class="fas {{obj.icon}} me-2"></i>
+                                <span>{{obj.label}}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Currency -->
+                <div class="row mb-4 align-items-center">
+                    <div class="col-md-3">
+                        <label class="form-label mb-0">Currency</label>
+                    </div>
+                    <div class="col-md-9">
+                        <select class="form-select" style="width: 150px;" [(ngModel)]="revenuePayoutGoals.currency">
+                            <option *ngFor="let curr of currencies" [value]="curr">{{curr}}</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Default Goal Name -->
+                <div class="row mb-4 align-items-center">
+                    <div class="col-md-3">
+                        <label class="form-label mb-0">Default Goal Name</label>
+                    </div>
+                    <div class="col-md-9">
+                        <input type="text" class="form-control" style="width: 300px;"
+                            [(ngModel)]="revenuePayoutGoals.defaultGoalName" placeholder="Default">
+                    </div>
+                </div>
+
+                <!-- Revenue & Payout Grid -->
+                <div class="revenue-payout-section">
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Geo Coverage <span class="text-danger">*</span></label>
+                            <select class="form-select" multiple [(ngModel)]="revenuePayoutGoals.geoCoverage"
+                                style="height: 80px;">
+                                <option *ngFor="let country of countries" [value]="country.code">{{country.code}} -
+                                    {{country.name}}</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Revenue <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text">{{revenuePayoutGoals.currency}}</span>
+                                <input type="number" class="form-control" [(ngModel)]="revenuePayoutGoals.revenue"
+                                    placeholder="Charged from advertiser">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Payout <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text">{{revenuePayoutGoals.currency}}</span>
+                                <input type="number" class="form-control" [(ngModel)]="revenuePayoutGoals.payout"
+                                    placeholder="Pay to publisher">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Additional tiers -->
+                    <div *ngFor="let goal of additionalGoals; let i = index" class="row mb-3 additional-tier">
+                        <div class="col-md-4">
+                            <select class="form-select" multiple [(ngModel)]="goal.geoCoverage" style="height: 80px;">
+                                <option *ngFor="let country of countries" [value]="country.code">{{country.code}} -
+                                    {{country.name}}</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="input-group">
+                                <span class="input-group-text">{{revenuePayoutGoals.currency}}</span>
+                                <input type="number" class="form-control" [(ngModel)]="goal.revenue">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="input-group">
+                                <span class="input-group-text">{{revenuePayoutGoals.currency}}</span>
+                                <input type="number" class="form-control" [(ngModel)]="goal.payout">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="button" class="btn btn-outline-danger btn-sm"
+                                (click)="removeRevenuePayout(i)">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button type="button" class="btn btn-outline-primary btn-sm mt-2" (click)="addRevenuePayout()">
+                        <i class="fas fa-plus me-1"></i> Add Revenue/Payout
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 3: Advanced Settings -->
+        <div class="step-content" *ngIf="currentStep === 3">
+            <div class="step-header">
+                <h4>Advanced Settings</h4>
+                <a href="#" class="text-info small">To know more, click here <i
+                        class="fas fa-external-link-alt"></i></a>
+            </div>
+
+            <div class="form-section">
+                <!-- Visibility -->
+                <div class="row mb-4 align-items-center">
+                    <div class="col-md-3">
+                        <label class="form-label mb-0">Visibility</label>
+                    </div>
+                    <div class="col-md-9">
+                        <div class="d-flex gap-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="visibility" id="visPublic"
+                                    value="public" [(ngModel)]="advancedSettings.visibility">
+                                <label class="form-check-label" for="visPublic">Public</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="visibility" id="visPrivate"
+                                    value="private" [(ngModel)]="advancedSettings.visibility">
+                                <label class="form-check-label" for="visPrivate">Private</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="visibility" id="visPermission"
+                                    value="permission" [(ngModel)]="advancedSettings.visibility">
+                                <label class="form-check-label" for="visPermission">Ask for Permission</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Toggle Switches -->
+                <div class="row mb-4 align-items-center">
+                    <div class="col-md-3">
+                        <label class="form-label mb-0">Allow Impressions</label>
+                    </div>
+                    <div class="col-md-9">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox"
+                                [(ngModel)]="advancedSettings.allowImpressions">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-4 align-items-center">
+                    <div class="col-md-3">
+                        <label class="form-label mb-0">Set All Conversions Pending</label>
+                    </div>
+                    <div class="col-md-9">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox"
+                                [(ngModel)]="advancedSettings.setAllConversionsPending">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-4 align-items-center">
+                    <div class="col-md-3">
+                        <label class="form-label mb-0">Duplicate Click Action</label>
+                    </div>
+                    <div class="col-md-9">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox"
+                                [(ngModel)]="advancedSettings.duplicateClickAction">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-4 align-items-center">
+                    <div class="col-md-3">
+                        <label class="form-label mb-0">Conversion Hold Period</label>
+                    </div>
+                    <div class="col-md-9">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox"
+                                [(ngModel)]="advancedSettings.conversionHoldPeriod">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Redirect Type -->
+                <div class="row mb-4 align-items-center">
+                    <div class="col-md-3">
+                        <label class="form-label mb-0">Redirect Type</label>
+                    </div>
+                    <div class="col-md-9">
+                        <select class="form-select" style="width: 300px;" [(ngModel)]="advancedSettings.redirectType">
+                            <option *ngFor="let type of redirectTypes" [value]="type">{{type}}</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Allowed Tracking Link Format -->
+                <div class="row mb-4 align-items-center">
+                    <div class="col-md-3">
+                        <label class="form-label mb-0">Allowed Tracking Link Format</label>
+                    </div>
+                    <div class="col-md-9">
+                        <select class="form-select" style="width: 300px;"
+                            [(ngModel)]="advancedSettings.allowedTrackingLinkFormat">
+                            <option *ngFor="let format of trackingLinkFormats" [value]="format.value">{{format.label}}
+                            </option>
+                        </select>
+                        <small class="text-muted d-block mt-1">Sets the preferred identifier format used in tracking
+                            links</small>
+                    </div>
+                </div>
+
+                <!-- Unique Click Session Duration -->
+                <div class="row mb-4 align-items-center">
+                    <div class="col-md-3">
+                        <label class="form-label mb-0">Unique Click Session Duration</label>
+                    </div>
+                    <div class="col-md-9">
+                        <input type="number" class="form-control" style="width: 300px;"
+                            [(ngModel)]="advancedSettings.uniqueClickSessionDuration" placeholder="Hours">
+                        <small class="text-muted d-block mt-1">Session duration for calculating unique clicks in hours
+                            and if left empty, a default value of 168 hours will be considered by system</small>
+                    </div>
+                </div>
+
+                <!-- Conversion Flow -->
+                <div class="row mb-4 align-items-center">
+                    <div class="col-md-3">
+                        <label class="form-label mb-0">Conversion Flow</label>
+                    </div>
+                    <div class="col-md-9">
+                        <input type="text" class="form-control" [(ngModel)]="advancedSettings.conversionFlow"
+                            placeholder="Enter conversion flow">
+                    </div>
+                </div>
+
+                <!-- Unsubscribe URL -->
+                <div class="row mb-4 align-items-center">
+                    <div class="col-md-3">
+                        <label class="form-label mb-0">Unsubscribe URL</label>
+                    </div>
+                    <div class="col-md-9">
+                        <input type="url" class="form-control" [(ngModel)]="advancedSettings.unsubscribeUrl"
+                            placeholder="https://example.com/unsubscribe">
+                        <small class="text-muted d-block mt-1">Will be used in email creatives</small>
+                    </div>
+                </div>
+
+                <!-- Suppression URL -->
+                <div class="row mb-4 align-items-center">
+                    <div class="col-md-3">
+                        <label class="form-label mb-0">Suppression URL</label>
+                    </div>
+                    <div class="col-md-9">
+                        <input type="url" class="form-control" [(ngModel)]="advancedSettings.suppressionUrl"
+                            placeholder="https://example.com/suppression">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 4: Targeting -->
+        <div class="step-content" *ngIf="currentStep === 4">
+            <div class="step-header">
+                <h4>Setup Targeting</h4>
+                <a href="#" class="text-info small">To know more, click here <i
+                        class="fas fa-external-link-alt"></i></a>
+            </div>
+
+            <div class="form-section text-center" *ngIf="!showTargetingForm && targetingRules.length === 0">
+                <button type="button" class="btn btn-outline-primary" (click)="toggleTargetingForm()">
+                    <i class="fas fa-plus me-1"></i> Add Targeting
+                </button>
+                <div class="targeting-illustration mt-4">
+                    <img src="assets/targeting-illustration.svg" alt="Targeting" class="img-fluid"
+                        style="max-width: 300px;">
+                </div>
+            </div>
+
+            <!-- Targeting Rules List -->
+            <div *ngIf="targetingRules.length > 0" class="targeting-rules mb-4">
+                <div *ngFor="let rule of targetingRules; let i = index" class="targeting-rule-item">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span><strong>{{rule.variable}}</strong> - {{rule.logic}} - {{rule.value}}</span>
+                        <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeTargeting(i)">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-outline-primary btn-sm mt-3" (click)="toggleTargetingForm()">
+                    <i class="fas fa-plus me-1"></i> Add Targeting
+                </button>
+            </div>
+
+            <!-- Targeting Form -->
+            <div *ngIf="showTargetingForm" class="targeting-form card p-3">
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Variable</label>
+                        <select class="form-select" [(ngModel)]="newTargeting.variable">
+                            <option *ngFor="let v of targetingVariables" [value]="v.toLowerCase()">{{v}}</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Logic</label>
+                        <select class="form-select" [(ngModel)]="newTargeting.logic">
+                            <option *ngFor="let l of targetingLogic" [value]="l.toLowerCase()">{{l}}</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Rule Block Name</label>
+                        <input type="text" class="form-control" [(ngModel)]="newTargeting.ruleBlockName">
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Value</label>
+                        <input type="text" class="form-control" [(ngModel)]="newTargeting.value"
+                            placeholder="Enter value">
+                    </div>
+                </div>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-primary btn-sm" (click)="addTargeting()">Add</button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm"
+                        (click)="toggleTargetingForm()">Cancel</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Step 5: CAP, Creatives, Schedule -->
+        <div class="step-content" *ngIf="currentStep === 5">
+            <div class="step-header">
+                <h4>CAP, Creatives, Schedule</h4>
+                <a href="#" class="text-info small">To know more, click here <i
+                        class="fas fa-external-link-alt"></i></a>
+            </div>
+
+            <!-- CAP Section -->
+            <div class="section-card mb-4">
+                <div class="section-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">CAP</h5>
+                    <button type="button" class="btn btn-primary btn-sm" (click)="toggleCapForm()">
+                        <i class="fas fa-plus me-1"></i> Add
+                    </button>
+                </div>
+                <div class="section-body" *ngIf="showCapForm">
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Type</label>
+                            <select class="form-select" [(ngModel)]="newCap.type">
+                                <option *ngFor="let type of capTypes" [value]="type.toLowerCase().replace(' ', '_')">
+                                    {{type}}</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Publisher</label>
+                            <select class="form-select" [(ngModel)]="newCap.publisher">
+                                <option value="all">All Publishers</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Visibility</label>
+                            <select class="form-select" [(ngModel)]="newCap.visibility">
+                                <option value="public">Public</option>
+                                <option value="private">Private</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Daily</label>
+                            <input type="number" class="form-control" [(ngModel)]="newCap.daily"
+                                placeholder="Daily limit">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Monthly</label>
+                            <input type="number" class="form-control" [(ngModel)]="newCap.monthly"
+                                placeholder="Monthly limit">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Lifetime</label>
+                            <input type="number" class="form-control" [(ngModel)]="newCap.lifetime"
+                                placeholder="Lifetime limit">
+                        </div>
+                    </div>
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" [(ngModel)]="newCap.capOverDelivery">
+                        <label class="form-check-label">Cap Over Delivery</label>
+                    </div>
+                    <button type="button" class="btn btn-primary btn-sm" (click)="addCap()">Save CAP</button>
+                </div>
+                <div *ngIf="caps.length > 0" class="caps-list mt-3">
+                    <div *ngFor="let cap of caps; let i = index"
+                        class="cap-item d-flex justify-content-between p-2 border-bottom">
+                        <span>{{cap.type}} - Daily: {{cap.daily || 'N/A'}}, Monthly: {{cap.monthly || 'N/A'}}</span>
+                        <button type="button" class="btn btn-sm btn-outline-danger" (click)="removeCap(i)">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Creatives Section -->
+            <div class="section-card mb-4">
+                <div class="section-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Creatives</h5>
+                    <button type="button" class="btn btn-primary btn-sm" (click)="toggleCreativeForm()">
+                        <i class="fas fa-plus me-1"></i> Add
+                    </button>
+                </div>
+                <div class="section-body" *ngIf="showCreativeForm">
+                    <div class="row mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label">Type</label>
+                            <select class="form-select" [(ngModel)]="newCreative.type">
+                                <option *ngFor="let type of creativeTypes"
+                                    [value]="type.toLowerCase().replace(' ', '_')">{{type}}</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Title</label>
+                            <input type="text" class="form-control" [(ngModel)]="newCreative.title"
+                                placeholder="Creative title">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Status</label>
+                            <select class="form-select" [(ngModel)]="newCreative.status">
+                                <option value="Active">Active</option>
+                                <option value="Inactive">Inactive</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">File</label>
+                            <input type="file" class="form-control" (change)="onCreativeFileChange($event)">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Description</label>
+                            <input type="text" class="form-control" [(ngModel)]="newCreative.description">
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-primary btn-sm" (click)="addCreative()">Save Creative</button>
+                </div>
+            </div>
+
+            <!-- Schedule Section -->
+            <div class="section-card">
+                <div class="section-header">
+                    <h5 class="mb-0">Schedule</h5>
+                </div>
+                <div class="section-body">
+                    <div class="row mb-4 align-items-center">
+                        <div class="col-md-3">
+                            <label class="form-label mb-0">Schedule Status Change</label>
+                        </div>
+                        <div class="col-md-9">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox"
+                                    [(ngModel)]="schedule.scheduleStatusChange">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mb-4 align-items-center">
+                        <div class="col-md-3">
+                            <label class="form-label mb-0">Enable Time Targeting</label>
+                        </div>
+                        <div class="col-md-9">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox"
+                                    [(ngModel)]="schedule.enableTimeTargeting">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div *ngIf="schedule.enableTimeTargeting">
+                        <div class="row mb-4 align-items-center">
+                            <div class="col-md-3">
+                                <label class="form-label mb-0">Timezone</label>
+                            </div>
+                            <div class="col-md-9">
+                                <select class="form-select" [(ngModel)]="schedule.timezone">
+                                    <option *ngFor="let tz of timezones" [value]="tz">{{tz}}</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row mb-4 align-items-center">
+                            <div class="col-md-3">
+                                <label class="form-label mb-0">Start Hour (24 Hour format)</label>
+                            </div>
+                            <div class="col-md-9">
+                                <input type="number" class="form-control" style="width: 150px;"
+                                    [(ngModel)]="schedule.startHour" min="0" max="23" placeholder="0">
+                            </div>
+                        </div>
+
+                        <div class="row mb-4 align-items-center">
+                            <div class="col-md-3">
+                                <label class="form-label mb-0">End Hour (24 Hour format)</label>
+                            </div>
+                            <div class="col-md-9">
+                                <input type="number" class="form-control" style="width: 150px;"
+                                    [(ngModel)]="schedule.endHour" min="0" max="23" placeholder="0">
+                            </div>
+                        </div>
+
+                        <div class="row mb-4 align-items-center">
+                            <div class="col-md-3">
+                                <label class="form-label mb-0">Days</label>
+                            </div>
+                            <div class="col-md-9">
+                                <select class="form-select" multiple [(ngModel)]="schedule.days" style="height: 100px;">
+                                    <option *ngFor="let day of daysOfWeek" [value]="day">{{day}}</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row mb-4 align-items-center">
+                            <div class="col-md-3">
+                                <label class="form-label mb-0">Enable Inactive Hours</label>
+                            </div>
+                            <div class="col-md-9">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox"
+                                        [(ngModel)]="schedule.enableInactiveHours">
+                                    <label class="form-check-label">Deactivate campaign in provided time range and
+                                        days.</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="wizard-navigation">
+            <button type="button" class="btn btn-outline-secondary" *ngIf="currentStep > 1" (click)="previousStep()">
+                Previous
+            </button>
+            <button type="button" class="btn btn-primary" *ngIf="currentStep < totalSteps" (click)="nextStep()">
+                Next
+            </button>
+            <button type="button" class="btn btn-success" *ngIf="currentStep === totalSteps" (click)="finishWizard()">
+                Finish
+            </button>
+        </div>
+    </div>
+</div>

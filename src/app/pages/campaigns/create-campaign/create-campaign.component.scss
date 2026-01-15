@@ -1,0 +1,309 @@
+.create-campaign-container {
+    padding-bottom: 80px; // Space for sticky footer
+}
+
+// Objective Selector
+.objective-selector {
+    .objective-option {
+        display: flex;
+        align-items: center;
+        padding: 12px 20px;
+        border: 2px solid #e9ecef;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        background: #fff;
+
+        &:hover {
+            border-color: #17a2b8;
+            background: #f8f9fa;
+        }
+
+        &.selected {
+            border-color: #17a2b8;
+            background: rgba(23, 162, 184, 0.1);
+            color: #17a2b8;
+
+            i {
+                color: #17a2b8;
+            }
+        }
+
+        i {
+            font-size: 18px;
+            color: #6c757d;
+        }
+
+        span {
+            font-weight: 500;
+            font-size: 14px;
+        }
+    }
+}
+
+// Card Styles
+.card {
+    border-radius: 8px;
+
+    .card-header {
+        border-radius: 8px 8px 0 0;
+
+        h5 {
+            font-size: 16px;
+            color: #333;
+        }
+
+        &:hover {
+            background: #f8f9fa !important;
+        }
+    }
+}
+
+// Form Styles
+.form-label {
+    font-weight: 500;
+    font-size: 13px;
+    color: #555;
+    margin-bottom: 6px;
+}
+
+.form-control,
+.form-select {
+    font-size: 14px;
+    border-color: #dee2e6;
+
+    &:focus {
+        border-color: #17a2b8;
+        box-shadow: 0 0 0 0.2rem rgba(23, 162, 184, 0.15);
+    }
+
+    &::placeholder {
+        color: #adb5bd;
+        font-size: 13px;
+    }
+}
+
+// Toggle Switch
+.form-switch {
+    .form-check-input {
+        cursor: pointer;
+
+        &:checked {
+            background-color: #17a2b8;
+            border-color: #17a2b8;
+        }
+    }
+}
+
+// Geo Coverage & Device Badges
+.geo-coverage-input,
+.device-badges {
+    .badge {
+        font-weight: 500;
+        padding: 6px 10px;
+
+        i {
+            font-size: 10px;
+            opacity: 0.7;
+
+            &:hover {
+                opacity: 1;
+            }
+        }
+    }
+}
+
+// Token Buttons
+.btn-outline-secondary {
+    &.btn-sm {
+        font-size: 12px;
+        padding: 4px 8px;
+
+        &:hover {
+            background: #6c757d;
+            color: #fff;
+        }
+    }
+}
+
+// Sticky Footer
+.sticky-footer {
+    position: fixed;
+    bottom: 0;
+    left: 260px; // Sidebar width
+    right: 0;
+    padding: 15px 30px;
+    background: #fff;
+    border-top: 1px solid #e9ecef;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+    z-index: 100;
+
+    .btn-primary {
+        background-color: #17a2b8;
+        border-color: #17a2b8;
+        padding: 10px 30px;
+        font-weight: 500;
+
+        &:hover {
+            background-color: #138496;
+            border-color: #117a8b;
+        }
+    }
+}
+
+// Input Group
+.input-group-text {
+    background: #f8f9fa;
+    border-color: #dee2e6;
+    font-size: 14px;
+    color: #495057;
+}
+
+// Help Text
+small.text-muted {
+    font-size: 11px;
+}
+
+// Rich Text Editor
+.rich-text-editor {
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.editor-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    padding: 8px 10px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #dee2e6;
+    gap: 5px;
+}
+
+.toolbar-group {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.toolbar-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    height: 28px;
+    padding: 4px 8px;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 13px;
+    color: #495057;
+    transition: all 0.15s ease;
+
+    &:hover {
+        background: #e9ecef;
+        border-color: #dee2e6;
+    }
+
+    &:active {
+        background: #dee2e6;
+    }
+
+    &.active {
+        background: #e9ecef;
+        border-color: #ced4da;
+    }
+
+    i {
+        font-size: 13px;
+    }
+
+    b,
+    u {
+        font-size: 14px;
+    }
+}
+
+.toolbar-select {
+    height: 28px;
+    padding: 2px 8px;
+    border: 1px solid #dee2e6;
+    border-radius: 3px;
+    background: #fff;
+    font-size: 13px;
+    color: #495057;
+    cursor: pointer;
+
+    &:focus {
+        outline: none;
+        border-color: #17a2b8;
+    }
+}
+
+.toolbar-divider {
+    width: 1px;
+    height: 24px;
+    background: #dee2e6;
+    margin: 0 5px;
+}
+
+.editor-content {
+    min-height: 200px;
+    max-height: 400px;
+    padding: 15px;
+    background: #fff;
+    overflow-y: auto;
+    font-size: 15px;
+    line-height: 1.6;
+    color: #333;
+
+    &:focus {
+        outline: none;
+    }
+
+    &:empty:before {
+        content: 'Enter campaign description...';
+        color: #adb5bd;
+    }
+
+    ul,
+    ol {
+        margin-left: 20px;
+    }
+
+    a {
+        color: #17a2b8;
+    }
+}
+
+// Responsive
+@media (max-width: 991px) {
+    .sticky-footer {
+        left: 0;
+    }
+}
+
+@media (max-width: 768px) {
+    .objective-selector {
+        .objective-option {
+            padding: 10px 15px;
+            font-size: 13px;
+
+            i {
+                font-size: 16px;
+            }
+        }
+    }
+
+    .editor-toolbar {
+        padding: 6px 8px;
+    }
+
+    .toolbar-btn {
+        min-width: 24px;
+        height: 24px;
+        font-size: 12px;
+    }
+}

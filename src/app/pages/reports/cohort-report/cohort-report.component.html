@@ -1,0 +1,268 @@
+<div class="report-container">
+    <div class="page-header">
+        <div class="header-left">
+            <h4 class="page-title">Cohort Report</h4>
+            <div class="view-toggle">
+                <button class="btn btn-sm" [class.active]="viewMode === 'table'" (click)="setViewMode('table')"><i
+                        class="fas fa-table"></i></button>
+                <button class="btn btn-sm" [class.active]="viewMode === 'chart'" (click)="setViewMode('chart')"><i
+                        class="fas fa-chart-bar"></i></button>
+            </div>
+            <a href="#" class="help-link">To know more, click here.</a>
+        </div>
+        <div class="header-right">
+            <div class="date-range">
+                <i class="fas fa-calendar-alt me-2"></i>
+                <input type="date" class="form-control form-control-sm" [(ngModel)]="startDate">
+                <span class="date-separator">-</span>
+                <input type="date" class="form-control form-control-sm" [(ngModel)]="endDate">
+            </div>
+        </div>
+    </div>
+
+    <div class="action-toolbar">
+        <div class="toolbar-left">
+            <div class="dropdown download-dropdown">
+                <button class="btn btn-dark btn-sm" (click)="toggleDownloadMenu()">
+                    <i class="fas fa-download me-1"></i> Download <i class="fas fa-chevron-down ms-1"></i>
+                </button>
+                <ul class="dropdown-menu" [style.display]="showDownloadMenu ? 'block' : 'none'">
+                    <li><a class="dropdown-item" href="javascript:void(0)" (click)="downloadCSV()"><i
+                                class="fas fa-file-csv me-2"></i> CSV</a></li>
+                    <li><a class="dropdown-item" href="javascript:void(0)" (click)="downloadExcel()"><i
+                                class="fas fa-file-excel me-2"></i> Excel</a></li>
+                    <li><a class="dropdown-item" href="javascript:void(0)" (click)="downloadPDF()"><i
+                                class="fas fa-file-pdf me-2"></i> PDF</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="toolbar-right">
+            <div class="search-box"><label>Search:</label><input type="text" class="form-control form-control-sm"
+                    [(ngModel)]="searchQuery"></div>
+        </div>
+    </div>
+
+    <div class="content-card">
+        <div class="table-responsive cohort-table-wrapper" *ngIf="viewMode === 'table'">
+            <table class="table table-bordered cohort-table mb-0">
+                <thead>
+                    <tr>
+                        <th class="publisher-col">Publisher</th>
+                        <th class="field-col">%</th>
+                        <th class="field-col">Fields</th>
+                        <th *ngFor="let date of dateColumns" class="date-col">
+                            <span class="date-label">%</span>
+                            <span class="date-value">{{formatDateHeader(date)}}</span>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <ng-container *ngFor="let publisher of filteredData">
+                        <ng-container *ngFor="let metric of publisher.metrics; let first = first">
+                            <tr [class.first-metric-row]="first">
+                                <td *ngIf="first" [attr.rowspan]="publisher.metrics.length" class="publisher-cell">
+                                    <a href="#" class="publisher-link">{{publisher.publisher}}</a>
+                                </td>
+                                <td class="percent-cell"></td>
+                                <td class="field-cell">{{metric.field}}</td>
+                                <td *ngFor="let date of dateColumns" class="value-cell">
+                                    {{metric.values[date] || ''}}
+                                </td>
+                            </tr>
+                        </ng-container>
+                    </ng-container>
+                </tbody>
+            </table>
+        </div>
+        <div class="chart-container" *ngIf="viewMode === 'chart'">
+            <div class="chart-placeholder">
+                <i class="fas fa-chart-area fa-4x text-muted mb-3"></i>
+                <p class="text-muted">Cohort analysis chart will be displayed here</p>
+            </div>
+        </div>
+    </div>
+
+    <button class="filter-fab" (click)="toggleFilterPanel()" title="Search Filter"><i
+            class="fas fa-filter"></i></button>
+    <div class="filter-overlay" *ngIf="showFilterPanel" (click)="closeFilterPanel()"></div>
+
+    <div class="filter-panel" [class.open]="showFilterPanel">
+        <div class="filter-header">
+            <h5><i class="fas fa-filter me-2"></i> Search Filter</h5><button type="button" class="btn-close"
+                (click)="closeFilterPanel()"></button>
+        </div>
+        <div class="filter-body">
+            <!-- Main Filters Section -->
+            <div class="filter-section">
+                <div class="row mb-3">
+                    <div class="col-6">
+                        <label class="form-label">Campaign</label>
+                        <input type="text" class="form-control form-control-sm" [(ngModel)]="filters.campaign"
+                            placeholder="Search campaign...">
+                        <div class="form-check mt-1"><input class="form-check-input" type="checkbox"
+                                [(ngModel)]="filters.campaignSearchById" id="campaignById"><label
+                                class="form-check-label small" for="campaignById">Search By IDs</label></div>
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label">Publisher</label>
+                        <input type="text" class="form-control form-control-sm" [(ngModel)]="filters.publisher"
+                            placeholder="Search publisher...">
+                        <div class="form-check mt-1"><input class="form-check-input" type="checkbox"
+                                [(ngModel)]="filters.publisherSearchById" id="publisherById"><label
+                                class="form-check-label small" for="publisherById">Search By IDs</label></div>
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-6">
+                        <label class="form-label">Advertiser</label>
+                        <input type="text" class="form-control form-control-sm" [(ngModel)]="filters.advertiser"
+                            placeholder="Search advertiser...">
+                        <div class="form-check mt-1"><input class="form-check-input" type="checkbox"
+                                [(ngModel)]="filters.advertiserSearchById" id="advertiserById"><label
+                                class="form-check-label small" for="advertiserById">Search By IDs</label></div>
+                    </div>
+                </div>
+                <div class="quick-filters">
+                    <div class="form-check form-check-inline"><input class="form-check-input" type="checkbox"
+                            [(ngModel)]="filters.campaignGeo" id="filterCampaignGeo"><label class="form-check-label"
+                            for="filterCampaignGeo">Campaign GEO</label></div>
+                    <div class="form-check form-check-inline"><input class="form-check-input" type="checkbox"
+                            [(ngModel)]="filters.teamMember" id="filterTeamMember"><label class="form-check-label"
+                            for="filterTeamMember">Team Member</label></div>
+                    <div class="form-check form-check-inline"><input class="form-check-input" type="checkbox"
+                            [(ngModel)]="filters.advertiserTags" id="filterAdvertiserTags"><label
+                            class="form-check-label" for="filterAdvertiserTags">Advertiser Tags</label></div>
+                    <div class="form-check form-check-inline"><input class="form-check-input" type="checkbox"
+                            [(ngModel)]="filters.publisherTags" id="filterPublisherTags"><label class="form-check-label"
+                            for="filterPublisherTags">Publisher Tags</label></div>
+                    <div class="form-check form-check-inline"><input class="form-check-input" type="checkbox"
+                            [(ngModel)]="filters.campaignAppId" id="filterCampaignAppId"><label class="form-check-label"
+                            for="filterCampaignAppId">Campaign App ID</label></div>
+                    <div class="form-check form-check-inline"><input class="form-check-input" type="checkbox"
+                            [(ngModel)]="filters.category" id="filterCategory"><label class="form-check-label"
+                            for="filterCategory">Category</label></div>
+                    <div class="form-check form-check-inline"><input class="form-check-input" type="checkbox"
+                            [(ngModel)]="filters.smartLink" id="filterSmartLink"><label class="form-check-label"
+                            for="filterSmartLink">Smart Link</label></div>
+                </div>
+            </div>
+
+            <!-- Group By Section -->
+            <div class="filter-section">
+                <div class="section-header">
+                    <h6 class="section-title">Group By <i class="fas fa-cog"></i></h6>
+                    <div class="section-actions">
+                        <input type="text" class="form-control form-control-sm search-input" [(ngModel)]="groupBySearch"
+                            placeholder="Search">
+                        <button class="btn btn-link btn-sm" (click)="clearGroupBy()">Clear</button>
+                        <button class="btn btn-link btn-sm" (click)="selectAllGroupBy()">Select All</button>
+                    </div>
+                </div>
+                <div class="checkbox-grid grid-5">
+                    <div class="form-check" *ngFor="let option of filteredGroupByOptions">
+                        <input class="form-check-input" type="checkbox" [(ngModel)]="option.checked"
+                            [id]="'group_' + option.key">
+                        <label class="form-check-label" [for]="'group_' + option.key">{{option.label}}</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Report Options Section -->
+            <div class="filter-section">
+                <div class="section-header">
+                    <h6 class="section-title">Report Options <i class="fas fa-cog"></i></h6>
+                    <div class="section-actions">
+                        <input type="text" class="form-control form-control-sm search-input" [(ngModel)]="metricsSearch"
+                            placeholder="Search Report Options">
+                        <button class="btn btn-link btn-sm" (click)="clearMetrics()">Clear</button>
+                        <button class="btn btn-link btn-sm" (click)="selectAllMetrics()">Select All</button>
+                    </div>
+                </div>
+                <div class="checkbox-grid grid-5">
+                    <div class="form-check" *ngFor="let metric of filteredMetricsOptions">
+                        <input class="form-check-input" type="checkbox" [(ngModel)]="metric.checked"
+                            [id]="'metric_' + metric.key">
+                        <label class="form-check-label" [for]="'metric_' + metric.key">{{metric.label}}</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Other Options Section -->
+            <div class="filter-section">
+                <h6 class="section-title">Other options:</h6>
+                <div class="other-options-grid">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox"
+                            [(ngModel)]="otherOptions.onlyShowRowsHavingConversions" id="optConversions">
+                        <label class="form-check-label" for="optConversions">Only show rows having conversions</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox"
+                            [(ngModel)]="otherOptions.onlyShowRowsHavingRevenue" id="optRevenue">
+                        <label class="form-check-label" for="optRevenue">Only show rows having revenue</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" [(ngModel)]="otherOptions.showManagerId"
+                            id="optManagerId">
+                        <label class="form-check-label" for="optManagerId">Show Manager ID</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" [(ngModel)]="otherOptions.hideDecimalValues"
+                            id="optHideDecimals">
+                        <label class="form-check-label" for="optHideDecimals">Hide Decimal Values</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" [(ngModel)]="otherOptions.showInProfileCurrency"
+                            id="optProfileCurrency">
+                        <label class="form-check-label" for="optProfileCurrency">Show in profile currency</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Conditions Section -->
+            <div class="filter-section">
+                <h6 class="section-title">Conditions</h6>
+                <div class="conditions-list">
+                    <div class="condition-row" *ngFor="let condition of conditions; let i = index">
+                        <select class="form-select form-select-sm" [(ngModel)]="condition.field">
+                            <option value="">Select Field</option>
+                            <option value="grossClicks">Gross Clicks</option>
+                            <option value="conversions">Conversions</option>
+                            <option value="payout">Payout</option>
+                            <option value="revenue">Revenue</option>
+                            <option value="profit">Profit</option>
+                        </select>
+                        <select class="form-select form-select-sm" [(ngModel)]="condition.operator">
+                            <option value="equals">Equals</option>
+                            <option value="greaterThan">Greater Than</option>
+                            <option value="lessThan">Less Than</option>
+                            <option value="notEquals">Not Equals</option>
+                        </select>
+                        <input type="text" class="form-control form-control-sm" [(ngModel)]="condition.value"
+                            placeholder="Value">
+                        <button class="btn btn-sm btn-outline-danger" (click)="removeCondition(i)"><i
+                                class="fas fa-times"></i></button>
+                    </div>
+                </div>
+                <button class="btn btn-outline-primary btn-sm mt-2" (click)="addCondition()"><i
+                        class="fas fa-plus me-1"></i> Add Condition</button>
+            </div>
+        </div>
+        <div class="filter-footer">
+            <button class="btn btn-primary" (click)="applyFilters()"><i class="fas fa-check me-1"></i> Submit</button>
+            <button class="btn btn-outline-secondary" (click)="closeFilterPanel()">Close</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" *ngIf="showNewReportModal" (click)="closeNewReportModal()"></div>
+    <div class="new-report-modal" *ngIf="showNewReportModal">
+        <div class="modal-header">
+            <h5 class="modal-title">Create New Report</h5>
+        </div>
+        <div class="modal-body"><input type="text" class="form-control" [(ngModel)]="newReportName"
+                placeholder="Enter Report Name" (keyup.enter)="confirmNewReport()"></div>
+        <div class="modal-footer"><button class="btn btn-primary btn-sm"
+                (click)="confirmNewReport()">Yes</button><button class="btn btn-outline-secondary btn-sm"
+                (click)="closeNewReportModal()">Cancel</button></div>
+    </div>
+</div>

@@ -1,0 +1,78 @@
+<div class="report-container">
+    <div class="page-header">
+        <h4 class="page-title">Report: Sampling</h4>
+    </div>
+
+    <div class="content-card">
+        <!-- Filter Section at top -->
+        <div class="filter-section-inline">
+            <div class="row">
+                <div class="col-md-5">
+                    <label class="form-label fw-bold">Campaign</label>
+                    <select class="form-select form-select-sm" multiple size="5" [(ngModel)]="selectedCampaigns">
+                        <option *ngFor="let camp of campaigns" [value]="camp.id">{{camp.name}}</option>
+                    </select>
+                </div>
+                <div class="col-md-5">
+                    <label class="form-label fw-bold">Publisher</label>
+                    <select class="form-select form-select-sm" multiple size="5" [(ngModel)]="selectedPublishers">
+                        <option *ngFor="let pub of publishers" [value]="pub.id">{{pub.name}}</option>
+                    </select>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button class="btn btn-primary" (click)="applyFilters()">
+                        <i class="fas fa-search me-1"></i> Search
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="report-card">
+            <div class="card-header-custom">
+                <h6 class="mb-0">Daily Report: Sampling</h6>
+            </div>
+
+            <div class="table-toolbar">
+                <div class="export-buttons">
+                    <button class="btn btn-outline-secondary btn-sm" (click)="copyToClipboard()">Copy</button>
+                    <button class="btn btn-outline-secondary btn-sm" (click)="downloadCSV()">CSV</button>
+                    <button class="btn btn-outline-secondary btn-sm" (click)="downloadExcel()">Excel</button>
+                    <button class="btn btn-outline-secondary btn-sm" (click)="downloadPDF()">PDF</button>
+                    <button class="btn btn-outline-secondary btn-sm" (click)="printTable()">Print</button>
+                </div>
+                <div class="search-box">
+                    <label>Search:</label>
+                    <input type="text" class="form-control form-control-sm" [(ngModel)]="searchQuery">
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="table table-striped table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th class="sortable">Campaign <i class="fas fa-sort ms-1"></i></th>
+                            <th class="sortable">Publisher <i class="fas fa-sort ms-1"></i></th>
+                            <th class="sortable">Advertiser <i class="fas fa-sort ms-1"></i></th>
+                            <th class="sortable">Goal <i class="fas fa-sort ms-1"></i></th>
+                            <th class="text-end sortable">Sampling Percentage <i class="fas fa-sort ms-1"></i></th>
+                            <th class="text-end sortable">Sampled Count <i class="fas fa-sort ms-1"></i></th>
+                            <th class="text-end sortable">Total Count <i class="fas fa-sort ms-1"></i></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let item of filteredData">
+                            <td><a href="#" class="item-link">({{item.campaignId}}) {{item.campaign}}</a></td>
+                            <td>{{item.publisher}}</td>
+                            <td>{{item.advertiser}}</td>
+                            <td>{{item.goal}}</td>
+                            <td class="text-end">{{item.samplingPercentage}}%</td>
+                            <td class="text-end">{{item.sampledCount}}</td>
+                            <td class="text-end">{{item.totalCount}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="pagination-info">Showing 1 to {{filteredData.length}} of {{filteredData.length}} entries</div>
+        </div>
+    </div>
+</div>

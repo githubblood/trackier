@@ -1,0 +1,442 @@
+.report-container {
+    position: relative;
+    min-height: calc(100vh - 80px);
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 0;
+    margin-bottom: 10px;
+}
+
+.page-title {
+    font-size: 22px;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+}
+
+.content-card {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+// Table Toolbar
+.table-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 15px;
+    background: #fff;
+    border-bottom: 1px solid #e9ecef;
+    border-radius: 8px 8px 0 0;
+}
+
+.export-buttons {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+
+    .btn {
+        font-size: 14px;
+        padding: 5px 12px;
+    }
+}
+
+.search-box {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    label {
+        font-size: 15px;
+        color: #666;
+        margin: 0;
+    }
+
+    .form-control {
+        width: 200px;
+        font-size: 15px;
+    }
+}
+
+// Comparison Table
+.comparison-table {
+    margin-bottom: 0;
+
+    thead {
+        background: #f8f9fa;
+
+        th {
+            font-size: 14px;
+            font-weight: 600;
+            color: #333;
+            padding: 12px 10px;
+            border-bottom: 2px solid #dee2e6;
+            white-space: nowrap;
+            text-align: center;
+
+            &.publisher-col {
+                text-align: left;
+                min-width: 180px;
+            }
+
+            &.metric-col {
+                min-width: 90px;
+            }
+
+            &.sortable {
+                cursor: pointer;
+
+                &:hover {
+                    background: #e9ecef;
+                }
+
+                i {
+                    color: #999;
+                    font-size: 11px;
+                }
+            }
+        }
+    }
+
+    tbody {
+        tr {
+            &:nth-child(odd) {
+                background: #fff;
+            }
+
+            &:nth-child(even) {
+                background: #f9f9f9;
+            }
+
+            &:hover {
+                background: #f1f8ff;
+            }
+        }
+
+        td {
+            font-size: 14px;
+            padding: 10px;
+            vertical-align: middle;
+            border-bottom: 1px solid #e9ecef;
+
+            &.publisher-cell {
+                text-align: left;
+            }
+
+            &.percent-cell {
+                font-weight: 600;
+                font-size: 14px;
+            }
+
+            &.value-cell {
+                color: #666;
+                font-size: 13px;
+            }
+        }
+    }
+}
+
+.comparison-values {
+    color: #888;
+    font-size: 13px;
+}
+
+.item-link {
+    color: #17a2b8;
+    text-decoration: none;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+.text-success {
+    color: #28a745 !important;
+}
+
+.text-danger {
+    color: #dc3545 !important;
+}
+
+.text-muted {
+    color: #6c757d !important;
+}
+
+.pagination-info {
+    padding: 12px 15px;
+    font-size: 13px;
+    color: #666;
+    background: #f8f9fa;
+    border-top: 1px solid #e9ecef;
+}
+
+// Floating Filter Button
+.filter-fab {
+    position: fixed;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background: #17a2b8;
+    color: #fff;
+    border: none;
+    box-shadow: 0 4px 12px rgba(23, 162, 184, 0.4);
+    cursor: pointer;
+    z-index: 100;
+    transition: all 0.3s ease;
+
+    &:hover {
+        background: #138496;
+        transform: translateY(-50%) scale(1.1);
+    }
+
+    i {
+        font-size: 16px;
+    }
+}
+
+.filter-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 199;
+}
+
+// Advanced Filter Panel - Exact Trackier Style
+.filter-panel {
+    position: fixed;
+    top: 0;
+    right: -700px;
+    width: 700px;
+    height: 100vh;
+    background: #fff;
+    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
+    z-index: 200;
+    transition: right 0.3s ease;
+    display: flex;
+    flex-direction: column;
+
+    &.open {
+        right: 0;
+    }
+}
+
+.filter-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background: #4a90a4;
+    color: #fff;
+    flex-shrink: 0;
+
+    h5 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 600;
+    }
+}
+
+.filter-body {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.filter-section {
+    margin-bottom: 25px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #e9ecef;
+
+    &:last-child {
+        border-bottom: none;
+    }
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.section-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+}
+
+.section-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    .search-input {
+        width: 180px;
+        font-size: 12px;
+    }
+
+    .btn-link {
+        font-size: 12px;
+        padding: 0;
+        text-decoration: none;
+        color: #17a2b8;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+}
+
+// 3-column checkbox grid - Matches Trackier
+.checkbox-grid {
+    display: grid;
+    gap: 8px 15px;
+
+    &.grid-3 {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .form-check {
+        margin-bottom: 0;
+        padding-left: 1.5em;
+    }
+
+    .form-check-input {
+        margin-top: 0.25em;
+    }
+
+    .form-check-label {
+        font-size: 12px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        cursor: pointer;
+    }
+}
+
+.filter-footer {
+    padding: 15px 20px;
+    border-top: 1px solid #e9ecef;
+    display: flex;
+    gap: 10px;
+    flex-shrink: 0;
+    background: #fff;
+
+    .btn {
+        padding: 8px 20px;
+        font-size: 14px;
+    }
+
+    .btn-primary {
+        background: #17a2b8;
+        border-color: #17a2b8;
+
+        &:hover {
+            background: #138496;
+            border-color: #117a8b;
+        }
+    }
+
+    .btn-light {
+        background: #f8f9fa;
+        border-color: #dee2e6;
+
+        &:hover {
+            background: #e9ecef;
+        }
+    }
+}
+
+// Form elements
+.form-control,
+.form-select {
+    font-size: 13px;
+    border-color: #dee2e6;
+
+    &:focus {
+        border-color: #17a2b8;
+        box-shadow: 0 0 0 0.2rem rgba(23, 162, 184, 0.15);
+    }
+}
+
+// Responsive
+@media (max-width: 992px) {
+    .filter-panel {
+        width: 100%;
+        right: -100%;
+    }
+
+    .checkbox-grid.grid-3 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 576px) {
+    .checkbox-grid.grid-3 {
+        grid-template-columns: 1fr;
+    }
+}
+
+// Custom Close Button
+.btn-close-white {
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 16px;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+
+    &:hover {
+        opacity: 1;
+    }
+}
+
+// Custom Button Styles for Filters
+.btn-outline-info {
+    color: #17a2b8;
+    border-color: #17a2b8;
+    background: #fff;
+
+    &:hover {
+        background: #17a2b8;
+        color: #fff;
+    }
+}
+
+.btn-warning-light {
+    color: #856404;
+    background-color: #fff3cd;
+    border-color: #ffeeba;
+
+    &:hover {
+        background-color: #ffe8a1;
+        border-color: #ffe8a1;
+    }
+}
+
+.btn-xs {
+    padding: 2px 8px;
+    font-size: 11px;
+    line-height: 1.5;
+    border-radius: 3px;
+}
+
+// Input Group tweaks
+.input-group-text {
+    color: #6c757d;
+    font-size: 13px;
+}

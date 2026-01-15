@@ -1,0 +1,276 @@
+<div class="campaign-access-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="header-left">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb mb-0">
+                    <li class="breadcrumb-item"><a href="#">Campaigns</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Access</li>
+                </ol>
+            </nav>
+            <h4 class="page-title">Access | Count: {{totalCount}}</h4>
+        </div>
+        <div class="header-right">
+            <button class="btn btn-outline-secondary btn-sm me-2" title="Export">
+                <i class="fas fa-download"></i>
+            </button>
+            <button class="btn btn-outline-secondary btn-sm" title="Refresh">
+                <i class="fas fa-sync-alt"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Content Card -->
+    <div class="content-card">
+        <!-- Toolbar -->
+        <div class="table-toolbar">
+            <div class="toolbar-left">
+                <!-- Export Buttons -->
+                <div class="btn-group export-buttons">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" (click)="copyToClipboard()">
+                        Copy
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" (click)="exportCSV()">
+                        CSV
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" (click)="exportExcel()">
+                        Excel
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" (click)="exportPDF()">
+                        PDF
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm" (click)="printTable()">
+                        Print
+                    </button>
+                </div>
+
+                <!-- Bulk Action Dropdown -->
+                <div class="dropdown bulk-action-dropdown" [class.show]="showBulkActionMenu">
+                    <button class="btn btn-dark btn-sm dropdown-toggle" type="button" (click)="toggleBulkActionMenu()"
+                        [disabled]="selectedItems.length === 0">
+                        <i class="fas fa-cog me-1"></i> Bulk Action
+                    </button>
+                    <ul class="dropdown-menu" [class.show]="showBulkActionMenu"
+                        [style.display]="showBulkActionMenu ? 'block' : 'none'">
+                        <li>
+                            <a class="dropdown-item" href="javascript:void(0)" (click)="bulkApprove()">
+                                <i class="fas fa-check text-success me-2"></i> Approve (Permission Access)
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="javascript:void(0)" (click)="bulkDeny()">
+                                <i class="fas fa-times text-danger me-2"></i> Deny (Permission Access)
+                            </a>
+                        </li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="javascript:void(0)" (click)="exportAccesses()">
+                                <i class="fas fa-download me-2"></i> Export Accesses
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item text-danger" href="javascript:void(0)" (click)="bulkDelete()">
+                                <i class="fas fa-trash me-2"></i> Delete
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="toolbar-right">
+                <span class="selected-count" *ngIf="selectedItems.length > 0">
+                    {{selectedItems.length}} item(s) selected
+                </span>
+            </div>
+        </div>
+
+        <!-- Table -->
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th style="width: 40px;">
+                            <input type="checkbox" class="form-check-input" [(ngModel)]="selectAll"
+                                (change)="toggleSelectAll()">
+                        </th>
+                        <th>Campaign ID</th>
+                        <th>Campaign</th>
+                        <th>Campaign Status</th>
+                        <th>Publisher</th>
+                        <th>Advertiser</th>
+                        <th>Status</th>
+                        <th>Publisher Manager</th>
+                        <th>Updated By</th>
+                        <th>Updated</th>
+                        <th>Access Type</th>
+                        <th>Message</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let item of accessData">
+                        <td>
+                            <input type="checkbox" class="form-check-input" [checked]="isSelected(item.id)"
+                                (change)="toggleItemSelection(item.id)">
+                        </td>
+                        <td>{{item.campaignId}}</td>
+                        <td>
+                            <a href="#" class="text-primary fw-medium">{{item.campaignName}}</a>
+                        </td>
+                        <td>
+                            <span class="badge" [ngClass]="getStatusClass(item.campaignStatus)">
+                                {{item.campaignStatus}}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="#" class="text-primary small">
+                                (ID: {{item.publisherId}}) {{item.publisherName}}
+                            </a>
+                        </td>
+                        <td>
+                            <a href="#" class="text-primary small">
+                                (ID: {{item.advertiserId}}) {{item.advertiserName}}
+                            </a>
+                        </td>
+                        <td>
+                            <span class="badge" [ngClass]="getStatusClass(item.status)">
+                                {{item.status}}
+                            </span>
+                        </td>
+                        <td>
+                            <a href="#" class="text-primary small">{{item.publisherManager}}</a>
+                        </td>
+                        <td>
+                            <a href="#" class="text-primary small">{{item.updatedBy}}</a>
+                        </td>
+                        <td class="text-muted small">{{formatDate(item.updated)}}</td>
+                        <td>{{item.accessType}}</td>
+                        <td class="text-muted small">{{item.message}}</td>
+                        <td>
+                            <button class="btn btn-danger btn-sm" (click)="deleteAccess(item.id)" title="Delete">
+                                <i class="fas fa-trash"></i> Delete
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Empty State -->
+        <div *ngIf="accessData.length === 0" class="text-center py-5">
+            <i class="fas fa-folder-open fa-3x text-muted mb-3"></i>
+            <p class="text-muted">No campaign access data found</p>
+        </div>
+    </div>
+
+    <!-- Floating Filter Button -->
+    <button class="filter-fab" (click)="toggleFilterPanel()" title="Filter">
+        <i class="fas fa-filter"></i>
+    </button>
+
+    <!-- Filter Panel Overlay -->
+    <div class="filter-overlay" *ngIf="showFilterPanel" (click)="closeFilterPanel()"></div>
+
+    <!-- Filter Panel -->
+    <div class="filter-panel" [class.open]="showFilterPanel">
+        <div class="filter-header">
+            <h5><i class="fas fa-filter me-2"></i> Search Campaign</h5>
+            <button type="button" class="btn-close" (click)="closeFilterPanel()"></button>
+        </div>
+
+        <div class="filter-body">
+            <!-- Campaign IDs -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Campaign IDs</label>
+                    <input type="text" class="form-control" [(ngModel)]="filters.campaignIds"
+                        placeholder="Enter campaign ids">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Publisher</label>
+                    <select class="form-select" [(ngModel)]="filters.publisher">
+                        <option value="">Choose one or many Publisher</option>
+                        <option *ngFor="let pub of publishers" [value]="pub.id">
+                            (ID: {{pub.id}}) {{pub.name}}
+                        </option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Publisher Manager & Advertiser -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Publisher Manager</label>
+                    <select class="form-select" [(ngModel)]="filters.publisherManager">
+                        <option value="">Choose one or many Publisher Managers</option>
+                        <option *ngFor="let pm of publisherManagers" [value]="pm">{{pm}}</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Advertiser</label>
+                    <select class="form-select" [(ngModel)]="filters.advertiser">
+                        <option value="">Choose one or many Advertiser</option>
+                        <option *ngFor="let adv of advertisers" [value]="adv.id">
+                            (ID: {{adv.id}}) {{adv.name}}
+                        </option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Campaign Status & Status -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Campaign Status</label>
+                    <select class="form-select" [(ngModel)]="filters.campaignStatus">
+                        <option value="">Choose one or many Status</option>
+                        <option *ngFor="let status of campaignStatusOptions" [value]="status">{{status}}</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Status (For Permission Campaigns only)</label>
+                    <select class="form-select" [(ngModel)]="filters.status">
+                        <option value="">Select status</option>
+                        <option *ngFor="let status of statusOptions" [value]="status">{{status}}</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Campaign Type & Date Range Toggle -->
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">Campaign Type</label>
+                    <select class="form-select" [(ngModel)]="filters.campaignType">
+                        <option *ngFor="let type of campaignTypeOptions" [value]="type">{{type}}</option>
+                    </select>
+                </div>
+                <div class="col-md-6 d-flex align-items-center">
+                    <div class="form-check form-switch mt-4">
+                        <input class="form-check-input" type="checkbox" [(ngModel)]="filters.addDateRange"
+                            id="addDateRange">
+                        <label class="form-check-label" for="addDateRange">Add Date Range</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Date Range (conditional) -->
+            <div class="row mb-3" *ngIf="filters.addDateRange">
+                <div class="col-md-6">
+                    <label class="form-label">Start Date</label>
+                    <input type="date" class="form-control" [(ngModel)]="filters.startDate">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">End Date</label>
+                    <input type="date" class="form-control" [(ngModel)]="filters.endDate">
+                </div>
+            </div>
+        </div>
+
+        <div class="filter-footer">
+            <button class="btn btn-primary" (click)="applyFilters()">
+                <i class="fas fa-search me-1"></i> Search
+            </button>
+            <button class="btn btn-outline-secondary" (click)="closeFilterPanel()">Close</button>
+        </div>
+    </div>
+</div>

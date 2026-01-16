@@ -1,0 +1,186 @@
+<div class="report-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <h4 class="page-title">Postbacks & Pixels <span class="count-badge">(Count - {{totalCount}})</span></h4>
+    </div>
+
+    <!-- Action Toolbar -->
+    <div class="action-toolbar">
+        <div class="toolbar-left">
+            <!-- Bulk Action Dropdown -->
+            <div class="bulk-action-dropdown" *ngIf="selectedItems.size > 0">
+                <button class="btn btn-outline-secondary btn-sm" (click)="toggleBulkDropdown()">
+                    <i class="fas fa-cog me-1"></i> Bulk Action <i class="fas fa-chevron-down ms-1"></i>
+                </button>
+                <ul class="dropdown-menu" [class.show]="showBulkDropdown">
+                    <li><a class="dropdown-item text-danger" href="javascript:void(0)" (click)="bulkDelete()">
+                            <i class="fas fa-trash me-2"></i> Delete
+                        </a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="toolbar-right">
+            <div class="per-page-select">
+                <select class="form-select form-select-sm" [(ngModel)]="perPage">
+                    <option [value]="50">50</option>
+                    <option [value]="100">100</option>
+                    <option [value]="200">200</option>
+                </select>
+            </div>
+            <button class="btn btn-sm btn-light border" (click)="toggleFilterPanel()" title="Filter">
+                <i class="fas fa-filter"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Content Card -->
+    <div class="content-card">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th class="checkbox-col">
+                            <input type="checkbox" class="form-check-input" [(ngModel)]="selectAll"
+                                (change)="toggleSelectAll()">
+                        </th>
+                        <th>Publisher</th>
+                        <th>Campaign</th>
+                        <th>Status</th>
+                        <th>Event</th>
+                        <th>Type</th>
+                        <th>Code</th>
+                        <th class="action-col">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let item of filteredData">
+                        <td class="checkbox-col">
+                            <input type="checkbox" class="form-check-input" [checked]="isSelected(item.id)"
+                                (change)="toggleItemSelection(item.id)">
+                        </td>
+                        <td>
+                            <a [routerLink]="['/publishers', item.publisherId]" class="publisher-link">(ID:
+                                {{item.publisherId}})
+                                {{item.publisherName}}</a>
+                        </td>
+                        <td>
+                            <a [routerLink]="['/campaigns', item.campaignId]" class="campaign-link"
+                                *ngIf="item.campaignId">(ID:
+                                {{item.campaignId}}) {{item.campaignName}}</a>
+                            <span *ngIf="!item.campaignId">{{item.campaignName}}</span>
+                        </td>
+                        <td>
+                            <span class="badge" [class.badge-active]="item.status === 'Active'"
+                                [class.badge-inactive]="item.status === 'Inactive'">
+                                {{item.status}}
+                            </span>
+                        </td>
+                        <td>{{item.event}}</td>
+                        <td>{{item.type}}</td>
+                        <td>
+                            <a href="javascript:void(0)" class="view-link" (click)="viewCode(item)">View</a>
+                        </td>
+                        <td class="action-col">
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-light border action-btn" type="button"
+                                    data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a class="dropdown-item" href="javascript:void(0)" (click)="editPostback(item)">
+                                            <i class="fas fa-edit me-2 text-primary"></i> Edit
+                                        </a></li>
+                                    <li><a class="dropdown-item" href="javascript:void(0)" (click)="viewLogs(item)">
+                                            <i class="fas fa-list me-2 text-info"></i> Postback Sent Logs
+                                        </a></li>
+                                    <li>
+                                        <hr class="dropdown-divider">
+                                    </li>
+                                    <li><a class="dropdown-item text-danger" href="javascript:void(0)"
+                                            (click)="deletePostback(item)">
+                                            <i class="fas fa-trash me-2"></i> Delete
+                                        </a></li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="pagination-info">Showing 1 to {{filteredData.length}} of {{totalCount}} entries</div>
+    </div>
+
+    <!-- Filter Sidebar Overlay -->
+    <div class="filter-sidebar-overlay" *ngIf="showFilterPanel" (click)="closeFilterPanel()"></div>
+
+    <!-- Filter Sidebar -->
+    <div class="filter-sidebar" [class.open]="showFilterPanel">
+        <div class="filter-sidebar-header">
+            <h5>Search Publisher</h5>
+            <button type="button" class="btn-close" (click)="closeFilterPanel()"></button>
+        </div>
+
+        <div class="filter-sidebar-body">
+            <!-- Campaign -->
+            <div class="filter-group">
+                <label class="filter-label">Campaign</label>
+                <select class="form-select form-select-sm" [(ngModel)]="filters.campaign">
+                    <option value="">Start Typing to search campaigns..</option>
+                    <option *ngFor="let campaign of campaignOptions" [value]="campaign.id">
+                        ({{campaign.id}}) {{campaign.name}}
+                    </option>
+                </select>
+            </div>
+
+            <!-- Publisher -->
+            <div class="filter-group">
+                <label class="filter-label">Publisher</label>
+                <select class="form-select form-select-sm" [(ngModel)]="filters.publisher">
+                    <option value="">Choose one or many Publisher</option>
+                    <option *ngFor="let publisher of publisherOptions" [value]="publisher.id">
+                        ({{publisher.id}}) {{publisher.name}}
+                    </option>
+                </select>
+            </div>
+
+            <!-- EVENT Type -->
+            <div class="filter-group">
+                <label class="filter-label">EVENT Type</label>
+                <select class="form-select form-select-sm" [(ngModel)]="filters.eventType">
+                    <option value="">Select event type</option>
+                    <option *ngFor="let event of eventTypeOptions" [value]="event.value">
+                        {{event.label}}
+                    </option>
+                </select>
+            </div>
+
+            <!-- Status -->
+            <div class="filter-group">
+                <label class="filter-label">Status</label>
+                <select class="form-select form-select-sm" [(ngModel)]="filters.status">
+                    <option value="">Select status</option>
+                    <option *ngFor="let status of statusOptions" [value]="status.value">
+                        {{status.label}}
+                    </option>
+                </select>
+            </div>
+
+            <!-- Pixel Type -->
+            <div class="filter-group">
+                <label class="filter-label">Pixel Type</label>
+                <select class="form-select form-select-sm" [(ngModel)]="filters.pixelType">
+                    <option value="">Select pixel type</option>
+                    <option *ngFor="let type of pixelTypeOptions" [value]="type.value">
+                        {{type.label}}
+                    </option>
+                </select>
+            </div>
+        </div>
+
+        <div class="filter-sidebar-footer">
+            <button class="btn btn-primary btn-sm" (click)="applyFilters()">Search</button>
+            <button class="btn btn-outline-secondary btn-sm" (click)="exportData()">Export</button>
+            <button class="btn btn-outline-secondary btn-sm" (click)="closeFilterPanel()">Close</button>
+        </div>
+    </div>
+</div>

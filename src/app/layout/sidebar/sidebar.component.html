@@ -72,14 +72,30 @@
     </div>
 
     <!-- Publishers -->
-    <a routerLink="/publishers/manage" routerLinkActive="active"
-        class="list-group-item list-group-item-action bg-transparent fw-bold">
-        <i class="fas fa-users me-2"></i> Publishers
+    <a class="list-group-item list-group-item-action bg-transparent fw-bold" data-bs-toggle="collapse"
+        href="#publishersMenu" role="button" aria-expanded="false" aria-controls="publishersMenu">
+        <i class="fas fa-users me-2"></i> Publishers <i class="fas fa-chevron-down float-end mt-1 small"></i>
     </a>
+    <div class="collapse" id="publishersMenu">
+        <div class="list-group list-group-flush ms-3 bg-transparent">
+            <a routerLink="/publishers/manage" routerLinkActive="active"
+                class="list-group-item list-group-item-action bg-transparent border-0 small">Manage</a>
+            <a routerLink="/publishers/postbacks-pixels" routerLinkActive="active"
+                class="list-group-item list-group-item-action bg-transparent border-0 small">PostBacks & Pixels</a>
+        </div>
+    </div>
 
     <!-- Advertisers -->
-    <a routerLink="/advertisers/manage" routerLinkActive="active"
-        class="list-group-item list-group-item-action bg-transparent fw-bold">
-        <i class="fas fa-briefcase me-2"></i> Advertisers
+    <a class="list-group-item list-group-item-action bg-transparent fw-bold" data-bs-toggle="collapse"
+        href="#advertisersMenu" role="button" aria-expanded="false" aria-controls="advertisersMenu">
+        <i class="fas fa-briefcase me-2"></i> Advertisers <i class="fas fa-chevron-down float-end mt-1 small"></i>
     </a>
+    <div class="collapse" id="advertisersMenu">
+        <div class="list-group list-group-flush ms-3 bg-transparent">
+            <a routerLink="/advertisers/manage" routerLinkActive="active"
+                class="list-group-item list-group-item-action bg-transparent border-0 small">Manage</a>
+            <a routerLink="/advertisers/postback-hits" routerLinkActive="active"
+                class="list-group-item list-group-item-action bg-transparent border-0 small">Postbacks Hits Received</a>
+        </div>
+    </div>
 </div>

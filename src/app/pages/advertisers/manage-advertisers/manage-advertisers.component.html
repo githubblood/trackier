@@ -1,0 +1,332 @@
+<div class="manage-advertisers-page">
+    <!-- Header -->
+    <div class="page-header">
+        <div class="header-left">
+            <h1 class="page-title">Manage Advertisers</h1>
+            <span class="advertiser-count">{{totalItems}} Advertisers</span>
+        </div>
+        <div class="header-actions">
+            <button class="btn btn-add" (click)="openAddModal()">
+                <i class="fas fa-plus"></i> Add New
+            </button>
+            <div class="dropdown">
+                <button class="btn btn-actions dropdown-toggle" data-bs-toggle="dropdown">
+                    Actions <i class="fas fa-chevron-down"></i>
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item">Export</a></li>
+                    <li><a class="dropdown-item">Bulk Update</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="content-wrapper" [class.filters-open]="showFilters">
+        <!-- Table Section -->
+        <div class="table-section">
+            <div class="table-header">
+                <div class="pagination-info">
+                    <button class="btn-page" [disabled]="currentPage === 1" (click)="goToPage(1)">
+                        <i class="fas fa-angle-double-left"></i>
+                    </button>
+                    <button class="btn-page" [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)">
+                        <i class="fas fa-angle-left"></i>
+                    </button>
+                    <span class="page-numbers">
+                        <span *ngFor="let p of [1,2,3,4,5]" class="page-num" [class.active]="p === currentPage"
+                            (click)="goToPage(p)">{{p}}</span>
+                    </span>
+                    <button class="btn-page" [disabled]="currentPage === totalPages"
+                        (click)="goToPage(currentPage + 1)">
+                        <i class="fas fa-angle-right"></i>
+                    </button>
+                    <button class="btn-page" [disabled]="currentPage === totalPages" (click)="goToPage(totalPages)">
+                        <i class="fas fa-angle-double-right"></i>
+                    </button>
+                    <select class="items-per-page" [(ngModel)]="itemsPerPage">
+                        <option [value]="25">25</option>
+                        <option [value]="50">50</option>
+                        <option [value]="100">100</option>
+                    </select>
+                </div>
+                <div class="table-actions">
+                    <button class="btn-icon" title="Download">
+                        <i class="fas fa-download"></i>
+                    </button>
+                    <button class="btn-icon" (click)="toggleFilters()" [class.active]="showFilters" title="Filters">
+                        <i class="fas fa-filter"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th class="checkbox-col">
+                                <input type="checkbox">
+                            </th>
+                            <th *ngFor="let col of visibleColumns">{{col.label}}</th>
+                            <th class="action-col">Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let adv of paginatedAdvertisers">
+                            <td class="checkbox-col">
+                                <input type="checkbox">
+                            </td>
+                            <td *ngIf="columns[0].visible">{{adv.id}}</td>
+                            <td *ngIf="columns[1].visible" class="name-cell">
+                                <div class="advertiser-info">
+                                    <div class="avatar"
+                                        [style.background-color]="'#' + (adv.id * 123456).toString(16).slice(0,6)">
+                                        {{adv.name.charAt(0)}}
+                                    </div>
+                                    <div class="info">
+                                        <a class="name-link" (click)="viewAdvertiser(adv.id)">{{adv.name}}</a>
+                                        <span class="email">{{adv.email}}</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td *ngIf="columns[2].visible">{{adv.company}}</td>
+                            <td *ngIf="columns[3].visible">
+                                <span class="status-badge" [ngClass]="getStatusClass(adv.status)">{{adv.status}}</span>
+                            </td>
+                            <td *ngIf="columns[4].visible">{{adv.createdDate}}</td>
+                            <td *ngIf="columns[5].visible">{{adv.lastLogin || '-'}}</td>
+                            <td *ngIf="columns[6].visible">{{adv.referenceId || '-'}}</td>
+                            <td *ngIf="columns[7].visible">{{adv.manager || '-'}}</td>
+                            <td *ngIf="columns[8].visible">{{adv.country || '-'}}</td>
+                            <td *ngIf="columns[9].visible">{{adv.currency || '-'}}</td>
+                            <td class="action-col">
+                                <div class="action-dropdown">
+                                    <button class="btn-action" data-bs-toggle="dropdown">
+                                        <i class="fas fa-ellipsis-v"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end">
+                                        <li><a class="dropdown-item" (click)="viewAdvertiser(adv.id)">
+                                                <i class="fas fa-eye"></i> View</a>
+                                        </li>
+                                        <li><a class="dropdown-item" (click)="editAdvertiser(adv.id)">
+                                                <i class="fas fa-edit"></i> Edit</a>
+                                        </li>
+                                        <li><a class="dropdown-item text-danger">
+                                                <i class="fas fa-ban"></i> Disable</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Filters Sidebar -->
+        <div class="filters-sidebar" *ngIf="showFilters">
+            <div class="sidebar-header">
+                <h5>Filters</h5>
+                <button class="btn-close-sidebar" (click)="toggleFilters()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="sidebar-content">
+                <!-- Advertiser ID -->
+                <div class="filter-group">
+                    <label class="filter-label">Advertiser ID</label>
+                    <input type="text" class="form-control" [(ngModel)]="filterAdvertiserId"
+                        placeholder="Enter Advertiser Id">
+                </div>
+
+                <!-- Contact/Company Name -->
+                <div class="filter-group accordion-group">
+                    <div class="accordion-header" data-bs-toggle="collapse" data-bs-target="#nameFilter">
+                        <span>Contact/Company Name</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="collapse" id="nameFilter">
+                        <input type="text" class="form-control" [(ngModel)]="filterName" placeholder="Search by name">
+                    </div>
+                </div>
+
+                <!-- Email -->
+                <div class="filter-group accordion-group">
+                    <div class="accordion-header" data-bs-toggle="collapse" data-bs-target="#emailFilter">
+                        <span>Email</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="collapse" id="emailFilter">
+                        <input type="text" class="form-control" [(ngModel)]="filterEmail" placeholder="Search by email">
+                    </div>
+                </div>
+
+                <!-- Status -->
+                <div class="filter-group accordion-group">
+                    <div class="accordion-header" data-bs-toggle="collapse" data-bs-target="#statusFilter">
+                        <span>Status</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="collapse" id="statusFilter">
+                        <select class="form-control" [(ngModel)]="filterStatus">
+                            <option value="">All</option>
+                            <option value="Active">Active</option>
+                            <option value="Pending">Pending</option>
+                            <option value="Rejected">Rejected</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Manager -->
+                <div class="filter-group accordion-group">
+                    <div class="accordion-header" data-bs-toggle="collapse" data-bs-target="#managerFilter">
+                        <span>Manager</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="collapse" id="managerFilter">
+                        <select class="form-control" [(ngModel)]="filterManager">
+                            <option value="">All</option>
+                            <option *ngFor="let m of managers" [value]="m.name">{{m.name}}</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Security Token -->
+                <div class="filter-group accordion-group">
+                    <div class="accordion-header" data-bs-toggle="collapse" data-bs-target="#tokenFilter">
+                        <span>Security Token</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="collapse" id="tokenFilter">
+                        <input type="text" class="form-control" [(ngModel)]="filterSecurityToken"
+                            placeholder="Enter security token">
+                    </div>
+                </div>
+
+                <!-- Columns Section -->
+                <div class="filter-group columns-section">
+                    <label class="filter-label">Columns</label>
+                    <input type="text" class="form-control columns-search" [(ngModel)]="columnSearchQuery"
+                        placeholder="Search">
+                    <div class="columns-list">
+                        <label class="column-checkbox" *ngFor="let col of filteredColumns">
+                            <input type="checkbox" [checked]="col.visible" (change)="toggleColumn(col)">
+                            <span>{{col.label}}</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-footer">
+                <button class="btn btn-primary" (click)="applyFilters()">Apply</button>
+                <button class="btn btn-outline" (click)="clearFilters()">Clear</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Advertiser Right Panel -->
+    <div class="add-advertiser-panel" *ngIf="showAddModal">
+        <div class="panel-overlay" (click)="closeAddModal()"></div>
+        <div class="panel-content">
+            <div class="panel-header">
+                <div class="header-content">
+                    <h5 class="panel-title">Add an Advertiser</h5>
+                    <p class="help-link">To know more, <a href="#" target="_blank">click here.</a></p>
+                </div>
+                <button class="btn-close-panel" (click)="closeAddModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="panel-body">
+                <h6 class="section-title">Details</h6>
+
+                <form>
+                    <!-- Full Name -->
+                    <div class="form-group">
+                        <label class="form-label">Full Name <span class="required">*</span></label>
+                        <input type="text" class="form-control" [(ngModel)]="newAdvertiser.name" name="name"
+                            placeholder="The name of your advertiser/website/resource" required>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="form-group">
+                        <label class="form-label">Email <span class="required">*</span></label>
+                        <input type="email" class="form-control" [(ngModel)]="newAdvertiser.email" name="email"
+                            placeholder="Enter Unique email of your advertiser" required>
+                    </div>
+
+                    <!-- Account Status -->
+                    <div class="form-group">
+                        <label class="form-label">Account Status <span class="required">*</span></label>
+                        <select class="form-control" [(ngModel)]="newAdvertiser.status" name="status" required>
+                            <option value="Active">Active</option>
+                            <option value="Pending">Pending</option>
+                            <option value="Disabled">Disabled</option>
+                            <option value="Rejected">Rejected</option>
+                        </select>
+                    </div>
+
+                    <!-- Company -->
+                    <div class="form-group">
+                        <label class="form-label">Company (Optional)</label>
+                        <input type="text" class="form-control" [(ngModel)]="newAdvertiser.company" name="company"
+                            placeholder="Company/Organization name">
+                    </div>
+
+                    <!-- Reference ID -->
+                    <div class="form-group">
+                        <label class="form-label">Reference ID</label>
+                        <input type="text" class="form-control" [(ngModel)]="newAdvertiser.referenceId"
+                            name="referenceId" placeholder="Reference ID">
+                    </div>
+
+                    <!-- Password -->
+                    <div class="form-group">
+                        <label class="form-label">Password (Optional)</label>
+                        <input type="password" class="form-control" [(ngModel)]="newAdvertiser.password" name="password"
+                            placeholder="8 characters minimum or leave empty to autogenerate">
+                    </div>
+
+                    <!-- Account Manager -->
+                    <div class="form-group">
+                        <label class="form-label">Account Manager (Optional)</label>
+                        <select class="form-control" [(ngModel)]="newAdvertiser.manager" name="manager">
+                            <option value="">Select Manager</option>
+                            <option *ngFor="let m of managers" [value]="m.name">{{m.name}} - ({{m.role}})</option>
+                        </select>
+                    </div>
+
+                    <!-- Notes -->
+                    <div class="form-group">
+                        <label class="form-label">Notes (Optional)</label>
+                        <textarea class="form-control" [(ngModel)]="newAdvertiser.notes" name="notes" rows="3"
+                            placeholder="Enter notes"></textarea>
+                        <small class="form-help-text">The content will not be displayed to advertiser or
+                            publisher</small>
+                    </div>
+
+                    <!-- Notify by Email -->
+                    <div class="form-group">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" [(ngModel)]="newAdvertiser.notifyEmail"
+                                name="notifyEmail" id="notifyEmail">
+                            <label class="form-check-label" for="notifyEmail">
+                                Notify this user by email
+                            </label>
+                        </div>
+                        <small class="form-help-text">Setup SMTP first by <a href="#" target="_blank">Clicking Here</a>
+                            to send email to the advertiser</small>
+                    </div>
+                </form>
+            </div>
+
+            <div class="panel-footer">
+                <button class="btn btn-save" (click)="saveAdvertiser()">
+                    <i class="fas fa-check"></i> Save
+                </button>
+                <button class="btn btn-cancel" (click)="closeAddModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>

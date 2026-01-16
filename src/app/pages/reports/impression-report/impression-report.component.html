@@ -1,16 +1,26 @@
 <div class="report-container">
     <div class="page-header">
         <h4 class="page-title">Impression Report</h4>
-        <div class="date-range">
-            <i class="fas fa-calendar-alt me-2"></i>
-            <input type="date" class="form-control form-control-sm" [(ngModel)]="startDate">
-            <span class="date-separator">-</span>
-            <input type="date" class="form-control form-control-sm" [(ngModel)]="endDate">
+        <div class="header-right">
+            <span class="text-muted small me-3">To know more, click here. <i
+                    class="fas fa-external-link-alt small"></i></span>
+            <div class="date-range">
+                <i class="fas fa-calendar-alt me-2"></i>
+                <input type="date" class="form-control form-control-sm" [(ngModel)]="startDate">
+                <span class="date-separator">-</span>
+                <input type="date" class="form-control form-control-sm" [(ngModel)]="endDate">
+            </div>
         </div>
     </div>
 
     <div class="action-toolbar">
         <div class="toolbar-left">
+            <span class="total-count fw-bold">{{filteredData.length}} Impressions</span>
+            <button class="btn btn-outline-secondary btn-sm ms-3" (click)="toggleFilterPanel()">
+                <i class="fas fa-exchange-alt me-1"></i> Change filters
+            </button>
+        </div>
+        <div class="toolbar-right">
             <div class="dropdown download-dropdown">
                 <button class="btn btn-dark btn-sm" (click)="toggleDownloadMenu()">
                     <i class="fas fa-download me-1"></i> Download <i class="fas fa-chevron-down ms-1"></i>
@@ -24,42 +34,65 @@
                                 class="fas fa-file-pdf me-2"></i> PDF</a></li>
                 </ul>
             </div>
-        </div>
-        <div class="toolbar-right">
             <div class="search-box"><label>Search:</label><input type="text" class="form-control form-control-sm"
                     [(ngModel)]="searchQuery"></div>
         </div>
     </div>
 
     <div class="content-card">
-        <div class="table-responsive">
+        <div class="no-data-placeholder" *ngIf="filteredData.length === 0">
+            <img src="assets/images/no-data.svg" alt="No Data" onerror="this.style.display='none'">
+            <p>No Data</p>
+        </div>
+        <div class="table-responsive" *ngIf="filteredData.length > 0">
             <table class="table table-striped table-hover align-middle mb-0">
                 <thead>
                     <tr>
-                        <th class="sortable">Impression ID <i class="fas fa-sort ms-1"></i></th>
-                        <th class="sortable">Publisher <i class="fas fa-sort ms-1"></i></th>
-                        <th class="sortable">Campaign <i class="fas fa-sort ms-1"></i></th>
-                        <th class="sortable">Advertiser <i class="fas fa-sort ms-1"></i></th>
-                        <th class="sortable">P1 <i class="fas fa-sort ms-1"></i></th>
-                        <th class="sortable">Device <i class="fas fa-sort ms-1"></i></th>
-                        <th class="sortable">OS <i class="fas fa-sort ms-1"></i></th>
-                        <th class="sortable">Country <i class="fas fa-sort ms-1"></i></th>
-                        <th class="sortable">Created <i class="fas fa-sort ms-1"></i></th>
+                        <th class="sortable" *ngFor="let col of getSelectedColumns()">
+                            {{col.label}} <i class="fas fa-sort ms-1"></i>
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr *ngFor="let item of filteredData">
-                        <td><code>{{item.impressionId}}</code></td>
-                        <td><a href="#" class="item-link">({{item.publisherId}}) {{item.publisher}}</a></td>
-                        <td><a href="#" class="item-link">({{item.campaignId}}) {{item.campaign}}</a></td>
-                        <td>{{item.advertiser}}</td>
-                        <td><span class="badge bg-light text-dark">{{item.p1}}</span></td>
-                        <td><i class="fas" [class.fa-mobile-alt]="item.device === 'Mobile'"
+                        <td *ngIf="isColumnSelected('publisher')">
+                            <a href="#" class="item-link">({{item.publisherId}}) {{item.publisher}}</a>
+                        </td>
+                        <td *ngIf="isColumnSelected('campaign')">
+                            <a href="#" class="item-link">({{item.campaignId}}) {{item.campaign}}</a>
+                        </td>
+                        <td *ngIf="isColumnSelected('ipAddress')">
+                            <code>{{item.ipAddress || '--'}}</code>
+                        </td>
+                        <td *ngIf="isColumnSelected('p1')">
+                            <span class="badge bg-light text-dark" *ngIf="item.p1">{{item.p1}}</span>
+                            <span *ngIf="!item.p1">--</span>
+                        </td>
+                        <td *ngIf="isColumnSelected('country')">
+                            <span class="badge bg-secondary">{{item.country}}</span>
+                        </td>
+                        <td *ngIf="isColumnSelected('device')">
+                            <i class="fas" [class.fa-mobile-alt]="item.device === 'Mobile'"
                                 [class.fa-desktop]="item.device === 'Desktop'"
-                                [class.fa-tablet-alt]="item.device === 'Tablet'"></i> {{item.device}}</td>
-                        <td>{{item.os}}</td>
-                        <td><span class="badge bg-secondary">{{item.country}}</span></td>
-                        <td>{{item.created}}</td>
+                                [class.fa-tablet-alt]="item.device === 'Tablet'"></i> {{item.device}}
+                        </td>
+                        <td *ngIf="isColumnSelected('impressionId')">
+                            <code>{{item.impressionId}}</code>
+                        </td>
+                        <td *ngIf="isColumnSelected('created')">{{item.created}}</td>
+                        <td *ngIf="isColumnSelected('os')">{{item.os}}</td>
+                        <td *ngIf="isColumnSelected('browser')">{{item.browser || '--'}}</td>
+                        <td *ngIf="isColumnSelected('city')">{{item.city || '--'}}</td>
+                        <td *ngIf="isColumnSelected('region')">{{item.region || '--'}}</td>
+                        <td *ngIf="isColumnSelected('source')">{{item.source || '--'}}</td>
+                        <td *ngIf="isColumnSelected('payout')">₹ {{item.payout?.toFixed(2) || '0.00'}}</td>
+                        <td *ngIf="isColumnSelected('revenue')">₹ {{item.revenue?.toFixed(2) || '0.00'}}</td>
+                        <td *ngIf="isColumnSelected('isRejected')">
+                            <span class="badge" [class.bg-danger]="item.isRejected"
+                                [class.bg-success]="!item.isRejected">
+                                {{item.isRejected ? 'Yes' : 'No'}}
+                            </span>
+                        </td>
                     </tr>
                 </tbody>
             </table>
@@ -67,52 +100,150 @@
         <div class="pagination-info">Showing 1 to {{filteredData.length}} of {{filteredData.length}} entries</div>
     </div>
 
-    <button class="filter-fab" (click)="toggleFilterPanel()" title="Search Filter"><i
-            class="fas fa-filter"></i></button>
-    <div class="filter-overlay" *ngIf="showFilterPanel" (click)="closeFilterPanel()"></div>
+    <!-- Filter Sidebar Overlay -->
+    <div class="filter-sidebar-overlay" *ngIf="showFilterPanel" (click)="closeFilterPanel()"></div>
 
-    <div class="filter-panel" [class.open]="showFilterPanel">
-        <div class="filter-header">
-            <h5><i class="fas fa-filter me-2"></i> Search Filter</h5><button type="button" class="btn-close"
-                (click)="closeFilterPanel()"></button>
+    <!-- Filter Sidebar - Trackier Style -->
+    <div class="filter-sidebar" [class.open]="showFilterPanel">
+        <div class="filter-sidebar-header">
+            <h5>Filters</h5>
+            <button type="button" class="btn-close" (click)="closeFilterPanel()"></button>
         </div>
-        <div class="filter-body">
-            <div class="filter-section">
-                <div class="row mb-3">
-                    <div class="col-6">
-                        <label class="form-label">Campaign</label>
-                        <input type="text" class="form-control form-control-sm" [(ngModel)]="filters.campaign"
-                            placeholder="Search campaign...">
-                    </div>
-                    <div class="col-6">
-                        <label class="form-label">Publisher</label>
-                        <input type="text" class="form-control form-control-sm" [(ngModel)]="filters.publisher"
-                            placeholder="Search publisher...">
+
+        <div class="filter-sidebar-body">
+            <!-- Impression ID -->
+            <div class="filter-group">
+                <label class="filter-label">Impression ID</label>
+                <input type="text" class="form-control form-control-sm" [(ngModel)]="filters.impressionId"
+                    placeholder="Enter impression id">
+            </div>
+
+            <!-- Campaign -->
+            <div class="filter-group">
+                <label class="filter-label">Campaign</label>
+                <input type="text" class="form-control form-control-sm" [(ngModel)]="filters.campaign"
+                    placeholder="Search campaigns..">
+            </div>
+
+            <!-- Publisher -->
+            <div class="filter-group">
+                <label class="filter-label">Publisher</label>
+                <input type="text" class="form-control form-control-sm" [(ngModel)]="filters.publisher"
+                    placeholder="Choose one or many Publisher">
+            </div>
+
+            <!-- Advertiser -->
+            <div class="filter-group">
+                <label class="filter-label">Advertiser</label>
+                <input type="text" class="form-control form-control-sm" [(ngModel)]="filters.advertiser"
+                    placeholder="Choose one or many Advertiser">
+            </div>
+
+            <!-- P1 -->
+            <div class="filter-group">
+                <label class="filter-label">P1</label>
+                <input type="text" class="form-control form-control-sm" [(ngModel)]="filters.p1" placeholder="Enter P1">
+            </div>
+
+            <!-- Is Rejected -->
+            <div class="filter-group">
+                <label class="filter-label">Is Rejected</label>
+                <select class="form-select form-select-sm" [(ngModel)]="filters.isRejected">
+                    <option value="">--</option>
+                    <option value="yes">Yes</option>
+                    <option value="no">No</option>
+                </select>
+            </div>
+
+            <!-- Source -->
+            <div class="filter-group">
+                <label class="filter-label">Source</label>
+                <input type="text" class="form-control form-control-sm" [(ngModel)]="filters.source"
+                    placeholder="Source">
+            </div>
+
+            <!-- Fields Section -->
+            <div class="fields-section">
+                <label class="filter-label">Fields</label>
+                <div class="selected-fields">
+                    <span class="field-tag" *ngFor="let field of getSelectedFieldTags()">
+                        {{field.label}}
+                        <button class="tag-remove" (click)="removeField(field.id)">×</button>
+                    </span>
+                </div>
+                <a href="javascript:void(0)" class="add-more-link" (click)="openFieldsModal()">
+                    <i class="fas fa-plus me-1"></i> Add more columns
+                </a>
+            </div>
+        </div>
+
+        <div class="filter-sidebar-footer">
+            <button class="btn btn-primary" (click)="applyFilters()">Apply</button>
+            <button class="btn btn-outline-secondary" (click)="closeFilterPanel()">Close</button>
+        </div>
+    </div>
+
+    <!-- Fields Selection Modal -->
+    <div class="fields-modal-overlay" *ngIf="showFieldsModal" (click)="closeFieldsModal()"></div>
+    <div class="fields-modal" *ngIf="showFieldsModal">
+        <div class="fields-modal-header">
+            <input type="text" class="form-control form-control-sm search-fields" [(ngModel)]="fieldSearch"
+                placeholder="Search fields...">
+            <div class="header-actions">
+                <button class="btn btn-sm btn-link" (click)="clearAllFields()" title="Clear all">
+                    <i class="fas fa-times"></i>
+                </button>
+                <button class="btn btn-sm btn-link" (click)="selectAllFields()" title="Select all">
+                    <i class="fas fa-check-double"></i>
+                </button>
+                <button type="button" class="btn-close" (click)="closeFieldsModal()"></button>
+            </div>
+        </div>
+        <div class="fields-modal-body">
+            <div class="fields-grid">
+                <!-- Column 1 - Publisher & P-params -->
+                <div class="fields-column">
+                    <div class="form-check" *ngFor="let field of getFilteredFields(fieldsCol1)">
+                        <input class="form-check-input" type="checkbox" [checked]="getTempFieldValue(field.id)"
+                            (change)="setTempFieldValue(field.id, $any($event.target).checked)" [id]="field.id">
+                        <label class="form-check-label" [for]="field.id">{{field.label}}</label>
                     </div>
                 </div>
-                <div class="row mb-3">
-                    <div class="col-6">
-                        <label class="form-label">Advertiser</label>
-                        <input type="text" class="form-control form-control-sm" [(ngModel)]="filters.advertiser"
-                            placeholder="Search advertiser...">
-                    </div>
-                    <div class="col-6">
-                        <label class="form-label">Impression ID</label>
-                        <input type="text" class="form-control form-control-sm" [(ngModel)]="filters.impressionId"
-                            placeholder="Enter impression ID...">
+
+                <!-- Column 2 - Campaign & Finance -->
+                <div class="fields-column">
+                    <div class="form-check" *ngFor="let field of getFilteredFields(fieldsCol2)">
+                        <input class="form-check-input" type="checkbox" [checked]="getTempFieldValue(field.id)"
+                            (change)="setTempFieldValue(field.id, $any($event.target).checked)" [id]="field.id">
+                        <label class="form-check-label" [for]="field.id">{{field.label}}</label>
                     </div>
                 </div>
-                <div class="row mb-3">
-                    <div class="col-6">
-                        <label class="form-label">P1 (Sub ID)</label>
-                        <input type="text" class="form-control form-control-sm" [(ngModel)]="filters.p1"
-                            placeholder="Enter P1...">
+
+                <!-- Column 3 - Geo & Tech -->
+                <div class="fields-column">
+                    <div class="form-check" *ngFor="let field of getFilteredFields(fieldsCol3)">
+                        <input class="form-check-input" type="checkbox" [checked]="getTempFieldValue(field.id)"
+                            (change)="setTempFieldValue(field.id, $any($event.target).checked)" [id]="field.id">
+                        <label class="form-check-label" [for]="field.id">{{field.label}}</label>
+                    </div>
+                </div>
+
+                <!-- Column 4 - System Details -->
+                <div class="fields-column">
+                    <div class="form-check" *ngFor="let field of getFilteredFields(fieldsCol4)">
+                        <input class="form-check-input" type="checkbox" [checked]="getTempFieldValue(field.id)"
+                            (change)="setTempFieldValue(field.id, $any($event.target).checked)" [id]="field.id">
+                        <label class="form-check-label" [for]="field.id">{{field.label}}</label>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="filter-footer"><button class="btn btn-primary" (click)="applyFilters()"><i
-                    class="fas fa-check me-1"></i> Submit</button><button class="btn btn-outline-secondary"
-                (click)="closeFilterPanel()">Close</button></div>
+        <div class="fields-modal-footer">
+            <span class="text-muted small">Please select atmax 20 Fields for export</span>
+            <div class="footer-actions">
+                <button class="btn btn-outline-secondary btn-sm" (click)="closeFieldsModal()">Cancel</button>
+                <button class="btn btn-primary btn-sm" (click)="applyFieldSelections()">Apply</button>
+            </div>
+        </div>
     </div>
 </div>

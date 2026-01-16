@@ -1,0 +1,324 @@
+.report-container {
+    position: relative;
+    min-height: calc(100vh - 80px);
+}
+
+// Page Header
+.page-header {
+    padding: 15px 0;
+    margin-bottom: 10px;
+}
+
+.page-title {
+    font-size: 22px;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+
+    .count-badge {
+        font-size: 14px;
+        font-weight: 400;
+        color: #666;
+    }
+}
+
+// Action Toolbar
+.action-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #fff;
+    padding: 12px 20px;
+    border-radius: 8px 8px 0 0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    margin-bottom: 0;
+}
+
+.toolbar-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.toolbar-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+// Bulk Action Dropdown
+.bulk-action-dropdown {
+    position: relative;
+
+    .dropdown-menu {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        z-index: 1000;
+        min-width: 150px;
+        background: #fff;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        border: none;
+        border-radius: 6px;
+        padding: 8px 0;
+        margin-top: 4px;
+        display: none;
+
+        &.show {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 10px 16px;
+            cursor: pointer;
+            font-size: 14px;
+
+            &:hover {
+                background: #f8f9fa;
+            }
+        }
+    }
+}
+
+// Per Page Select
+.per-page-select {
+    .form-select {
+        width: auto;
+        min-width: 80px;
+        font-size: 13px;
+    }
+}
+
+// Content Card
+.content-card {
+    background: #fff;
+    border-radius: 0 0 8px 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+// Table Styles
+.table {
+    margin-bottom: 0;
+
+    thead {
+        background: #f8f9fa;
+
+        th {
+            font-size: 13px;
+            font-weight: 600;
+            color: #333;
+            padding: 12px;
+            border-bottom: 2px solid #e9ecef;
+            white-space: nowrap;
+        }
+    }
+
+    tbody {
+        tr {
+            &:nth-child(odd) {
+                background: #fff;
+            }
+
+            &:nth-child(even) {
+                background: #f9f9f9;
+            }
+
+            &:hover {
+                background: #f0f7ff;
+            }
+        }
+
+        td {
+            font-size: 13px;
+            padding: 10px 12px;
+            border-bottom: 1px solid #e9ecef;
+            vertical-align: middle;
+        }
+    }
+}
+
+.checkbox-col {
+    width: 40px;
+    text-align: center;
+}
+
+.action-col {
+    width: 60px;
+    text-align: center;
+}
+
+.action-btn {
+    padding: 4px 8px;
+    font-size: 12px;
+}
+
+// Links
+.publisher-link,
+.campaign-link {
+    color: #17a2b8;
+    text-decoration: none;
+    font-weight: 500;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+.view-link {
+    color: #17a2b8;
+    text-decoration: none;
+    font-size: 13px;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+// Status Badges
+.badge-active {
+    background-color: #28a745;
+    color: #fff;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+.badge-inactive {
+    background-color: #6c757d;
+    color: #fff;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 500;
+}
+
+// Pagination Info
+.pagination-info {
+    padding: 12px 20px;
+    font-size: 13px;
+    color: #666;
+    border-top: 1px solid #e9ecef;
+}
+
+// Filter Sidebar Overlay
+.filter-sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 199;
+}
+
+// Filter Sidebar
+.filter-sidebar {
+    position: fixed;
+    top: 0;
+    right: -350px;
+    width: 350px;
+    height: 100vh;
+    background: #fff;
+    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
+    z-index: 200;
+    transition: right 0.3s ease;
+    display: flex;
+    flex-direction: column;
+
+    &.open {
+        right: 0;
+    }
+}
+
+.filter-sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 1px solid #e9ecef;
+
+    h5 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 600;
+        color: #333;
+    }
+
+    .btn-close {
+        opacity: 0.5;
+
+        &:hover {
+            opacity: 1;
+        }
+    }
+}
+
+.filter-sidebar-body {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+}
+
+.filter-group {
+    margin-bottom: 18px;
+
+    .filter-label {
+        display: block;
+        font-size: 12px;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 8px;
+    }
+
+    .form-control,
+    .form-select {
+        font-size: 13px;
+        padding: 8px 12px;
+        border-color: #dee2e6;
+        border-radius: 4px;
+
+        &:focus {
+            border-color: #17a2b8;
+            box-shadow: 0 0 0 2px rgba(23, 162, 184, 0.15);
+        }
+    }
+}
+
+.filter-sidebar-footer {
+    padding: 15px 20px;
+    border-top: 1px solid #e9ecef;
+    display: flex;
+    gap: 10px;
+
+    .btn {
+        flex: 1;
+        padding: 10px 16px;
+        font-size: 13px;
+        font-weight: 500;
+    }
+
+    .btn-primary {
+        background: #17a2b8;
+        border-color: #17a2b8;
+
+        &:hover {
+            background: #138496;
+            border-color: #117a8b;
+        }
+    }
+}
+
+// Responsive
+@media (max-width: 768px) {
+    .action-toolbar {
+        flex-direction: column;
+        gap: 10px;
+        align-items: flex-start;
+    }
+
+    .filter-sidebar {
+        width: 100%;
+        right: -100%;
+    }
+}

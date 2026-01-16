@@ -1,40 +1,461 @@
-<h4 class="fw-bold mb-4">Manage Publishers</h4>
-<div class="card border-0 shadow-sm">
-    <div class="card-body">
-        <div class="d-flex justify-content-between mb-3">
-            <input type="text" class="form-control w-25" placeholder="Search publishers...">
-            <button class="btn btn-primary"><i class="fas fa-user-plus"></i> Add Publisher</button>
+<div class="manage-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="header-left">
+            <h4 class="page-title">Manage: Publisher</h4>
         </div>
+        <div class="header-right">
+            <button class="btn btn-primary btn-sm" (click)="toggleNewPublisherModal()">
+                <i class="fas fa-plus me-1"></i> New Publisher
+            </button>
+            <button class="btn btn-outline-secondary btn-sm ms-2" title="Page Tips">
+                <i class="fas fa-lightbulb"></i> Page Tips
+            </button>
+            <button class="btn btn-dark btn-sm ms-2" (click)="toggleFilterPanel()">
+                <i class="fas fa-search me-1"></i> Search Publisher
+            </button>
+        </div>
+    </div>
+
+    <!-- Sub Header -->
+    <div class="sub-header">
+        <span>Manage: Publishers <strong>Page {{currentPage}} of {{totalPages}}</strong></span>
+        <span class="text-muted small ms-3">Go to the new version by <a href="javascript:void(0)">clicking
+                here</a></span>
+    </div>
+
+    <!-- Toolbar -->
+    <div class="action-toolbar">
+        <div class="toolbar-left">
+            <div class="pagination-controls">
+                <button class="btn btn-sm btn-light border" (click)="goToPage(1)" [disabled]="currentPage === 1">
+                    <i class="fas fa-angle-double-left"></i>
+                </button>
+                <button class="btn btn-sm btn-light border" (click)="goToPage(currentPage - 1)"
+                    [disabled]="currentPage === 1">
+                    <i class="fas fa-angle-left"></i>
+                </button>
+                <span class="page-info mx-2">{{currentPage}} of {{totalPages}}</span>
+                <button class="btn btn-sm btn-light border" (click)="goToPage(currentPage + 1)"
+                    [disabled]="currentPage === totalPages">
+                    <i class="fas fa-angle-right"></i>
+                </button>
+                <button class="btn btn-sm btn-light border" (click)="goToPage(totalPages)"
+                    [disabled]="currentPage === totalPages">
+                    <i class="fas fa-angle-double-right"></i>
+                </button>
+            </div>
+            <div class="per-page-select ms-3">
+                <select class="form-select form-select-sm" [(ngModel)]="perPage">
+                    <option [value]="50">50</option>
+                    <option [value]="100">100</option>
+                    <option [value]="200">200</option>
+                </select>
+            </div>
+        </div>
+        <div class="toolbar-right">
+            <button class="btn btn-sm btn-light border" (click)="exportPublishers()" title="Export">
+                <i class="fas fa-cloud-download-alt"></i>
+            </button>
+            <button class="btn btn-sm btn-light border ms-2" (click)="showInfo()" title="Info">
+                <i class="fas fa-info-circle"></i>
+            </button>
+            <button class="btn btn-sm btn-light border ms-2" (click)="toggleFilterPanel()" title="Filter">
+                <i class="fas fa-filter"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Content Card -->
+    <div class="content-card">
         <div class="table-responsive">
             <table class="table table-hover align-middle mb-0">
-                <thead class="bg-light table-light text-uppercase small text-muted">
+                <thead>
                     <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Status</th>
-                        <th>Balance</th>
-                        <th>Actions</th>
+                        <th class="checkbox-col">
+                            <input type="checkbox" class="form-check-input" [(ngModel)]="selectAll"
+                                (change)="toggleSelectAll()">
+                        </th>
+                        <th *ngFor="let col of visibleColumns">{{col.label}}</th>
+                        <th>ACTION</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr *ngFor="let p of publishers">
-                        <td class="text-muted fw-bold">{{p.id}}</td>
-                        <td class="fw-bold text-primary"><a href="#" class="text-decoration-none">{{p.name}}</a></td>
-                        <td>{{p.email}}</td>
-                        <td>
-                            <span class="badge"
-                                [ngClass]="p.status === 'Active' ? 'bg-success' : 'bg-warning text-dark'">{{p.status}}</span>
+                    <tr *ngFor="let pub of filteredPublishers">
+                        <td class="checkbox-col">
+                            <input type="checkbox" class="form-check-input" [checked]="isSelected(pub.id)"
+                                (change)="toggleItemSelection(pub.id)">
                         </td>
-                        <td>{{p.balance}}</td>
-                        <td>
-                            <button class="btn btn-sm btn-light border"><i class="fas fa-edit text-muted"></i></button>
-                            <button class="btn btn-sm btn-light border ms-1" title="Login as User"><i
-                                    class="fas fa-sign-in-alt text-muted"></i></button>
+                        <ng-container *ngFor="let col of visibleColumns">
+                            <td *ngIf="col.key === 'id'" class="id-col">{{pub.id}}</td>
+                            <td *ngIf="col.key === 'name'">
+                                <div class="publisher-info">
+                                    <div class="publisher-avatar">{{getInitials(pub.name)}}</div>
+                                    <div class="publisher-details">
+                                        <a [routerLink]="['/publishers', pub.id]"
+                                            class="publisher-name">{{pub.name}}</a>
+                                        <span class="publisher-email">{{pub.email}}</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td *ngIf="col.key === 'status'">
+                                <span class="badge" [ngClass]="getStatusClass(pub.status)">
+                                    {{pub.status}}
+                                </span>
+                            </td>
+                            <td *ngIf="col.key !== 'id' && col.key !== 'name' && col.key !== 'status'">
+                                {{getColumnValue(pub, col.key)}}
+                            </td>
+                        </ng-container>
+                        <td class="action-col">
+                            <button class="btn btn-sm btn-light border me-1" (click)="editPublisher(pub)" title="Edit">
+                                <i class="fas fa-edit text-muted"></i>
+                            </button>
+                            <button class="btn btn-sm btn-light border me-1" (click)="loginAsPublisher(pub)"
+                                title="Login as">
+                                <i class="fas fa-sign-in-alt text-muted"></i> Login as
+                            </button>
+                            <button class="btn btn-sm btn-light border" (click)="deletePublisher(pub)" title="Delete">
+                                <i class="fas fa-trash text-danger"></i>
+                            </button>
                         </td>
                     </tr>
                 </tbody>
             </table>
+        </div>
+        <div class="pagination-info">
+            Showing 1 to {{filteredPublishers.length}} of {{totalCount}} entries
+        </div>
+    </div>
+
+    <!-- Bottom Action Bar (for bulk actions) -->
+    <div class="bottom-action-bar" *ngIf="selectedItems.size > 0">
+        <span class="selected-count">{{selectedItems.size}} selected</span>
+        <button class="btn btn-success btn-sm ms-3">
+            <i class="fas fa-check me-1"></i> Approve
+        </button>
+        <button class="btn btn-warning btn-sm ms-2">
+            <i class="fas fa-times me-1"></i> Reject
+        </button>
+        <button class="btn btn-danger btn-sm ms-2">
+            <i class="fas fa-trash me-1"></i> Delete
+        </button>
+        <button class="btn btn-secondary btn-sm ms-2">
+            <i class="fas fa-tag me-1"></i> Tag
+        </button>
+    </div>
+
+    <!-- Filter Sidebar Overlay -->
+    <div class="filter-sidebar-overlay" *ngIf="showFilterPanel" (click)="closeFilterPanel()"></div>
+
+    <!-- Filter Sidebar - Trackier Style with Collapsible Sections -->
+    <div class="filter-sidebar" [class.open]="showFilterPanel">
+        <div class="filter-sidebar-header">
+            <h5>Filters</h5>
+            <button type="button" class="btn-close" (click)="closeFilterPanel()"></button>
+        </div>
+
+        <div class="filter-sidebar-body">
+            <!-- Publisher ID Section -->
+            <div class="filter-card">
+                <div class="filter-card-header" (click)="toggleSection('publisherId')">
+                    <span>Publisher ID</span>
+                    <i class="fas" [ngClass]="collapsedSections.publisherId ? 'fa-chevron-down' : 'fa-chevron-up'"></i>
+                </div>
+                <div class="filter-card-body" *ngIf="!collapsedSections.publisherId">
+                    <input type="text" class="form-control form-control-sm" [(ngModel)]="filters.publisherId"
+                        placeholder="Enter Publisher id">
+                </div>
+            </div>
+
+            <!-- Contact/Company Name Section -->
+            <div class="filter-card">
+                <div class="filter-card-header" (click)="toggleSection('contactName')">
+                    <span>Contact/Company Name</span>
+                    <i class="fas" [ngClass]="collapsedSections.contactName ? 'fa-chevron-down' : 'fa-chevron-up'"></i>
+                </div>
+                <div class="filter-card-body" *ngIf="!collapsedSections.contactName">
+                    <input type="text" class="form-control form-control-sm" [(ngModel)]="filters.contactName"
+                        placeholder="Enter Publisher/company name">
+                </div>
+            </div>
+
+            <!-- Status Section -->
+            <div class="filter-card">
+                <div class="filter-card-header" (click)="toggleSection('status')">
+                    <span>Status</span>
+                    <i class="fas" [ngClass]="collapsedSections.status ? 'fa-chevron-down' : 'fa-chevron-up'"></i>
+                </div>
+                <div class="filter-card-body" *ngIf="!collapsedSections.status">
+                    <div class="status-checkboxes">
+                        <div class="form-check" *ngFor="let status of statusOptions">
+                            <input class="form-check-input" type="checkbox" [(ngModel)]="status.selected"
+                                [id]="'status_' + status.value">
+                            <label class="form-check-label" [for]="'status_' + status.value">{{status.label}}</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Email Section -->
+            <div class="filter-card">
+                <div class="filter-card-header" (click)="toggleSection('email')">
+                    <span>Email</span>
+                    <i class="fas" [ngClass]="collapsedSections.email ? 'fa-chevron-down' : 'fa-chevron-up'"></i>
+                </div>
+                <div class="filter-card-body" *ngIf="!collapsedSections.email">
+                    <input type="text" class="form-control form-control-sm" [(ngModel)]="filters.email"
+                        placeholder="Enter Publisher Email">
+                </div>
+            </div>
+
+            <!-- Manager Section -->
+            <div class="filter-card">
+                <div class="filter-card-header" (click)="toggleSection('manager')">
+                    <span>Manager</span>
+                    <i class="fas" [ngClass]="collapsedSections.manager ? 'fa-chevron-down' : 'fa-chevron-up'"></i>
+                </div>
+                <div class="filter-card-body" *ngIf="!collapsedSections.manager">
+                    <select class="form-select form-select-sm" [(ngModel)]="filters.manager">
+                        <option value="">Enter Manager's Name</option>
+                        <option *ngFor="let manager of managerOptions" [value]="manager.id">{{manager.name}}</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Reference Id Section -->
+            <div class="filter-card">
+                <div class="filter-card-header" (click)="toggleSection('referenceId')">
+                    <span>Reference Id</span>
+                    <i class="fas" [ngClass]="collapsedSections.referenceId ? 'fa-chevron-down' : 'fa-chevron-up'"></i>
+                </div>
+                <div class="filter-card-body" *ngIf="!collapsedSections.referenceId">
+                    <input type="text" class="form-control form-control-sm" [(ngModel)]="filters.referenceId"
+                        placeholder="Enter Reference id">
+                </div>
+            </div>
+
+            <!-- Columns Section -->
+            <div class="filter-card columns-card">
+                <div class="filter-card-header" (click)="toggleSection('columns')">
+                    <span>Columns</span>
+                    <i class="fas" [ngClass]="collapsedSections.columns ? 'fa-chevron-down' : 'fa-chevron-up'"></i>
+                </div>
+                <div class="filter-card-body" *ngIf="!collapsedSections.columns">
+                    <!-- Column Search and Actions -->
+                    <div class="columns-header">
+                        <input type="text" class="form-control form-control-sm" [(ngModel)]="columnSearchQuery"
+                            placeholder="Search columns...">
+                        <div class="columns-actions">
+                            <button class="btn btn-sm btn-light border" (click)="resetColumnsToDefault()"
+                                title="Reset to Default">
+                                <i class="fas fa-undo"></i>
+                            </button>
+                            <button class="btn btn-sm btn-light border ms-1" (click)="selectAllColumns()"
+                                title="Select All">
+                                <i class="fas fa-check-double"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Column Checkboxes -->
+                    <div class="columns-list">
+                        <div class="form-check" *ngFor="let col of filteredColumns">
+                            <input class="form-check-input" type="checkbox" [(ngModel)]="tempColumnVisibility[col.key]"
+                                [id]="'col_' + col.key">
+                            <label class="form-check-label" [for]="'col_' + col.key">{{col.label}}</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="filter-sidebar-footer">
+            <button class="btn btn-primary btn-sm" (click)="applyFilters()">
+                <i class="fas fa-check me-1"></i> Apply
+            </button>
+            <button class="btn btn-outline-secondary btn-sm" (click)="closeFilterPanel()">
+                Close
+            </button>
+        </div>
+    </div>
+    <!-- Add Publisher Modal (Side Panel) -->
+    <div class="filter-sidebar-overlay" *ngIf="showNewPublisherModal" (click)="closeNewPublisherModal()"></div>
+
+    <div class="add-publisher-sidebar" [class.open]="showNewPublisherModal">
+        <div class="sidebar-header">
+            <div class="header-title">
+                <h5>Add Publisher</h5>
+                <a href="javascript:void(0)" class="help-link">To know more, click here <i
+                        class="fas fa-external-link-alt"></i></a>
+            </div>
+            <button type="button" class="btn-close" (click)="closeNewPublisherModal()"></button>
+        </div>
+
+        <div class="sidebar-body">
+            <h6 class="section-title">Basic Details</h6>
+
+            <!-- Full Name -->
+            <div class="form-group mb-3">
+                <label class="form-label required">Full Name</label>
+                <input type="text" class="form-control" [(ngModel)]="newPublisher.fullName"
+                    placeholder="Full name of the publisher">
+            </div>
+
+            <!-- Email -->
+            <div class="form-group mb-3">
+                <label class="form-label required">Email</label>
+                <input type="email" class="form-control" [(ngModel)]="newPublisher.email"
+                    placeholder="Unique Publisher Email">
+            </div>
+
+            <!-- Account Status -->
+            <div class="form-group mb-3">
+                <label class="form-label required">Account Status</label>
+                <select class="form-select" [(ngModel)]="newPublisher.accountStatus">
+                    <option *ngFor="let status of accountStatusOptions" [value]="status.value">{{status.label}}</option>
+                </select>
+            </div>
+
+            <!-- Country -->
+            <div class="form-group mb-3">
+                <label class="form-label">Country</label>
+                <select class="form-select" [(ngModel)]="newPublisher.country">
+                    <option *ngFor="let country of countryOptions" [value]="country.code">[{{country.code}}]
+                        {{country.name}}</option>
+                </select>
+            </div>
+
+            <!-- Company -->
+            <div class="form-group mb-3">
+                <label class="form-label">Company (Optional)</label>
+                <input type="text" class="form-control" [(ngModel)]="newPublisher.company"
+                    placeholder="Company/Organization name">
+            </div>
+
+            <!-- Reference ID -->
+            <div class="form-group mb-3">
+                <label class="form-label">Reference ID</label>
+                <input type="text" class="form-control" [(ngModel)]="newPublisher.referenceId"
+                    placeholder="Reference ID">
+            </div>
+
+            <!-- Advanced Setup Toggle -->
+            <div class="form-check form-switch mb-3">
+                <input class="form-check-input" type="checkbox" id="advancedSetupToggle" [checked]="showAdvancedSetup"
+                    (change)="toggleAdvancedSetup()">
+                <label class="form-check-label fw-bold" for="advancedSetupToggle">Advanced Setup</label>
+            </div>
+
+            <!-- Advanced Setup Fields -->
+            <div class="advanced-setup" *ngIf="showAdvancedSetup">
+                <!-- Password -->
+                <div class="form-group mb-3">
+                    <label class="form-label">Password (Optional)</label>
+                    <input type="password" class="form-control" [(ngModel)]="newPublisher.password"
+                        placeholder="Leave empty to Auto Generate">
+                </div>
+
+                <!-- Account Manager -->
+                <div class="form-group mb-3">
+                    <label class="form-label">Account Manager (Optional)</label>
+                    <select class="form-select" [(ngModel)]="newPublisher.accountManager">
+                        <option value="">Select Account Manager</option>
+                        <option *ngFor="let manager of managerOptions" [value]="manager.name">{{manager.name}}</option>
+                    </select>
+                </div>
+
+                <!-- Phone -->
+                <div class="form-group mb-3">
+                    <label class="form-label">Phone (Optional)</label>
+                    <input type="text" class="form-control" [(ngModel)]="newPublisher.phone" placeholder="Phone number">
+                </div>
+
+                <!-- Skype -->
+                <div class="form-group mb-3">
+                    <label class="form-label">Skype (Optional)</label>
+                    <input type="text" class="form-control" [(ngModel)]="newPublisher.skype" placeholder="Skype">
+                </div>
+
+                <!-- Address -->
+                <div class="form-group mb-3">
+                    <label class="form-label">Address (Optional)</label>
+                    <input type="text" class="form-control" [(ngModel)]="newPublisher.address" placeholder="Address">
+                </div>
+
+                <!-- City -->
+                <div class="form-group mb-3">
+                    <label class="form-label">City (Optional)</label>
+                    <input type="text" class="form-control" [(ngModel)]="newPublisher.city" placeholder="City">
+                </div>
+
+                <!-- State -->
+                <div class="form-group mb-3">
+                    <label class="form-label">State (Optional)</label>
+                    <input type="text" class="form-control" [(ngModel)]="newPublisher.state" placeholder="State">
+                </div>
+
+                <!-- Zipcode -->
+                <div class="form-group mb-3">
+                    <label class="form-label">Zipcode (Optional)</label>
+                    <input type="text" class="form-control" [(ngModel)]="newPublisher.zipcode" placeholder="Zipcode">
+                </div>
+
+                <!-- Tags -->
+                <div class="form-group mb-3">
+                    <label class="form-label">Tags (Optional)</label>
+                    <input type="text" class="form-control" [(ngModel)]="newPublisher.tags"
+                        placeholder="Publisher tags">
+                </div>
+
+                <!-- Tax ID -->
+                <div class="form-group mb-3">
+                    <label class="form-label">Tax ID (Optional)</label>
+                    <input type="text" class="form-control" [(ngModel)]="newPublisher.taxId" placeholder="Tax ID">
+                    <div class="form-text small">VAT / GST</div>
+                </div>
+
+                <!-- Country (Advanced) -->
+                <div class="form-group mb-3">
+                    <label class="form-label">Country (Optional)</label>
+                    <select class="form-select" [(ngModel)]="newPublisher.advancedCountry">
+                        <option value="">--</option>
+                        <option *ngFor="let country of countryOptions" [value]="country.code">[{{country.code}}]
+                            {{country.name}}</option>
+                    </select>
+                </div>
+
+                <!-- Username -->
+                <div class="form-group mb-3">
+                    <label class="form-label">Username (Optional)</label>
+                    <input type="text" class="form-control" [(ngModel)]="newPublisher.username"
+                        placeholder="Username of the publisher">
+                </div>
+
+                <!-- Notes -->
+                <div class="form-group mb-3">
+                    <label class="form-label">Notes (Optional)</label>
+                    <textarea class="form-control" rows="3" [(ngModel)]="newPublisher.notes"></textarea>
+                    <div class="form-text small">The content will not be displayed to publisher</div>
+                </div>
+            </div>
+
+            <!-- Notify Checkbox -->
+            <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox" id="notifyEmail"
+                    [(ngModel)]="newPublisher.notifyByEmail">
+                <label class="form-check-label" for="notifyEmail">Notify this user by email</label>
+                <div class="form-text small fst-italic">Setup SMTP first by <a href="javascript:void(0)">Clicking
+                        Here</a> to send email to the publisher</div>
+            </div>
+        </div>
+
+        <div class="sidebar-footer">
+            <button class="btn btn-primary btn-sm me-2" (click)="savePublisher()">
+                <i class="fas fa-check-circle me-1"></i> Save
+            </button>
+            <button class="btn btn-outline-secondary btn-sm" (click)="closeNewPublisherModal()">
+                Cancel
+            </button>
         </div>
     </div>
 </div>

@@ -1,0 +1,279 @@
+<div class="edit-postback-page">
+    <!-- Breadcrumb -->
+    <div class="breadcrumb-section">
+        <a routerLink="/publishers/postbacks-pixels" class="breadcrumb-link">Postbacks & Pixels</a>
+        <span class="breadcrumb-separator">></span>
+        <span class="breadcrumb-current">PostBack: Edit</span>
+    </div>
+
+    <div class="page-content">
+        <!-- Main Form Section -->
+        <div class="form-section">
+            <form (ngSubmit)="save()">
+                <!-- Event Type -->
+                <div class="form-group">
+                    <label class="form-label">Event</label>
+                    <div class="radio-group">
+                        <label class="radio-option">
+                            <input type="radio" name="eventType" value="CONVERSION" [(ngModel)]="eventType">
+                            <span>CONVERSION</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="eventType" value="GOAL" [(ngModel)]="eventType">
+                            <span>GOAL</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="eventType" value="CONVERSION_ALL_GOALS" [(ngModel)]="eventType">
+                            <span>CONVERSION + ALL GOALs</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Publisher -->
+                <div class="form-group">
+                    <label class="form-label">Publisher</label>
+                    <select class="form-control" [(ngModel)]="selectedPublisher" name="publisher" required>
+                        <option value="">Select Publisher</option>
+                        <option *ngFor="let pub of publisherOptions" [value]="pub.id">
+                            (ID: {{pub.id}}) {{pub.name}}
+                        </option>
+                    </select>
+                </div>
+
+                <!-- Campaigns -->
+                <div class="form-group">
+                    <label class="form-label">Campaigns</label>
+                    <div class="campaign-select-wrapper">
+                        <select class="form-control" [(ngModel)]="selectedCampaign" name="campaign">
+                            <option *ngFor="let camp of campaignOptions" [value]="camp.id">
+                                {{camp.name}}
+                            </option>
+                        </select>
+                        <button type="button" class="btn-clear" *ngIf="selectedCampaign !== 'ALL'"
+                            (click)="selectedCampaign = 'ALL'">Clear</button>
+                    </div>
+                </div>
+
+                <!-- Pixel Type -->
+                <div class="form-group">
+                    <label class="form-label">Pixel Type</label>
+                    <select class="form-control" [(ngModel)]="pixelType" name="pixelType">
+                        <option *ngFor="let type of pixelTypeOptions" [value]="type">{{type}}</option>
+                    </select>
+                </div>
+
+                <!-- PostBack URL -->
+                <div class="form-group">
+                    <label class="form-label">PostBack URL</label>
+                    <textarea class="form-control code-textarea" [(ngModel)]="postbackUrl" name="postbackUrl" rows="4"
+                        required></textarea>
+
+                    <!-- URL Tokens -->
+                    <div class="url-tokens">
+                        <span class="tokens-label">Need Code URL tokens</span>
+                        <button type="button" class="token-btn" *ngFor="let token of urlTokens"
+                            (click)="insertToken(token)" ngNonBindable>{{token}}</button>
+                        <a href="javascript:void(0)" class="see-more-link">see more</a>
+                    </div>
+                </div>
+
+                <!-- Privacy PostBack URL -->
+                <div class="form-group">
+                    <label class="form-label">Privacy PostBack URL</label>
+                    <p class="help-text">
+                        Privacy postback url will be used when the conversion is from iOS 14.5+ devices.
+                        If you want to send different postback url for iOS 14.5+ devices, please add it here.
+                    </p>
+                    <textarea class="form-control code-textarea" [(ngModel)]="privacyPostbackUrl"
+                        name="privacyPostbackUrl" rows="3"></textarea>
+                    <p class="note-text">
+                        *Note: Postback will be fired only when a conversion happens on iOS 14.5+ devices.
+                    </p>
+                </div>
+
+                <!-- Status -->
+                <div class="form-group">
+                    <label class="form-label">Status</label>
+                    <select class="form-control" [(ngModel)]="status" name="status">
+                        <option *ngFor="let s of statusOptions" [value]="s">{{s}}</option>
+                    </select>
+                </div>
+
+                <!-- Allowed Conversion Status -->
+                <div class="form-group">
+                    <label class="form-label">Allowed Conversion Status</label>
+                    <p class="help-text">
+                        Select the conversion status for which the postback should be fired.
+                        Please note that postback will be fired for the selected conversion status only.
+                    </p>
+                    <div class="checkbox-group">
+                        <label class="checkbox-option" *ngFor="let status of conversionStatusOptions">
+                            <input type="checkbox" [checked]="isConversionStatusSelected(status.value)"
+                                (change)="toggleConversionStatus(status.value)">
+                            <span class="badge" [class.badge-approved]="status.value === 'Approved'"
+                                [class.badge-pending]="status.value === 'Pending'"
+                                [class.badge-rejected]="status.value === 'Rejected'">
+                                {{status.label}}
+                            </span>
+                        </label>
+                    </div>
+                    <p class="note-text">
+                        *Note: Postback will be fired only when a conversion is approved.
+                    </p>
+                </div>
+
+                <!-- Advanced Options -->
+                <div class="advanced-section">
+                    <div class="advanced-header" (click)="showAdvancedOptions = !showAdvancedOptions">
+                        <span>Advanced Options</span>
+                        <i class="fas" [class.fa-chevron-down]="!showAdvancedOptions"
+                            [class.fa-chevron-up]="showAdvancedOptions"></i>
+                    </div>
+                    <div class="advanced-content" *ngIf="showAdvancedOptions">
+                        <!-- Don't fire if payout is zero -->
+                        <div class="form-group">
+                            <label class="checkbox-option">
+                                <input type="checkbox" [(ngModel)]="dontFireIfPayoutZero" name="dontFireIfPayoutZero">
+                                <span>Dont fire if payout is zero</span>
+                            </label>
+                            <p class="help-text">NOTE: If Enabled then this postback will not be triggered when the
+                                payout of conversion is zero</p>
+                        </div>
+
+                        <!-- Skip Params Encoding -->
+                        <div class="form-group">
+                            <label class="form-label">Skip Params Encoding</label>
+                            <input type="text" class="form-control" [(ngModel)]="skipParamsEncoding"
+                                name="skipParamsEncoding" placeholder="Enter parameters to skip encoding">
+                        </div>
+
+                        <!-- HTTP Method -->
+                        <div class="form-group">
+                            <label class="form-label">HTTP Method</label>
+                            <select class="form-control" [(ngModel)]="httpMethod" name="httpMethod">
+                                <option value="GET">GET</option>
+                                <option value="POST">POST</option>
+                                <option value="PUT">PUT</option>
+                                <option value="DELETE">DELETE</option>
+                                <option value="PATCH">PATCH</option>
+                            </select>
+                        </div>
+
+                        <!-- HTTP Headers -->
+                        <div class="form-group">
+                            <label class="form-label">HTTP Headers</label>
+                            <button type="button" class="btn btn-add-header" (click)="addHttpHeader()">
+                                <i class="fas fa-plus me-2"></i> Add Header
+                            </button>
+                            <div class="http-headers-list" *ngIf="httpHeaders.length > 0">
+                                <div class="header-row" *ngFor="let header of httpHeaders; let i = index">
+                                    <input type="text" class="form-control header-key" [(ngModel)]="header.key"
+                                        [name]="'headerKey' + i" placeholder="HTTP HEADER KEY">
+                                    <input type="text" class="form-control header-value" [(ngModel)]="header.value"
+                                        [name]="'headerValue' + i" placeholder="HTTP HEADER Value">
+                                    <button type="button" class="btn-remove-header" (click)="removeHttpHeader(i)">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- BODY -->
+                        <div class="form-group">
+                            <label class="form-label">BODY</label>
+                            <textarea class="form-control code-textarea" [(ngModel)]="requestBody" name="requestBody"
+                                rows="5" placeholder="Request body content"></textarea>
+                            <p class="help-text">Body to be sent in request when METHOD is not GET. Also Dont forget to
+                                quote the values when using JSON body</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Save Button -->
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i> Save
+                    </button>
+                    <button type="button" class="btn btn-secondary" (click)="cancel()">Cancel</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Timeline Sidebar -->
+        <div class="timeline-section">
+            <h5 class="timeline-title">Timeline</h5>
+            <div class="timeline-item" *ngFor="let item of timeline">
+                <div class="timeline-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="timeline-content">
+                    <p class="timeline-action">
+                        Postback was {{item.action}} by <strong>{{item.user}}</strong>
+                        <a href="javascript:void(0)" class="details-link"
+                            (click)="openTimelineDetails(item)">details</a>
+                    </p>
+                    <p class="timeline-date">{{item.date}}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Timeline Changes Modal -->
+    <div class="modal-overlay" *ngIf="showTimelineModal" (click)="closeTimelineModal()">
+        <div class="modal-container" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+                <h5 class="modal-title">Timeline Changes</h5>
+                <button class="btn-close-modal" (click)="closeTimelineModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <table class="timeline-table" *ngIf="selectedTimelineData">
+                    <thead>
+                        <tr>
+                            <th>Field</th>
+                            <th>Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Organization Id</td>
+                            <td>{{selectedTimelineData.organizationId}}</td>
+                        </tr>
+                        <tr>
+                            <td>User</td>
+                            <td>{{selectedTimelineData.user}}</td>
+                        </tr>
+                        <tr>
+                            <td>Event</td>
+                            <td>{{selectedTimelineData.event}}</td>
+                        </tr>
+                        <tr>
+                            <td>Data</td>
+                            <td class="data-cell">{{selectedTimelineData.data}}</td>
+                        </tr>
+                        <tr>
+                            <td>Type</td>
+                            <td>{{selectedTimelineData.type}}</td>
+                        </tr>
+                        <tr>
+                            <td>Allowed Conversion Status</td>
+                            <td>{{selectedTimelineData.allowedConversionStatus}}</td>
+                        </tr>
+                        <tr>
+                            <td>Id</td>
+                            <td>{{selectedTimelineData.id}}</td>
+                        </tr>
+                        <tr>
+                            <td>Live</td>
+                            <td>{{selectedTimelineData.live}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" (click)="closeTimelineModal()">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

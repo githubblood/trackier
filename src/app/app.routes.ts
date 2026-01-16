@@ -10,7 +10,10 @@ import { CampaignDetailComponent } from './pages/campaigns/campaign-detail/campa
 import { ReportsComponent } from './pages/reports/reports.component';
 import { PublishersComponent } from './pages/publishers/publishers.component';
 import { PublisherDetailComponent } from './pages/publishers/publisher-detail/publisher-detail.component';
-import { AdvertisersComponent } from './pages/advertisers/advertisers.component';
+import { ManageAdvertisersComponent } from './pages/advertisers/manage-advertisers/manage-advertisers.component';
+import { AdvertiserDetailComponent } from './pages/advertisers/advertiser-detail/advertiser-detail.component';
+import { EditAdvertiserComponent } from './pages/advertisers/edit-advertiser/edit-advertiser.component';
+import { PostbackHitsReceivedComponent } from './pages/advertisers/postback-hits-received/postback-hits-received.component';
 import { PublishersReportComponent } from './pages/reports/publishers-report/publishers-report.component';
 import { AdvertisersReportComponent } from './pages/reports/advertisers-report/advertisers-report.component';
 import { DailyReportComponent } from './pages/reports/daily-report/daily-report.component';
@@ -26,6 +29,9 @@ import { CapReportComponent } from './pages/reports/cap-report/cap-report.compon
 import { SamplingReportComponent } from './pages/reports/sampling-report/sampling-report.component';
 import { ComparisonReportComponent } from './pages/reports/comparison-report/comparison-report.component';
 import { ReferralReportComponent } from './pages/reports/referral-report/referral-report.component';
+import { PostbacksPixelsComponent } from './pages/publishers/postbacks-pixels/postbacks-pixels.component';
+import { EditPostbackComponent } from './pages/publishers/postbacks-pixels/edit-postback/edit-postback.component';
+import { PostbackPixelLogsComponent } from './pages/publishers/postbacks-pixels/postback-logs/postback-pixel-logs.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -57,9 +63,16 @@ export const routes: Routes = [
       { path: 'reports/comparison', component: ComparisonReportComponent },
       { path: 'reports/referral', component: ReferralReportComponent },
       { path: 'publishers/manage', component: PublishersComponent },
+      { path: 'publishers/postbacks-pixels', component: PostbacksPixelsComponent },
+      { path: 'publishers/postbacks-pixels/edit/:id', component: EditPostbackComponent },
+      { path: 'publishers/postbacks-pixels/logs/:id', component: PostbackPixelLogsComponent },
       { path: 'publishers/:id', component: PublisherDetailComponent },
-      { path: 'advertisers/manage', component: AdvertisersComponent }
+      { path: 'advertisers/manage', component: ManageAdvertisersComponent },
+      { path: 'advertisers/postback-hits', component: PostbackHitsReceivedComponent },
+      { path: 'advertisers/edit/:id', component: EditAdvertiserComponent },
+      { path: 'advertisers/:id', component: AdvertiserDetailComponent }
     ]
   },
   { path: '**', redirectTo: 'dashboard' }
 ];
+

@@ -1,0 +1,200 @@
+<div class="advertiser-detail-page" *ngIf="advertiser">
+    <!-- Breadcrumb -->
+    <div class="breadcrumb-nav">
+        <a routerLink="/advertisers/manage">Advertisers</a>
+        <i class="fas fa-chevron-right"></i>
+        <span>{{advertiser.id}}</span>
+    </div>
+
+    <div class="content-grid">
+        <!-- Left Column -->
+        <div class="left-column">
+            <!-- Advertiser Info Card -->
+            <div class="info-card">
+                <div class="card-header-actions">
+                    <button class="btn btn-danger" (click)="disableAdvertiser()">
+                        <i class="fas fa-ban"></i> Disable
+                    </button>
+                    <button class="btn btn-primary" (click)="editAdvertiser()">
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
+                </div>
+                <div class="card-content">
+                    <div class="avatar-section">
+                        <div class="avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                    </div>
+                    <h2 class="advertiser-name">{{advertiser.name}}</h2>
+                    <div class="info-grid">
+                        <div class="info-row">
+                            <span class="label">ID</span>
+                            <span class="value">{{advertiser.id}}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">Email</span>
+                            <span class="value">{{advertiser.email}}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">Company</span>
+                            <span class="value">{{advertiser.company}}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">Status</span>
+                            <span class="value">
+                                <span class="status-badge" [ngClass]="getStatusClass(advertiser.status)">
+                                    {{advertiser.status}}
+                                </span>
+                            </span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">Created</span>
+                            <span class="value">{{advertiser.createdDate}}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">Hash ID</span>
+                            <span class="value code">{{advertiser.hashId}}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">Advertiser Manager</span>
+                            <span class="value link">{{advertiser.manager}}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Generate API Key Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h4>Generate API Key</h4>
+                </div>
+                <div class="card-body">
+                    <p class="card-text">You're ready to start developing with Trackier Advertiser API</p>
+                    <p class="card-note">API key for this advertiser is not generated</p>
+                    <button class="btn btn-outline-primary" (click)="generateApiKey()">
+                        Generate API Key
+                    </button>
+                </div>
+            </div>
+
+            <!-- Notes Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h4>Notes</h4>
+                </div>
+                <div class="card-body">
+                    <textarea class="form-control" [(ngModel)]="newNote" placeholder="Enter note message"
+                        rows="3"></textarea>
+                    <button class="btn btn-primary mt-3" (click)="addNote()">
+                        Add note
+                    </button>
+                    <div class="notes-list" *ngIf="notes.length > 0">
+                        <div class="note-item" *ngFor="let note of notes">
+                            <p class="note-message">{{note.message}}</p>
+                            <span class="note-meta">{{note.user}} - {{note.date}}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="right-column">
+            <!-- Settings Card -->
+            <div class="card settings-card">
+                <div class="card-header">
+                    <h4>Settings</h4>
+                    <button class="btn btn-sm btn-outline" (click)="editSettings()">
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="settings-grid">
+                        <div class="setting-item">
+                            <span class="label">Email Notifications</span>
+                            <span class="value">{{emailNotifications ? 'On' : 'Off'}}</span>
+                        </div>
+                        <div class="setting-item">
+                            <span class="label">Redirect Type</span>
+                            <span class="value">{{redirectType}}</span>
+                        </div>
+                        <div class="setting-item">
+                            <span class="label">Locale</span>
+                            <span class="value">{{locale}}</span>
+                        </div>
+                        <div class="setting-item">
+                            <span class="label">Currency</span>
+                            <span class="value">{{currency}}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Advertiser PostBack Card -->
+            <div class="card postback-card">
+                <div class="card-header">
+                    <h4>Advertiser PostBack</h4>
+                    <a href="javascript:void(0)" class="debug-link" (click)="debugPostback()">
+                        Debug Postback <i class="fas fa-external-link-alt"></i>
+                    </a>
+                </div>
+                <div class="card-body">
+                    <div class="form-group">
+                        <label>Security Token</label>
+                        <input type="text" class="form-control" [value]="securityToken" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Postback URL</label>
+                        <textarea class="form-control code-textarea" [value]="postbackUrl" readonly rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Validation</label>
+                        <textarea class="form-control" [(ngModel)]="validationInput" placeholder="Enter validation data"
+                            rows="2"></textarea>
+                    </div>
+                    <button class="btn btn-info" (click)="validatePostback()">
+                        Validate
+                    </button>
+                </div>
+            </div>
+
+            <!-- Global Pixel Card -->
+            <div class="card global-pixel-card">
+                <div class="card-header">
+                    <h4>Global Pixel</h4>
+                    <a href="#" class="pixel-help">Pixel Help <i class="fas fa-question-circle"></i></a>
+                </div>
+                <div class="card-body">
+                    <div class="pixel-type-toggle">
+                        <label class="radio-option">
+                            <input type="radio" name="pixelType" value="Image" [(ngModel)]="pixelType">
+                            <span>Image</span>
+                        </label>
+                        <label class="radio-option">
+                            <input type="radio" name="pixelType" value="Iframe" [(ngModel)]="pixelType">
+                            <span>Iframe</span>
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label>Pixel Code</label>
+                        <textarea class="form-control code-textarea" [value]="pixelCode" readonly rows="3"></textarea>
+                    </div>
+                    <div class="append-section">
+                        <label>Append to Global Pixel</label>
+                        <div class="append-row">
+                            <input type="text" class="form-control" [(ngModel)]="appendKey" placeholder="av">
+                            <input type="text" class="form-control" [(ngModel)]="appendValue"
+                                placeholder="6960cf9ebbd670816ad7206bb">
+                            <button class="btn-remove">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                        <button class="btn btn-add-append">
+                            <i class="fas fa-plus"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

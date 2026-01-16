@@ -1,0 +1,167 @@
+<div class="postback-logs-page">
+    <!-- Page Header -->
+    <div class="page-header">
+        <h4 class="page-title">Postback Request Logs</h4>
+        <div class="header-actions">
+            <div class="date-range-picker">
+                <i class="fas fa-calendar-alt"></i>
+                <input type="date" [(ngModel)]="startDate" class="date-input">
+                <span>-</span>
+                <input type="date" [(ngModel)]="endDate" class="date-input">
+            </div>
+            <button class="btn btn-icon" (click)="toggleFilters()" title="Filters">
+                <i class="fas fa-filter"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Content Area -->
+    <div class="content-wrapper">
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="content-card">
+                <!-- Loading State -->
+                <div class="loading-state" *ngIf="loading">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>Loading logs...</p>
+                </div>
+
+                <!-- Empty State -->
+                <div class="empty-state" *ngIf="!loading && logs.length === 0">
+                    <div class="empty-icon">
+                        <i class="fas fa-inbox"></i>
+                    </div>
+                    <p class="empty-title">No data</p>
+                    <button class="btn btn-primary" (click)="changeFilters()">
+                        <i class="fas fa-sliders-h me-2"></i> Change filters
+                    </button>
+                </div>
+
+                <!-- Table with Data -->
+                <div class="table-responsive" *ngIf="!loading && logs.length > 0">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Conversion ID</th>
+                                <th>Publisher</th>
+                                <th>Campaign</th>
+                                <th>Request URL</th>
+                                <th>Server Message</th>
+                                <th>Postback ID</th>
+                                <th>Status</th>
+                                <th>Attempts</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let log of logs">
+                                <td>
+                                    <a href="javascript:void(0)" class="link-primary">{{log.conversionId}}</a>
+                                </td>
+                                <td>
+                                    <div class="publisher-info">
+                                        <span class="publisher-name">{{log.publisher}}</span>
+                                        <span class="publisher-id">(ID: {{log.publisherId}})</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="campaign-info">
+                                        <span class="campaign-name">{{log.campaign}}</span>
+                                        <span class="campaign-id">(ID: {{log.campaignId}})</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="url-cell" [title]="log.requestUrl">
+                                        {{log.requestUrl}}
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="server-message">
+                                        <code>{{log.serverMessage}}</code>
+                                    </div>
+                                </td>
+                                <td>{{log.postbackId}}</td>
+                                <td>
+                                    <span class="status-badge" [ngClass]="getStatusClass(log.status)">
+                                        {{log.status}}
+                                    </span>
+                                </td>
+                                <td>{{log.attempts}}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Footer Info -->
+            <div class="footer-info" *ngIf="!loading">
+                <span>{{logs.length}} Postbacks fired</span>
+            </div>
+        </div>
+
+        <!-- Filters Sidebar -->
+        <div class="filters-sidebar" [class.open]="showFilters">
+            <div class="sidebar-header">
+                <h5>Filters</h5>
+                <button class="btn-close" (click)="toggleFilters()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="sidebar-body">
+                <!-- Campaign Filter -->
+                <div class="filter-group">
+                    <label class="filter-label">Campaign</label>
+                    <input type="text" class="form-control" placeholder="Search campaigns"
+                        [(ngModel)]="filters.campaign">
+                </div>
+
+                <!-- Publisher Filter -->
+                <div class="filter-group">
+                    <label class="filter-label">Publisher</label>
+                    <input type="text" class="form-control" placeholder="Search publishers"
+                        [(ngModel)]="filters.publisher">
+                </div>
+
+                <!-- Server Status CODE -->
+                <div class="filter-group">
+                    <label class="filter-label">Server Status CODE</label>
+                    <select class="form-control" [(ngModel)]="filters.serverStatusCode">
+                        <option value="">All Status Codes</option>
+                        <option *ngFor="let status of statusCodeOptions" [value]="status.value">
+                            {{status.label}}
+                        </option>
+                    </select>
+                </div>
+
+                <!-- PostBack ID -->
+                <div class="filter-group">
+                    <label class="filter-label">PostBack ID</label>
+                    <input type="text" class="form-control" placeholder="Callback ID" [(ngModel)]="filters.postbackId"
+                        readonly>
+                </div>
+
+                <!-- Click ID -->
+                <div class="filter-group">
+                    <label class="filter-label">Click ID</label>
+                    <input type="text" class="form-control" placeholder="Click ID" [(ngModel)]="filters.clickId">
+                </div>
+
+                <!-- Conversion ID -->
+                <div class="filter-group">
+                    <label class="filter-label">Conversion ID</label>
+                    <input type="text" class="form-control" placeholder="Conversion ID"
+                        [(ngModel)]="filters.conversionId">
+                </div>
+            </div>
+
+            <div class="sidebar-footer">
+                <button class="btn btn-primary" (click)="applyFilters()">Apply</button>
+                <button class="btn btn-secondary" (click)="clearFilters()">Clear</button>
+                <button class="btn btn-outline" (click)="toggleFilters()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overlay -->
+    <div class="sidebar-overlay" *ngIf="showFilters" (click)="toggleFilters()"></div>
+</div>

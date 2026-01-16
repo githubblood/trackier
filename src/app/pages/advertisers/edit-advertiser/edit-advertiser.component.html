@@ -1,0 +1,240 @@
+<div class="edit-advertiser-page">
+    <!-- Breadcrumb -->
+    <div class="breadcrumb-nav">
+        <a routerLink="/advertisers/manage">Advertisers</a>
+        <i class="fas fa-chevron-right"></i>
+        <span>{{advertiserId}}</span>
+        <i class="fas fa-chevron-right"></i>
+        <span>Details</span>
+    </div>
+
+    <div class="content-grid">
+        <!-- Left Column - Details Form -->
+        <div class="details-card">
+            <div class="card-header">
+                <h4>Details</h4>
+            </div>
+            <div class="card-body">
+                <form>
+                    <!-- Name -->
+                    <div class="form-row">
+                        <label class="form-label">Name <span class="required">*</span></label>
+                        <input type="text" class="form-control" [(ngModel)]="name" name="name" required>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="form-row">
+                        <label class="form-label">Email <span class="required">*</span></label>
+                        <input type="email" class="form-control" [(ngModel)]="email" name="email" required>
+                    </div>
+
+                    <!-- Phone -->
+                    <div class="form-row">
+                        <label class="form-label">Phone</label>
+                        <input type="text" class="form-control" [(ngModel)]="phone" name="phone">
+                    </div>
+
+                    <!-- Skype -->
+                    <div class="form-row">
+                        <label class="form-label">Skype</label>
+                        <input type="text" class="form-control" [(ngModel)]="skype" name="skype">
+                    </div>
+
+                    <!-- Tags -->
+                    <div class="form-row">
+                        <label class="form-label">Tags</label>
+                        <div class="tags-container">
+                            <div class="selected-tags">
+                                <span class="tag-badge" *ngFor="let tag of tags">
+                                    {{tag}}
+                                    <i class="fas fa-times" (click)="toggleTag(tag)"></i>
+                                </span>
+                            </div>
+                            <div class="tag-dropdown">
+                                <button type="button" class="btn-add-tag" data-bs-toggle="dropdown">
+                                    Add Tag <i class="fas fa-chevron-down"></i>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li *ngFor="let tag of tagOptions">
+                                        <a class="dropdown-item" (click)="toggleTag(tag)">
+                                            <input type="checkbox" [checked]="tags.includes(tag)">
+                                            {{tag}}
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Company Name -->
+                    <div class="form-row">
+                        <label class="form-label">Company Name</label>
+                        <input type="text" class="form-control" [(ngModel)]="companyName" name="companyName">
+                    </div>
+
+                    <!-- Status -->
+                    <div class="form-row">
+                        <label class="form-label">Status</label>
+                        <select class="form-control" [(ngModel)]="status" name="status">
+                            <option *ngFor="let opt of statusOptions" [value]="opt">{{opt}}</option>
+                        </select>
+                    </div>
+
+                    <!-- Address -->
+                    <div class="form-row">
+                        <label class="form-label">Address</label>
+                        <input type="text" class="form-control" [(ngModel)]="address" name="address">
+                    </div>
+
+                    <!-- Country -->
+                    <div class="form-row">
+                        <label class="form-label">Country</label>
+                        <select class="form-control" [(ngModel)]="country" name="country">
+                            <option *ngFor="let c of countryOptions" [value]="c.code">{{c.name}}</option>
+                        </select>
+                    </div>
+
+                    <!-- State -->
+                    <div class="form-row">
+                        <label class="form-label">State</label>
+                        <input type="text" class="form-control" [(ngModel)]="state" name="state">
+                    </div>
+
+                    <!-- City -->
+                    <div class="form-row">
+                        <label class="form-label">City</label>
+                        <input type="text" class="form-control" [(ngModel)]="city" name="city">
+                    </div>
+
+                    <!-- Zipcode -->
+                    <div class="form-row">
+                        <label class="form-label">Zipcode</label>
+                        <input type="text" class="form-control" [(ngModel)]="zipcode" name="zipcode">
+                    </div>
+
+                    <!-- Tax ID -->
+                    <div class="form-row">
+                        <label class="form-label">Tax ID</label>
+                        <div class="input-with-help">
+                            <input type="text" class="form-control" [(ngModel)]="taxId" name="taxId">
+                            <span class="help-text">VAT / GST</span>
+                        </div>
+                    </div>
+
+                    <!-- Reference ID -->
+                    <div class="form-row">
+                        <label class="form-label">Reference ID</label>
+                        <div class="input-with-help">
+                            <input type="text" class="form-control" [(ngModel)]="referenceId" name="referenceId">
+                            <span class="help-text">The reference id for the advertiser</span>
+                        </div>
+                    </div>
+
+                    <!-- Account Manager -->
+                    <div class="form-row">
+                        <label class="form-label">Account Manager (Optional)</label>
+                        <div class="tags-container">
+                            <div class="selected-tags">
+                                <span class="tag-badge manager-badge" *ngFor="let mgr of accountManager">
+                                    {{mgr}}
+                                    <i class="fas fa-times" (click)="toggleManager(mgr)"></i>
+                                </span>
+                            </div>
+                            <div class="tag-dropdown">
+                                <button type="button" class="btn-add-tag" data-bs-toggle="dropdown">
+                                    Select Manager <i class="fas fa-chevron-down"></i>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li *ngFor="let mgr of managerOptions">
+                                        <a class="dropdown-item" (click)="toggleManager(mgr.name)">
+                                            <input type="checkbox" [checked]="accountManager.includes(mgr.name)">
+                                            {{mgr.name}} - ({{mgr.role}})
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Change Password -->
+                    <div class="form-row">
+                        <label class="form-label">Change Password</label>
+                        <div class="input-with-help">
+                            <input type="password" class="form-control" [(ngModel)]="changePassword"
+                                name="changePassword" placeholder="Should be 8 characters">
+                            <span class="help-text">Leave empty for no change</span>
+                        </div>
+                    </div>
+
+                    <!-- Save Button -->
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-save" (click)="save()">
+                            <i class="fas fa-check"></i> Save
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Right Column - Timeline -->
+        <div class="timeline-card">
+            <div class="card-header">
+                <h4>Timeline</h4>
+            </div>
+            <div class="card-body">
+                <div class="timeline-list">
+                    <div class="timeline-item" *ngFor="let entry of timeline">
+                        <div class="timeline-icon">
+                            <i class="fas fa-user-circle"></i>
+                        </div>
+                        <div class="timeline-content">
+                            <p class="timeline-text">
+                                {{entry.action}}
+                                <a class="details-link" (click)="showTimelineDetails(entry)">details</a>
+                            </p>
+                            <span class="timeline-meta">{{entry.timestamp}}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Timeline Changes Modal -->
+    <div class="modal-overlay" *ngIf="showTimelineModal" (click)="closeTimelineModal()">
+        <div class="timeline-modal" (click)="$event.stopPropagation()">
+            <div class="modal-header">
+                <h5 class="modal-title">Timeline Changes</h5>
+                <button class="btn-close-modal" (click)="closeTimelineModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <table class="timeline-table">
+                    <thead>
+                        <tr *ngIf="selectedTimelineType === 'created'">
+                            <th>Field</th>
+                            <th>Value</th>
+                        </tr>
+                        <tr *ngIf="selectedTimelineType === 'updated'">
+                            <th>Field Name</th>
+                            <th>Old Value</th>
+                            <th>New Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let detail of selectedTimelineDetails">
+                            <td>{{detail.field}}</td>
+                            <td *ngIf="selectedTimelineType === 'created'">{{detail.value}}</td>
+                            <td *ngIf="selectedTimelineType === 'updated'">{{detail.oldValue}}</td>
+                            <td *ngIf="selectedTimelineType === 'updated'">{{detail.newValue}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" (click)="closeTimelineModal()">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

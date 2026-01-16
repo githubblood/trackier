@@ -1,0 +1,158 @@
+<div class="postback-hits-page">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="header-left">
+            <h1 class="page-title">Debug PostBack</h1>
+            <span class="count-badge">( Count: {{totalCount}} ) Page - {{currentPage}}</span>
+        </div>
+        <div class="header-right">
+            <div class="date-picker">
+                <i class="fas fa-calendar"></i>
+                <span>{{dateRange}}</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters Section -->
+    <div class="filters-section">
+        <div class="filters-grid">
+            <!-- Advertiser -->
+            <div class="filter-group">
+                <label>Advertiser</label>
+                <div class="search-checkbox">
+                    <input type="checkbox" [(ngModel)]="searchBySecurityToken" id="securityToken">
+                    <label for="securityToken">Search By Security token</label>
+                </div>
+                <select class="form-control" [(ngModel)]="selectedAdvertiser">
+                    <option value="">Select Advertiser</option>
+                    <option *ngFor="let adv of advertisers" [value]="adv.id">{{adv.name}}</option>
+                </select>
+            </div>
+
+            <!-- Publisher -->
+            <div class="filter-group">
+                <label>Publisher</label>
+                <select class="form-control" [(ngModel)]="selectedPublisher">
+                    <option value="">Choose one or many Publisher</option>
+                    <option *ngFor="let pub of publishers" [value]="pub.id">{{pub.name}}</option>
+                </select>
+            </div>
+
+            <!-- Campaign -->
+            <div class="filter-group">
+                <label>Campaign</label>
+                <select class="form-control" [(ngModel)]="selectedCampaign">
+                    <option value="">Select Campaign</option>
+                    <option *ngFor="let camp of campaigns" [value]="camp.id">{{camp.name}}</option>
+                </select>
+            </div>
+
+            <!-- Click IDs -->
+            <div class="filter-group">
+                <label>Click Ids</label>
+                <input type="text" class="form-control" [(ngModel)]="clickIds" placeholder="Click ID">
+            </div>
+
+            <!-- Error -->
+            <div class="filter-group">
+                <label>Error</label>
+                <select class="form-control" [(ngModel)]="selectedError">
+                    <option value="">Select Error Type</option>
+                    <option *ngFor="let err of errorTypes" [value]="err">{{err}}</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <button class="btn btn-search" (click)="search()">
+                <i class="fas fa-search"></i> Search
+            </button>
+            <button class="btn btn-export" (click)="exportCsv()">
+                <i class="fas fa-download"></i> Export CSV
+            </button>
+        </div>
+
+        <a href="#" class="help-link">To Know more, click Here <i class="fas fa-external-link-alt"></i></a>
+    </div>
+
+    <!-- Results Section -->
+    <div class="results-section">
+        <!-- Empty State -->
+        <div class="empty-state" *ngIf="postbackHits.length === 0 && !loading">
+            <div class="empty-content">
+                <h2 class="empty-title">Postback hits received</h2>
+                <p class="empty-description">
+                    You can check information about each postback received from the advertiser end,
+                    through this, you can check if the postback is correctly placed at the advertiser
+                    end or not. you are getting all conversion from their end or not.
+                </p>
+                <div class="empty-illustration">
+                    <img src="assets/images/postback-illustration.svg" alt="Postback Illustration"
+                        onerror="this.style.display='none'">
+                    <div class="illustration-placeholder">
+                        <i class="fas fa-satellite-dish"></i>
+                    </div>
+                </div>
+                <a href="#" class="debug-link">
+                    <i class="fas fa-bug"></i> Debug postback
+                    <i class="fas fa-external-link-alt"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        <div class="loading-state" *ngIf="loading">
+            <i class="fas fa-spinner fa-spin"></i>
+            <span>Loading...</span>
+        </div>
+
+        <!-- Data Table -->
+        <div class="data-table-section" *ngIf="postbackHits.length > 0 && !loading">
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Advertiser</th>
+                            <th>Publisher</th>
+                            <th>Campaign</th>
+                            <th>Click ID</th>
+                            <th>Status</th>
+                            <th>Response Code</th>
+                            <th>Error</th>
+                            <th>Timestamp</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let hit of postbackHits">
+                            <td>{{hit.id}}</td>
+                            <td>{{hit.advertiser}}</td>
+                            <td>{{hit.publisher}}</td>
+                            <td>{{hit.campaign}}</td>
+                            <td class="code-cell">{{hit.clickId}}</td>
+                            <td>
+                                <span class="status-badge" [ngClass]="getStatusClass(hit.status)">
+                                    {{hit.status}}
+                                </span>
+                            </td>
+                            <td>
+                                <span class="response-code" [ngClass]="getResponseCodeClass(hit.responseCode)">
+                                    {{hit.responseCode}}
+                                </span>
+                            </td>
+                            <td>{{hit.error || '-'}}</td>
+                            <td>{{hit.timestamp}}</td>
+                            <td>
+                                <button class="btn-view" title="View Details">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

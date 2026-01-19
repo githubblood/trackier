@@ -1,0 +1,188 @@
+<div class="edit-page">
+    <!-- Breadcrumb -->
+    <div class="breadcrumb-nav">
+        <a routerLink="/profile" class="breadcrumb-link">Team Accounts</a>
+        <span class="separator">›</span>
+        <a routerLink="/profile" class="breadcrumb-link">{{userName}}</a>
+        <span class="separator">›</span>
+        <span class="current">Account: Settings</span>
+    </div>
+
+    <!-- General Settings -->
+    <div class="edit-card">
+        <div class="form-row">
+            <label class="form-label">Currency</label>
+            <select class="form-control" [(ngModel)]="settings.currency">
+                <option value="INR">₹ INR</option>
+                <option value="USD">$ USD</option>
+                <option value="EUR">€ EUR</option>
+                <option value="GBP">£ GBP</option>
+            </select>
+        </div>
+
+        <div class="form-row">
+            <label class="form-label">Language</label>
+            <select class="form-control" [(ngModel)]="settings.language">
+                <option value="English">English</option>
+                <option value="Spanish">Spanish</option>
+                <option value="French">French</option>
+                <option value="German">German</option>
+            </select>
+        </div>
+
+        <div class="form-row">
+            <label class="form-label">Additional Role</label>
+            <select class="form-control" [(ngModel)]="settings.additionalRole">
+                <option value="Affiliate + Advertiser Manager">Affiliate + Advertiser Manager</option>
+                <option value="Publisher Manager">Publisher Manager</option>
+                <option value="Advertiser Manager">Advertiser Manager</option>
+            </select>
+        </div>
+
+        <div class="form-row">
+            <label class="form-label">Skype (Optional)</label>
+            <div class="input-with-icon">
+                <i class="fab fa-skype"></i>
+                <input type="text" class="form-control" [(ngModel)]="settings.skype" placeholder="Your Skype ID">
+            </div>
+        </div>
+    </div>
+
+    <!-- Permissions Section -->
+    <div class="edit-card">
+        <div class="permissions-header">
+            <h3 class="section-title">Permissions</h3>
+            <div class="permission-actions">
+                <button type="button" class="btn-check" (click)="checkAll()">Check All</button>
+                <button type="button" class="btn-uncheck" (click)="uncheckAll()">Uncheck All</button>
+            </div>
+        </div>
+
+        <div class="permission-row" *ngFor="let group of permissionGroups">
+            <div class="permission-name">
+                <span>{{group.name}}</span>
+                <span class="no-access-badge" *ngIf="!hasAnyPermission(group)">No Access</span>
+            </div>
+            <div class="permission-checkboxes">
+                <label class="checkbox-item" *ngFor="let perm of group.permissions">
+                    <input type="checkbox" [(ngModel)]="perm.checked">
+                    <span>{{perm.name}}</span>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <!-- Conversion Access -->
+    <div class="edit-card">
+        <h3 class="section-title">Conversion Access</h3>
+
+        <div class="radio-group">
+            <label class="radio-item">
+                <input type="radio" name="conversionAccess" value="view" [(ngModel)]="conversionAccess">
+                <span>View</span>
+            </label>
+            <label class="radio-item">
+                <input type="radio" name="conversionAccess" value="viewEdit" [(ngModel)]="conversionAccess">
+                <span>View and Edit</span>
+            </label>
+        </div>
+    </div>
+
+    <!-- Coupon Code Module Access -->
+    <div class="edit-card">
+        <h3 class="section-title">Coupon Code Module Access</h3>
+
+        <div class="radio-group">
+            <label class="radio-item">
+                <input type="radio" name="couponCodeModule" value="no" [(ngModel)]="couponCodeModuleAccess">
+                <span>No</span>
+            </label>
+            <label class="radio-item">
+                <input type="radio" name="couponCodeModule" value="yes" [(ngModel)]="couponCodeModuleAccess">
+                <span>Yes</span>
+            </label>
+        </div>
+    </div>
+
+    <!-- Deal Module Access -->
+    <div class="edit-card">
+        <h3 class="section-title">Deal Module Access</h3>
+
+        <div class="radio-group">
+            <label class="radio-item">
+                <input type="radio" name="dealModule" value="no" [(ngModel)]="dealModuleAccess">
+                <span>No</span>
+            </label>
+            <label class="radio-item">
+                <input type="radio" name="dealModule" value="yes" [(ngModel)]="dealModuleAccess">
+                <span>Yes</span>
+            </label>
+        </div>
+    </div>
+
+    <!-- Report KPI Selection -->
+    <div class="edit-card">
+        <h3 class="section-title">Report KPI Selection</h3>
+
+        <div class="dual-list-container">
+            <div class="list-box">
+                <label class="list-label">All KPI</label>
+                <input type="text" class="search-input" placeholder="Search..." [(ngModel)]="reportKPISearch">
+                <div class="list-items">
+                    <div class="list-item" *ngFor="let kpi of filteredReportKPIs" (click)="addReportKPI(kpi)">
+                        {{kpi}}
+                    </div>
+                </div>
+            </div>
+            <div class="transfer-buttons">
+                <button class="btn-transfer">»</button>
+            </div>
+            <div class="list-box">
+                <label class="list-label">Selected KPI</label>
+                <input type="text" class="search-input" placeholder="Search...">
+                <div class="list-items">
+                    <div class="list-item selected" *ngFor="let kpi of selectedReportKPIs"
+                        (click)="removeReportKPI(kpi)">
+                        {{kpi}}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Conversion Report KPI Selection -->
+    <div class="edit-card">
+        <h3 class="section-title">Conversion Report KPI Selection</h3>
+        <small class="section-note">Note: This section can't be updated for admins and Sub-Admins.</small>
+
+        <div class="dual-list-container">
+            <div class="list-box">
+                <label class="list-label">All KPI</label>
+                <input type="text" class="search-input" placeholder="Search..." [(ngModel)]="conversionKPISearch">
+                <div class="list-items">
+                    <div class="list-item" *ngFor="let kpi of filteredConversionKPIs" (click)="addConversionKPI(kpi)">
+                        {{kpi}}
+                    </div>
+                </div>
+            </div>
+            <div class="transfer-buttons">
+                <button class="btn-transfer">»</button>
+            </div>
+            <div class="list-box">
+                <label class="list-label">Selected KPI</label>
+                <input type="text" class="search-input" placeholder="Search...">
+                <div class="list-items">
+                    <div class="list-item selected" *ngFor="let kpi of selectedConversionKPIs"
+                        (click)="removeConversionKPI(kpi)">
+                        {{kpi}}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Save Button -->
+    <button class="btn-save" (click)="save()">
+        <i class="fas fa-check"></i> Save
+    </button>
+</div>

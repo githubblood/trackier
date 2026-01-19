@@ -1,0 +1,300 @@
+<div class="edit-page customize-page">
+    <!-- Breadcrumb -->
+    <div class="breadcrumb-nav">
+        <span class="current">Customize: Application</span>
+    </div>
+
+    <!-- Preferences Section -->
+    <div class="edit-card">
+        <h3 class="section-title">Preferences</h3>
+
+        <div class="form-row">
+            <label class="form-label">Sidebar Color</label>
+            <div class="color-picker-group">
+                <input type="text" class="form-control color-input" [(ngModel)]="preferences.sidebarColor"
+                    [style.border-color]="preferences.sidebarColor">
+                <div class="color-presets">
+                    <button *ngFor="let color of sidebarColorPresets" class="color-preset"
+                        [style.background-color]="color" (click)="preferences.sidebarColor = color">
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <label class="form-label">Sidebar Text Color</label>
+            <div class="color-toggle">
+                <button class="color-btn" [class.active]="preferences.sidebarTextColor === '#000000'"
+                    (click)="preferences.sidebarTextColor = '#000000'" style="background: #000000;"></button>
+                <button class="color-btn" [class.active]="preferences.sidebarTextColor === '#FFFFFF'"
+                    (click)="preferences.sidebarTextColor = '#FFFFFF'"
+                    style="background: #FFFFFF; border: 1px solid #ddd;"></button>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <label class="form-label">Background Color</label>
+            <div class="theme-options">
+                <div class="theme-option" [class.active]="preferences.backgroundTheme === 'light'"
+                    (click)="preferences.backgroundTheme = 'light'">
+                    <div class="theme-preview light">
+                        <div class="preview-dots">
+                            <span></span><span></span><span></span>
+                        </div>
+                        <div class="preview-lines">
+                            <span></span><span></span><span></span>
+                        </div>
+                    </div>
+                    <span class="theme-label">Light</span>
+                </div>
+                <div class="theme-option" [class.active]="preferences.backgroundTheme === 'dark'"
+                    (click)="preferences.backgroundTheme = 'dark'">
+                    <div class="theme-preview dark">
+                        <div class="preview-dots">
+                            <span></span><span></span><span></span>
+                        </div>
+                        <div class="preview-lines">
+                            <span></span><span></span><span></span>
+                        </div>
+                    </div>
+                    <span class="theme-label">Dark</span>
+                </div>
+                <div class="theme-option" [class.active]="preferences.backgroundTheme === 'auto'"
+                    (click)="preferences.backgroundTheme = 'auto'">
+                    <div class="theme-preview auto">
+                        <div class="preview-dots">
+                            <span></span><span></span><span></span>
+                        </div>
+                        <div class="preview-lines">
+                            <span></span><span></span><span></span>
+                        </div>
+                    </div>
+                    <span class="theme-label">Auto (System)</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <label class="form-label">Heading Color</label>
+            <input type="text" class="form-control color-input" [(ngModel)]="preferences.headingColor"
+                [style.border-color]="preferences.headingColor">
+        </div>
+    </div>
+
+    <!-- 2FA Sign-In Section -->
+    <div class="edit-card">
+        <div class="form-row">
+            <label class="form-label">2FA Sign-In</label>
+            <div class="tfa-controls">
+                <small class="help-text">Contact your account manager to enable this</small>
+            </div>
+        </div>
+
+        <div class="form-row toggle-row">
+            <label class="form-label"></label>
+            <div class="toggle-group">
+                <div class="toggle-item">
+                    <span class="toggle-name">Team Members</span>
+                    <div class="toggle-switch">
+                        <input type="checkbox" id="tfaTeam" [(ngModel)]="twoFASettings.teamMembers">
+                        <label for="tfaTeam" class="toggle-label"></label>
+                    </div>
+                </div>
+                <div class="toggle-item">
+                    <span class="toggle-name">Publisher</span>
+                    <div class="toggle-switch">
+                        <input type="checkbox" id="tfaPublisher" [(ngModel)]="twoFASettings.publisher">
+                        <label for="tfaPublisher" class="toggle-label"></label>
+                    </div>
+                </div>
+                <div class="toggle-item">
+                    <span class="toggle-name">Advertiser</span>
+                    <div class="toggle-switch">
+                        <input type="checkbox" id="tfaAdvertiser" [(ngModel)]="twoFASettings.advertiser">
+                        <label for="tfaAdvertiser" class="toggle-label"></label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <label class="form-label">Max Days <i class="fas fa-info-circle info-icon"></i></label>
+            <input type="number" class="form-control small-input" [(ngModel)]="securitySettings.maxDays">
+        </div>
+
+        <div class="form-row">
+            <label class="form-label">Max Failed Attempts</label>
+            <input type="number" class="form-control small-input" [(ngModel)]="securitySettings.maxFailedAttempts">
+        </div>
+
+        <div class="form-row">
+            <label class="form-label">Dashboard Data</label>
+            <select class="form-control" [(ngModel)]="preferences.dashboardData">
+                <option value="Approved">Approved</option>
+                <option value="All">All</option>
+                <option value="Pending">Pending</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Panel Layout Section -->
+    <div class="edit-card">
+        <h3 class="section-title">Panel Layout</h3>
+
+        <div class="form-row">
+            <label class="form-label">Organization Name <span class="required">*</span></label>
+            <input type="text" class="form-control wide-input" [(ngModel)]="panelLayout.organizationName">
+        </div>
+
+        <div class="form-row">
+            <label class="form-label">Currency</label>
+            <select class="form-control" [(ngModel)]="panelLayout.currency">
+                <option value="INR">₹ INR</option>
+                <option value="USD">$ USD</option>
+                <option value="EUR">€ EUR</option>
+                <option value="GBP">£ GBP</option>
+            </select>
+        </div>
+
+        <div class="form-row">
+            <label class="form-label">Language</label>
+            <select class="form-control" [(ngModel)]="panelLayout.language">
+                <option value="English">English</option>
+                <option value="Spanish">Spanish</option>
+                <option value="French">French</option>
+                <option value="German">German</option>
+            </select>
+        </div>
+
+        <div class="form-row">
+            <label class="form-label">Timezone</label>
+            <div class="input-with-help">
+                <select class="form-control wide-input" [(ngModel)]="panelLayout.timezone" disabled>
+                    <option value="Asia/Kolkata">(GMT+05:30) Chennai, Kolkata, Mumbai, New Delhi</option>
+                    <option value="UTC">UTC</option>
+                </select>
+                <small class="help-text side">Contact your account manager to change this</small>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <label class="form-label">IFrame Loading</label>
+            <div class="input-with-help">
+                <select class="form-control wide-input" [(ngModel)]="panelLayout.iframeLoading">
+                    <option value="sameorigin">Allow from same origin</option>
+                    <option value="deny">Deny</option>
+                    <option value="allow">Allow All</option>
+                </select>
+                <small class="help-text">This setting will allow the panel to be loaded in iFrame</small>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <label class="form-label">Header Logo</label>
+            <div class="file-upload-group">
+                <div class="file-input-wrapper">
+                    <button class="btn-choose">Choose file</button>
+                    <span class="file-name">No file chosen</span>
+                </div>
+                <small class="help-text">This Logo will appear on all dashboard and invoices. Size 386px X 74px</small>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <label class="form-label">Login Logo</label>
+            <div class="file-upload-group">
+                <div class="file-input-wrapper">
+                    <button class="btn-choose">Choose file</button>
+                    <span class="file-name">No file chosen</span>
+                </div>
+                <small class="help-text">Logo shown on your network login page. Size 450px X 150px</small>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <label class="form-label">Favicon Icon</label>
+            <div class="file-upload-group">
+                <div class="file-input-wrapper">
+                    <button class="btn-choose">Choose file</button>
+                    <span class="file-name">No file chosen</span>
+                </div>
+                <small class="help-text">Website icon. Size 16px X 16px</small>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <label class="form-label">Robot file <i class="fas fa-info-circle info-icon"></i></label>
+            <div class="file-upload-group">
+                <div class="file-input-wrapper">
+                    <button class="btn-choose">Choose file</button>
+                    <span class="file-name">No file chosen</span>
+                </div>
+                <small class="help-text">Please upload your robots.txt</small>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <label class="form-label">Support Email (Optional)</label>
+            <input type="text" class="form-control wide-input" [(ngModel)]="panelLayout.supportEmail"
+                placeholder="Support email for affiliates/advertisers">
+        </div>
+
+        <div class="form-row">
+            <label class="form-label">Skype ID (Optional)</label>
+            <input type="text" class="form-control wide-input" [(ngModel)]="panelLayout.skypeId"
+                placeholder="Skype Support ID for affiliates/advertisers">
+        </div>
+
+        <div class="form-row">
+            <label class="form-label">Telegram ID (Optional)</label>
+            <input type="text" class="form-control wide-input" [(ngModel)]="panelLayout.telegramId"
+                placeholder="Telegram Support ID for affiliates/advertisers">
+        </div>
+
+        <div class="form-row">
+            <label class="form-label">Whatsapp ID (Optional)</label>
+            <input type="text" class="form-control wide-input" [(ngModel)]="panelLayout.whatsappId"
+                placeholder="Whatsapp support ID for affiliates">
+        </div>
+
+        <div class="form-row">
+            <label class="form-label">Terms and Conditions URL(Optional)</label>
+            <input type="text" class="form-control wide-input" [(ngModel)]="panelLayout.termsUrl">
+        </div>
+
+        <div class="form-row">
+            <label class="form-label">Privacy Policy URL(Optional)</label>
+            <input type="text" class="form-control wide-input" [(ngModel)]="panelLayout.privacyUrl">
+        </div>
+
+        <div class="form-row">
+            <label class="form-label">Publisher Registration URL (Optional)</label>
+            <div class="input-with-help">
+                <input type="text" class="form-control wide-input" [(ngModel)]="panelLayout.publisherRegUrl">
+                <small class="help-text">You can enter the URL here for your publishers to register</small>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <label class="form-label">Advertiser Registration URL (Optional)</label>
+            <div class="input-with-help">
+                <input type="text" class="form-control wide-input" [(ngModel)]="panelLayout.advertiserRegUrl">
+                <small class="help-text">You can enter the URL here for your advertisers to register</small>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <label class="form-label">Advertiser Terms URL (Optional)</label>
+            <div class="input-with-help">
+                <input type="text" class="form-control wide-input" [(ngModel)]="panelLayout.advertiserTermsUrl">
+                <small class="help-text">In case you want to add terms and conditions for your advertisers you can enter
+                    the URL here</small>
+            </div>
+        </div>
+    </div>
+
+    <!-- Save Button -->
+    <button class="btn-save" (click)="save()">
+        <i class="fas fa-check"></i> Save
+    </button>
+</div>

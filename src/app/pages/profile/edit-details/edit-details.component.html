@@ -1,0 +1,124 @@
+<div class="edit-page">
+    <!-- Breadcrumb -->
+    <div class="breadcrumb-nav">
+        <a routerLink="/profile" class="breadcrumb-link">Team Accounts</a>
+        <span class="separator">›</span>
+        <a routerLink="/profile" class="breadcrumb-link">{{userName}}</a>
+        <span class="separator">›</span>
+        <span class="current">Account: Details</span>
+    </div>
+
+    <!-- Details Section -->
+    <div class="edit-card">
+        <div class="form-row">
+            <label class="form-label">Name <span class="required">*</span></label>
+            <input type="text" class="form-control" [(ngModel)]="details.name">
+        </div>
+
+        <div class="form-row">
+            <label class="form-label">Email</label>
+            <div class="input-group">
+                <input type="email" class="form-control" [(ngModel)]="details.email" readonly>
+                <small class="help-text">Contact Your Admin change this email</small>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <label class="form-label">Phone (Optional)</label>
+            <input type="text" class="form-control" [(ngModel)]="details.phone">
+        </div>
+    </div>
+
+    <!-- Additional Data Section -->
+    <div class="edit-card">
+        <h3 class="section-title">Additional Data</h3>
+
+        <div class="additional-data-fields" *ngIf="additionalDataFields.length > 0">
+            <div class="data-field-row" *ngFor="let field of additionalDataFields; let i = index">
+                <span class="field-index">{{i + 1}}.</span>
+                <div class="field-inputs">
+                    <div class="field-column">
+                        <label class="field-label">Field</label>
+                        <input type="text" class="form-control" [(ngModel)]="field.key" [name]="'key_' + i">
+                    </div>
+                    <div class="field-column">
+                        <input type="text" class="form-control value-input" [(ngModel)]="field.value"
+                            [name]="'value_' + i">
+                    </div>
+                </div>
+                <button type="button" class="btn-delete" (click)="removeDataField(i)">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
+        </div>
+
+        <button type="button" class="btn-add" (click)="addDataField()">
+            <i class="fas fa-plus"></i> Add
+        </button>
+    </div>
+
+    <!-- Theme Section -->
+    <div class="edit-card">
+        <h3 class="section-title">Theme</h3>
+
+        <div class="form-row">
+            <label class="form-label">Override Panel theme</label>
+            <div class="toggle-switch">
+                <input type="checkbox" id="overrideTheme" [(ngModel)]="theme.overridePanel">
+                <label for="overrideTheme" class="toggle-label"></label>
+            </div>
+        </div>
+
+        <div class="theme-options" [class.disabled]="!theme.overridePanel">
+            <div class="theme-option" [class.active]="theme.selected === 'light'" (click)="selectTheme('light')">
+                <div class="theme-preview light">
+                    <div class="preview-dots">
+                        <span></span><span></span><span></span>
+                    </div>
+                    <div class="preview-lines">
+                        <span></span><span></span><span></span>
+                    </div>
+                </div>
+                <span class="theme-label">Light</span>
+            </div>
+            <div class="theme-option" [class.active]="theme.selected === 'dark'" (click)="selectTheme('dark')">
+                <div class="theme-preview dark">
+                    <div class="preview-dots">
+                        <span></span><span></span><span></span>
+                    </div>
+                    <div class="preview-lines">
+                        <span></span><span></span><span></span>
+                    </div>
+                </div>
+                <span class="theme-label">Dark</span>
+            </div>
+            <div class="theme-option" [class.active]="theme.selected === 'auto'" (click)="selectTheme('auto')">
+                <div class="theme-preview auto">
+                    <div class="preview-dots">
+                        <span></span><span></span><span></span>
+                    </div>
+                    <div class="preview-lines">
+                        <span></span><span></span><span></span>
+                    </div>
+                </div>
+                <span class="theme-label">Auto (System)</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Private Notes Section -->
+    <div class="edit-card">
+        <h3 class="section-title">Private Notes</h3>
+
+        <div class="form-row">
+            <label class="form-label">Note (Optional)</label>
+            <textarea class="form-control textarea" [(ngModel)]="privateNotes" rows="4"></textarea>
+            <small class="help-text">The content will not be displayed to advertiser or publisher</small>
+        </div>
+    </div>
+
+    <!-- Save Button -->
+    <button class="btn-save" (click)="save()">
+        <i class="fas fa-check"></i> Save
+    </button>
+</div>

@@ -1,0 +1,255 @@
+<div class="team-members-page">
+    <!-- Page Header -->
+    <div class="page-header">
+        <div class="header-left">
+            <h1 class="page-title">Team Accounts</h1>
+            <span class="team-count">{{teamMembers.length}} Team Members</span>
+            <button class="btn btn-add" (click)="openAddModal()">
+                <i class="fas fa-plus"></i> Add New
+            </button>
+        </div>
+        <div class="header-right">
+            <div class="dropdown">
+                <button class="btn btn-actions dropdown-toggle" data-bs-toggle="dropdown">
+                    Actions <i class="fas fa-chevron-down"></i>
+                </button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item">Export</a></li>
+                    <li><a class="dropdown-item">Bulk Update</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Table Section -->
+    <div class="table-section">
+        <div class="table-header">
+            <div class="search-box">
+                <input type="text" class="form-control" placeholder="Search..." [(ngModel)]="searchQuery">
+            </div>
+            <div class="pagination-controls">
+                <button class="btn-page" [disabled]="currentPage === 1" (click)="goToPage(currentPage - 1)">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <span class="page-info">{{currentPage}}</span>
+                <button class="btn-page" [disabled]="currentPage === totalPages" (click)="goToPage(currentPage + 1)">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+                <select class="items-per-page" [(ngModel)]="itemsPerPage">
+                    <option [value]="10">10</option>
+                    <option [value]="25">25</option>
+                    <option [value]="50">50</option>
+                    <option [value]="100">100</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th class="id-col">ID</th>
+                        <th>Account</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th>Last Login</th>
+                        <th class="action-col">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr *ngFor="let member of filteredMembers">
+                        <td class="id-col">{{member.id}}</td>
+                        <td class="account-cell">
+                            <div class="account-info">
+                                <div class="avatar" [style.background-color]="member.avatarColor">
+                                    {{member.name.charAt(0)}}{{member.name.split(' ')[1]?.charAt(0) || ''}}
+                                </div>
+                                <div class="info">
+                                    <a class="name-link" [routerLink]="['/team-members', member.id]">{{member.name}}</a>
+                                    <span class="email">{{member.email}}</span>
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{member.role}}</td>
+                        <td>
+                            <span class="status-badge"
+                                [ngClass]="getStatusClass(member.status)">{{member.status}}</span>
+                        </td>
+                        <td>{{member.lastLogin}}</td>
+                        <td class="action-col">
+                            <div class="action-dropdown">
+                                <button class="btn-action" data-bs-toggle="dropdown">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a class="dropdown-item" (click)="editMember(member)">
+                                            <i class="fas fa-edit"></i> Edit</a>
+                                    </li>
+                                    <li><a class="dropdown-item" (click)="toggleStatus(member)">
+                                            <i class="fas fa-ban"></i> {{member.status === 'Active' ? 'Disable' :
+                                            'Enable'}}</a>
+                                    </li>
+                                    <li><a class="dropdown-item text-danger" (click)="deleteMember(member)">
+                                            <i class="fas fa-trash"></i> Delete</a>
+                                    </li>
+                                    <li><a class="dropdown-item" (click)="loginAs(member)">
+                                            <i class="fas fa-sign-in-alt"></i> Login as</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Add Team Member Panel -->
+    <div class="add-member-panel" *ngIf="showAddModal">
+        <div class="panel-overlay" (click)="closeAddModal()"></div>
+        <div class="panel-content">
+            <div class="panel-header">
+                <h5 class="panel-title">Add Team Member</h5>
+                <button class="btn-close-panel" (click)="closeAddModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div class="panel-body">
+                <form>
+                    <!-- Name -->
+                    <div class="form-group">
+                        <label class="form-label">Name <span class="required">*</span></label>
+                        <input type="text" class="form-control" [(ngModel)]="newMember.name" name="name" required>
+                    </div>
+
+                    <!-- Email -->
+                    <div class="form-group">
+                        <label class="form-label">Email <span class="required">*</span></label>
+                        <input type="email" class="form-control" [(ngModel)]="newMember.email" name="email" required>
+                    </div>
+
+                    <!-- Role -->
+                    <div class="form-group">
+                        <label class="form-label">Role</label>
+                        <select class="form-control" [(ngModel)]="newMember.role" name="role">
+                            <option value="Sub Admin">Sub Admin</option>
+                            <option value="Admin">Admin</option>
+                            <option value="Advertiser Manager">Advertiser Manager</option>
+                            <option value="Publisher Manager">Publisher Manager</option>
+                        </select>
+                        <small class="form-help-text">There are several roles that you can create as part of your team.
+                            You can see different roles as part of the doc <a href="#">click here</a></small>
+                    </div>
+
+                    <!-- Password -->
+                    <div class="form-group">
+                        <label class="form-label">Password (Optional)</label>
+                        <input type="password" class="form-control" [(ngModel)]="newMember.password" name="password"
+                            placeholder="atleast 8 characters">
+                    </div>
+
+                    <!-- Phone -->
+                    <div class="form-group">
+                        <label class="form-label">Phone</label>
+                        <input type="text" class="form-control" [(ngModel)]="newMember.phone" name="phone">
+                    </div>
+
+                    <!-- Additional Data -->
+                    <div class="form-group additional-data-section">
+                        <label class="form-label">Additional Data</label>
+
+                        <!-- Dynamic Fields -->
+                        <div class="additional-data-fields" *ngIf="additionalDataFields.length > 0">
+                            <div class="data-field-row" *ngFor="let field of additionalDataFields; let i = index">
+                                <span class="field-index">{{i + 1}}.</span>
+                                <div class="field-inputs">
+                                    <div class="field-column">
+                                        <label class="field-label">Field</label>
+                                        <input type="text" class="form-control" [(ngModel)]="field.key"
+                                            [name]="'fieldKey_' + i" placeholder="Key">
+                                    </div>
+                                    <div class="field-column">
+                                        <input type="text" class="form-control value-input" [(ngModel)]="field.value"
+                                            [name]="'fieldValue_' + i" placeholder="Value">
+                                    </div>
+                                </div>
+                                <button type="button" class="btn-delete-field" (click)="removeDataField(i)">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <button type="button" class="btn-add-data" (click)="addDataField()">
+                            <i class="fas fa-plus"></i> Add
+                        </button>
+                    </div>
+
+                    <!-- Skype -->
+                    <div class="form-group">
+                        <label class="form-label">Skype (Optional)</label>
+                        <div class="input-with-icon">
+                            <i class="fab fa-skype"></i>
+                            <input type="text" class="form-control" [(ngModel)]="newMember.skype" name="skype"
+                                placeholder="Your Skype ID">
+                        </div>
+                    </div>
+
+                    <!-- Account Status -->
+                    <div class="form-group">
+                        <label class="form-label">Account Status <span class="required">*</span></label>
+                        <select class="form-control" [(ngModel)]="newMember.status" name="status">
+                            <option value="Active">Active</option>
+                            <option value="Disabled">Disabled</option>
+                        </select>
+                    </div>
+
+                    <!-- Notify by Email -->
+                    <div class="form-group">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" [(ngModel)]="newMember.notifyEmail"
+                                name="notifyEmail" id="notifyEmail">
+                            <label class="form-check-label" for="notifyEmail">
+                                Notify this user by email
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Permissions Section -->
+                    <div class="permissions-section">
+                        <div class="permissions-header">
+                            <h6>Permissions</h6>
+                            <div class="permission-actions">
+                                <button type="button" class="btn-check-all" (click)="checkAllPermissions()">Check
+                                    All</button>
+                                <button type="button" class="btn-uncheck-all" (click)="uncheckAllPermissions()">Uncheck
+                                    All</button>
+                            </div>
+                        </div>
+
+                        <div class="permission-group" *ngFor="let group of permissionGroups">
+                            <div class="permission-title">
+                                <span>{{group.name}}</span>
+                                <span class="no-access-badge" *ngIf="!group.hasAccess">No Access</span>
+                            </div>
+                            <div class="permission-options">
+                                <label class="permission-checkbox" *ngFor="let perm of group.permissions">
+                                    <input type="checkbox" [(ngModel)]="perm.checked"
+                                        [name]="group.name + '_' + perm.name">
+                                    {{perm.name}}
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="panel-footer">
+                <button class="btn btn-save" (click)="saveMember()">
+                    <i class="fas fa-check"></i> Save
+                </button>
+                <button class="btn btn-close" (click)="closeAddModal()">Close</button>
+            </div>
+        </div>
+    </div>
+</div>

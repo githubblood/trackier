@@ -1,0 +1,147 @@
+<div class="profile-page">
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1 class="page-title">Profile</h1>
+    </div>
+
+    <!-- Two Column Layout -->
+    <div class="profile-grid">
+        <!-- Left Column -->
+        <div class="left-column">
+            <!-- Details Card -->
+            <div class="profile-card">
+                <div class="card-header">
+                    <h3 class="card-title">Details</h3>
+                    <button class="btn-edit" (click)="editDetails()">
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="profile-info">
+                        <div class="info-list">
+                            <div class="info-item">
+                                <label>Name:</label>
+                                <span>{{userDetails.name}}</span>
+                            </div>
+                            <div class="info-item">
+                                <label>Email:</label>
+                                <span>{{userDetails.email}}</span>
+                            </div>
+                            <div class="info-item">
+                                <label>Phone:</label>
+                                <span>{{userDetails.phone || '-'}}</span>
+                            </div>
+                            <div class="info-item">
+                                <label>Status:</label>
+                                <span class="status-badge status-active">{{userDetails.status}}</span>
+                            </div>
+                        </div>
+                        <div class="profile-avatar">
+                            <div class="avatar-circle">
+                                {{userDetails.name.charAt(0)}}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Card -->
+            <div class="profile-card">
+                <div class="card-header">
+                    <h3 class="card-title">Settings</h3>
+                    <button class="btn-edit" (click)="editSettings()">
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="info-item">
+                        <label>Role:</label>
+                        <span>{{settings.role}}</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Permissions:</label>
+                        <span>{{settings.permissions}}</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Email Notifications:</label>
+                        <span>{{settings.emailNotifications}}</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Currency:</label>
+                        <span>{{settings.currency}}</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Language:</label>
+                        <span>{{settings.language}}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Password and Security Card -->
+            <div class="profile-card">
+                <div class="card-header">
+                    <h3 class="card-title">Password and security</h3>
+                    <button class="btn-edit" (click)="editSecurity()">
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
+                </div>
+                <div class="card-body">
+                    <p class="security-text">Login & recovery: Manage your passwords, login preferences and recovery
+                        methods.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column -->
+        <div class="right-column">
+            <!-- Application Card -->
+            <div class="profile-card">
+                <div class="card-header">
+                    <h3 class="card-title">Application</h3>
+                    <button class="btn-edit" (click)="editApplication()">
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
+                </div>
+                <div class="card-body">
+                    <div class="info-item">
+                        <label>Name:</label>
+                        <span>{{application.name}}</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Default Currency:</label>
+                        <span>{{application.defaultCurrency}}</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Support Email:</label>
+                        <span>{{application.supportEmail}}</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Time Zone:</label>
+                        <span>{{application.timeZone}}</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Upload Logo/Favicon:</label>
+                        <span>{{application.uploadStatus}}</span>
+                    </div>
+
+                    <div class="token-section">
+                        <label>Global Security Token:</label>
+                        <div class="token-value">{{application.securityToken}}</div>
+                    </div>
+
+                    <div class="postback-section">
+                        <div class="postback-header">
+                            <label>Global Postback URL:</label>
+                            <button class="btn-debug">Debug Postback</button>
+                        </div>
+                        <textarea class="postback-url" readonly>{{application.postbackUrl}}</textarea>
+                    </div>
+
+                    <div class="login-activity">
+                        <a href="#" class="activity-link">Login Activity</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

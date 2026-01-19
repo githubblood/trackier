@@ -10,10 +10,11 @@
 }
 
 .list-group-item {
-    color: rgba(255, 255, 255, 0.8);
+    color: rgba(255, 255, 255, 0.9) !important;
     transition: all 0.2s ease-in-out;
     border: none;
     background-color: transparent;
+    outline: none;
 
     i {
         width: 24px;
@@ -21,13 +22,14 @@
         margin-right: 8px;
     }
 
-    &:hover {
-        color: #fff;
+    &:hover,
+    &:focus {
+        color: #fff !important;
         background-color: rgba(0, 0, 0, 0.1) !important;
     }
 
     &.active {
-        color: #fff;
+        color: #fff !important;
         background-color: rgba(0, 0, 0, 0.2) !important;
         font-weight: 600;
     }
@@ -37,13 +39,20 @@
 .collapse .list-group-item {
     padding-left: 3.5rem;
     font-size: 0.9rem;
+    color: rgba(255, 255, 255, 0.8) !important;
 
     &.active {
-        color: #fff;
+        color: #fff !important;
         font-weight: 500;
+        background-color: transparent !important; // Submenu active shouldn't change bg maybe? Or keep it?
+        // User said "clicking on categories". If they mean main categories.
+        // Let's keep bg change for submenu active too to show selection.
+        background-color: rgba(0, 0, 0, 0.15) !important;
     }
 
-    &:hover {
+    &:hover,
+    &:focus {
+        color: #fff !important;
         background-color: rgba(0, 0, 0, 0.08) !important;
     }
 }

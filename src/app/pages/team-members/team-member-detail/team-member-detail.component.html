@@ -1,0 +1,179 @@
+<div class="member-detail-page">
+    <!-- Breadcrumb -->
+    <div class="breadcrumb-nav">
+        <a routerLink="/team-members" class="breadcrumb-link">Team Accounts</a>
+        <span class="separator">›</span>
+        <span class="current">{{member.name}}</span>
+    </div>
+
+    <!-- Two Column Layout -->
+    <div class="detail-grid">
+        <!-- Profile Card -->
+        <div class="profile-card">
+            <div class="card-banner">
+                <button class="btn-edit" (click)="editProfile()">
+                    <i class="fas fa-edit"></i> Edit
+                </button>
+            </div>
+            <div class="card-body mt-5">
+                <div class="profile-avatar">
+                    <div class="avatar-circle" [style.background-color]="member.avatarColor">
+                        {{getInitials()}}
+                    </div>
+                </div>
+                <h2 class="member-name">{{member.name}}</h2>
+
+                <div class="info-list">
+                    <div class="info-item">
+                        <label>ID</label>
+                        <span>{{member.id}}</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Email</label>
+                        <span>{{member.email}}</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Phone</label>
+                        <span>{{member.phone || '-'}}</span>
+                    </div>
+                    <div class="info-item">
+                        <label>Status</label>
+                        <span class="status-badge status-active">{{member.status}}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Card -->
+        <div class="settings-card">
+            <div class="card-header">
+                <h3 class="card-title">Settings</h3>
+                <button class="btn-edit" (click)="editSettings()">
+                    <i class="fas fa-edit"></i> Edit
+                </button>
+            </div>
+            <div class="card-body">
+                <div class="info-item">
+                    <label>Role</label>
+                    <span class="role-badge">{{member.role}}</span>
+                </div>
+                <div class="info-item">
+                    <label>Currency</label>
+                    <span class="currency-badge">{{settings.currency}}</span>
+                </div>
+                <div class="info-item">
+                    <label>Language</label>
+                    <span>{{settings.language}}</span>
+                </div>
+                <div class="info-item">
+                    <label>Email Notifications</label>
+                    <span>{{settings.emailNotifications}}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Additional ROLE Section -->
+    <div class="additional-role-section">
+        <div class="section-header">
+            <h3 class="section-title">
+                Additional ROLE
+                <i class="fas fa-info-circle info-icon"></i>
+            </h3>
+            <button class="btn-save" (click)="saveAdditionalRole()">
+                <i class="fas fa-check"></i> Save
+            </button>
+        </div>
+
+        <div class="section-body">
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Assign Additional Role</label>
+                    <select class="form-control" [(ngModel)]="additionalRole.role">
+                        <option value="Affiliate + Advertiser Manager">Affiliate + Advertiser Manager</option>
+                        <option value="Publisher Manager">Publisher Manager</option>
+                        <option value="Advertiser Manager">Advertiser Manager</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Data Visibility</label>
+                    <div class="dropdown">
+                        <button class="btn-dropdown dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                            Show all data
+                        </button>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item">Show all data</a></li>
+                            <li><a class="dropdown-item">Show assigned only</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="checkbox-row">
+                <label class="checkbox-label">
+                    <input type="checkbox" [(ngModel)]="additionalRole.viewCampaigns">
+                    Allow member to view campaigns of unassigned advertisers
+                </label>
+            </div>
+            <div class="checkbox-row">
+                <label class="checkbox-label">
+                    <input type="checkbox" [(ngModel)]="additionalRole.assignViaTags">
+                    Assign via Tags
+                </label>
+            </div>
+
+            <!-- Dual List Selection -->
+            <div class="dual-list-container">
+                <div class="list-box">
+                    <h4 class="list-title">Available</h4>
+                    <input type="text" class="search-input" placeholder="search..." [(ngModel)]="searchAvailable">
+                    <div class="list-items">
+                        <div class="list-item" *ngFor="let item of getFilteredAvailable()" (click)="assignItem(item)">
+                            (ID: {{item.id}}) {{item.name}} - ({{item.type}})
+                        </div>
+                    </div>
+                </div>
+
+                <div class="transfer-arrows">
+                    <button class="btn-transfer" (click)="assignAll()">
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                    <button class="btn-transfer" (click)="unassignAll()">
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                </div>
+
+                <div class="list-box">
+                    <h4 class="list-title">Assigned</h4>
+                    <input type="text" class="search-input" placeholder="search..." [(ngModel)]="searchAssigned">
+                    <div class="list-items">
+                        <div class="list-item" *ngFor="let item of getFilteredAssigned()" (click)="unassignItem(item)">
+                            (ID: {{item.id}}) {{item.name}} - ({{item.type}})
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- CSV Upload Section -->
+            <div class="csv-section">
+                <p class="csv-note">Note: If no publishers or advertisers are assigned then user has access to all the
+                    users by default.</p>
+
+                <h4 class="csv-title">Assign Users Using CSV</h4>
+                <div class="csv-upload">
+                    <input type="file" id="csvFile" class="file-input" accept=".csv">
+                    <label for="csvFile" class="btn-choose-file">Choose file</label>
+                    <span class="file-name">No file chosen</span>
+                    <button class="btn-upload">
+                        <i class="fas fa-check"></i> Upload
+                    </button>
+                </div>
+                <a href="#" class="download-link">Click here to download sample file</a>
+                <ol class="csv-instructions">
+                    <li>Select a CSV file containing comma separated user ids (i.e., id or long hash id)</li>
+                    <li>Click Upload Button</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>

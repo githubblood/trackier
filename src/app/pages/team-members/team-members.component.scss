@@ -1,0 +1,688 @@
+.team-members-page {
+    padding: 20px;
+    background: #f5f7fa;
+    min-height: calc(100vh - 60px);
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+
+            .page-title {
+                font-size: 22px;
+                font-weight: 600;
+                color: #333;
+                margin: 0;
+            }
+
+            .team-count {
+                color: #666;
+                font-size: 14px;
+            }
+
+            .btn-add {
+                background: white;
+                color: #17a2b8;
+                border: 1px solid #17a2b8;
+                padding: 8px 16px;
+                border-radius: 6px;
+                font-size: 13px;
+                font-weight: 500;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                transition: all 0.2s;
+
+                &:hover {
+                    background: #17a2b8;
+                    color: white;
+                }
+
+                i {
+                    font-size: 11px;
+                }
+            }
+        }
+
+        .header-right {
+            .btn-actions {
+                background: #1976d2;
+                color: white;
+                border: none;
+                padding: 8px 16px;
+                border-radius: 6px;
+                font-size: 13px;
+                font-weight: 500;
+                cursor: pointer;
+
+                &:hover {
+                    background: #1565c0;
+                }
+            }
+        }
+    }
+
+    .table-section {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+
+            .search-box {
+                .form-control {
+                    width: 200px;
+                    padding: 8px 12px;
+                    border: 1px solid #ddd;
+                    border-radius: 6px;
+                    font-size: 13px;
+
+                    &:focus {
+                        outline: none;
+                        border-color: #1976d2;
+                    }
+                }
+            }
+
+            .pagination-controls {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+
+                .btn-page {
+                    background: #f5f5f5;
+                    border: 1px solid #ddd;
+                    padding: 6px 10px;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    color: #666;
+
+                    &:hover:not(:disabled) {
+                        background: #e0e0e0;
+                    }
+
+                    &:disabled {
+                        opacity: 0.5;
+                        cursor: not-allowed;
+                    }
+                }
+
+                .page-info {
+                    padding: 6px 12px;
+                    background: #1976d2;
+                    color: white;
+                    border-radius: 4px;
+                    font-size: 13px;
+                }
+
+                .items-per-page {
+                    padding: 6px 10px;
+                    border: 1px solid #ddd;
+                    border-radius: 4px;
+                    font-size: 13px;
+                }
+            }
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+
+            thead {
+                background: #f8f9fa;
+
+                th {
+                    padding: 12px 15px;
+                    text-align: left;
+                    font-size: 12px;
+                    font-weight: 600;
+                    color: #666;
+                    text-transform: uppercase;
+                    border-bottom: 1px solid #eee;
+
+                    &.id-col {
+                        width: 60px;
+                    }
+
+                    &.action-col {
+                        width: 60px;
+                        text-align: center;
+                    }
+                }
+            }
+
+            tbody {
+                tr {
+                    border-bottom: 1px solid #f0f0f0;
+                    transition: background 0.2s;
+
+                    &:hover {
+                        background: #f9f9f9;
+                    }
+
+                    td {
+                        padding: 12px 15px;
+                        font-size: 13px;
+                        color: #333;
+
+                        &.id-col {
+                            color: #666;
+                        }
+
+                        &.account-cell {
+                            .account-info {
+                                display: flex;
+                                align-items: center;
+                                gap: 12px;
+
+                                .avatar {
+                                    width: 36px;
+                                    height: 36px;
+                                    border-radius: 50%;
+                                    display: flex;
+                                    align-items: center;
+                                    justify-content: center;
+                                    color: white;
+                                    font-weight: 600;
+                                    font-size: 12px;
+                                    text-transform: uppercase;
+                                }
+
+                                .info {
+                                    display: flex;
+                                    flex-direction: column;
+
+                                    .name-link {
+                                        color: #1976d2;
+                                        font-weight: 500;
+                                        cursor: pointer;
+                                        text-decoration: none;
+
+                                        &:hover {
+                                            text-decoration: underline;
+                                        }
+                                    }
+
+                                    .email {
+                                        color: #666;
+                                        font-size: 12px;
+                                    }
+                                }
+                            }
+                        }
+
+                        .status-badge {
+                            padding: 4px 12px;
+                            border-radius: 20px;
+                            font-size: 12px;
+                            font-weight: 500;
+
+                            &.status-active {
+                                background: #e8f5e9;
+                                color: #2e7d32;
+                            }
+
+                            &.status-disabled {
+                                background: #ffebee;
+                                color: #c62828;
+                            }
+                        }
+
+                        &.action-col {
+                            text-align: center;
+
+                            .action-dropdown {
+                                position: relative;
+                                display: inline-block;
+
+                                .btn-action {
+                                    background: none;
+                                    border: none;
+                                    padding: 5px 10px;
+                                    cursor: pointer;
+                                    color: #666;
+
+                                    &:hover {
+                                        color: #333;
+                                    }
+                                }
+
+                                .dropdown-menu {
+                                    min-width: 140px;
+
+                                    .dropdown-item {
+                                        font-size: 13px;
+                                        padding: 8px 15px;
+
+                                        i {
+                                            margin-right: 8px;
+                                            width: 16px;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // Add Team Member Panel
+    .add-member-panel {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 2000;
+
+        .panel-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.2s ease;
+        }
+
+        .panel-content {
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 480px;
+            background: white;
+            box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            animation: slideInRight 0.3s ease;
+
+            .panel-header {
+                padding: 20px;
+                border-bottom: 1px solid #eee;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+
+                .panel-title {
+                    margin: 0;
+                    font-size: 18px;
+                    font-weight: 600;
+                    color: #333;
+                }
+
+                .btn-close-panel {
+                    background: none;
+                    border: none;
+                    cursor: pointer;
+                    color: #666;
+                    font-size: 18px;
+                    padding: 0;
+
+                    &:hover {
+                        color: #333;
+                    }
+                }
+            }
+
+            .panel-body {
+                flex: 1;
+                overflow-y: auto;
+                padding: 20px;
+
+                .form-group {
+                    margin-bottom: 20px;
+
+                    .form-label {
+                        display: block;
+                        font-size: 13px;
+                        font-weight: 500;
+                        color: #333;
+                        margin-bottom: 8px;
+
+                        .required {
+                            color: #dc3545;
+                            margin-left: 2px;
+                        }
+                    }
+
+                    .form-control {
+                        width: 100%;
+                        padding: 10px 12px;
+                        border: 1px solid #ddd;
+                        border-radius: 6px;
+                        font-size: 13px;
+                        transition: all 0.2s;
+
+                        &:focus {
+                            outline: none;
+                            border-color: #1976d2;
+                            box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.1);
+                        }
+
+                        &::placeholder {
+                            color: #999;
+                        }
+                    }
+
+                    .form-help-text {
+                        display: block;
+                        font-size: 11px;
+                        color: #666;
+                        margin-top: 5px;
+
+                        a {
+                            color: #1976d2;
+                            text-decoration: none;
+
+                            &:hover {
+                                text-decoration: underline;
+                            }
+                        }
+                    }
+
+                    .btn-add-data {
+                        background: #17a2b8;
+                        color: white;
+                        border: none;
+                        padding: 6px 12px;
+                        border-radius: 4px;
+                        font-size: 12px;
+                        cursor: pointer;
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 5px;
+
+                        &:hover {
+                            background: #138496;
+                        }
+
+                        i {
+                            font-size: 10px;
+                        }
+                    }
+
+                    // Additional Data Section Styles
+                    &.additional-data-section {
+                        .additional-data-fields {
+                            margin-bottom: 15px;
+
+                            .data-field-row {
+                                display: flex;
+                                align-items: flex-start;
+                                gap: 10px;
+                                margin-bottom: 12px;
+                                padding: 10px;
+                                background: #f8f9fa;
+                                border-radius: 6px;
+
+                                .field-index {
+                                    font-size: 13px;
+                                    font-weight: 500;
+                                    color: #333;
+                                    padding-top: 28px;
+                                    min-width: 20px;
+                                }
+
+                                .field-inputs {
+                                    display: flex;
+                                    gap: 10px;
+                                    flex: 1;
+
+                                    .field-column {
+                                        flex: 1;
+
+                                        .field-label {
+                                            display: block;
+                                            font-size: 11px;
+                                            font-weight: 500;
+                                            color: #666;
+                                            margin-bottom: 5px;
+                                        }
+
+                                        .form-control {
+                                            width: 100%;
+                                        }
+
+                                        .value-input {
+                                            margin-top: 18px;
+                                        }
+                                    }
+                                }
+
+                                .btn-delete-field {
+                                    background: none;
+                                    border: none;
+                                    color: #dc3545;
+                                    cursor: pointer;
+                                    padding: 5px;
+                                    margin-top: 24px;
+                                    font-size: 14px;
+                                    transition: all 0.2s;
+
+                                    &:hover {
+                                        color: #a71d2a;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    .input-with-icon {
+                        position: relative;
+
+                        i {
+                            position: absolute;
+                            left: 12px;
+                            top: 50%;
+                            transform: translateY(-50%);
+                            color: #00aff0;
+                            font-size: 16px;
+                        }
+
+                        .form-control {
+                            padding-left: 40px;
+                        }
+                    }
+
+                    .form-check {
+                        display: flex;
+                        align-items: center;
+
+                        .form-check-input {
+                            margin-right: 8px;
+                            cursor: pointer;
+                        }
+
+                        .form-check-label {
+                            font-size: 13px;
+                            color: #333;
+                            cursor: pointer;
+                            margin: 0;
+                        }
+                    }
+                }
+
+                .permissions-section {
+                    margin-top: 30px;
+                    padding-top: 20px;
+                    border-top: 1px solid #eee;
+
+                    .permissions-header {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        margin-bottom: 20px;
+
+                        h6 {
+                            font-size: 15px;
+                            font-weight: 600;
+                            color: #333;
+                            margin: 0;
+                        }
+
+                        .permission-actions {
+                            display: flex;
+                            gap: 10px;
+
+                            button {
+                                background: #f5f5f5;
+                                border: 1px solid #ddd;
+                                padding: 4px 10px;
+                                border-radius: 4px;
+                                font-size: 11px;
+                                cursor: pointer;
+                                transition: all 0.2s;
+
+                                &:hover {
+                                    background: #e0e0e0;
+                                }
+                            }
+                        }
+                    }
+
+                    .permission-group {
+                        margin-bottom: 15px;
+                        padding: 12px;
+                        background: #f8f9fa;
+                        border-radius: 6px;
+
+                        .permission-title {
+                            display: flex;
+                            justify-content: space-between;
+                            align-items: center;
+                            margin-bottom: 10px;
+                            font-weight: 500;
+                            font-size: 13px;
+                            color: #333;
+
+                            .no-access-badge {
+                                background: #ffebee;
+                                color: #c62828;
+                                padding: 2px 8px;
+                                border-radius: 4px;
+                                font-size: 10px;
+                                font-weight: 500;
+                            }
+                        }
+
+                        .permission-options {
+                            display: flex;
+                            flex-wrap: wrap;
+                            gap: 15px;
+
+                            .permission-checkbox {
+                                display: flex;
+                                align-items: center;
+                                gap: 5px;
+                                font-size: 12px;
+                                color: #666;
+                                cursor: pointer;
+
+                                input[type="checkbox"] {
+                                    cursor: pointer;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            .panel-footer {
+                padding: 15px 20px;
+                border-top: 1px solid #eee;
+                display: flex;
+                gap: 10px;
+
+                .btn {
+                    padding: 10px 20px;
+                    border-radius: 6px;
+                    font-size: 14px;
+                    font-weight: 500;
+                    cursor: pointer;
+                    transition: all 0.2s;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+
+                    &.btn-save {
+                        background: #17a2b8;
+                        color: white;
+                        border: none;
+
+                        &:hover {
+                            background: #138496;
+                        }
+                    }
+
+                    &.btn-close {
+                        background: #6c757d;
+                        color: white;
+                        border: none;
+
+                        &:hover {
+                            background: #5a6268;
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+    }
+
+    to {
+        transform: translateX(0);
+    }
+}
+
+@media (max-width: 768px) {
+    .team-members-page {
+        .page-header {
+            flex-direction: column;
+            gap: 15px;
+            align-items: flex-start;
+
+            .header-left {
+                flex-wrap: wrap;
+            }
+        }
+
+        .add-member-panel .panel-content {
+            width: 100%;
+        }
+    }
+}

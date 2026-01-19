@@ -46,16 +46,27 @@
             <a routerLink="/reports/cohort" routerLinkActive="active"
                 class="list-group-item list-group-item-action bg-transparent border-0 small">Cohort Report</a>
 
-            <!-- Additional Reports -->
-            <div class="mt-2 mb-1 text-muted small fw-bold ps-2">Additional Reports</div>
-            <a routerLink="/reports/cap" routerLinkActive="active"
-                class="list-group-item list-group-item-action bg-transparent border-0 small">CAP Report</a>
-            <a routerLink="/reports/sampling" routerLinkActive="active"
-                class="list-group-item list-group-item-action bg-transparent border-0 small">Sampling Report</a>
-            <a routerLink="/reports/comparison" routerLinkActive="active"
-                class="list-group-item list-group-item-action bg-transparent border-0 small">Comparison Report</a>
-            <a routerLink="/reports/referral" routerLinkActive="active"
-                class="list-group-item list-group-item-action bg-transparent border-0 small">Referral Report</a>
+            <!-- Additional Reports Submenu -->
+            <a class="list-group-item list-group-item-action bg-transparent border-0 small fw-bold d-flex justify-content-between align-items-center text-nowrap"
+                style="white-space: nowrap;" data-bs-toggle="collapse" href="#additionalReportsMenu" role="button"
+                aria-expanded="false" aria-controls="additionalReportsMenu">
+                Additional Reports <i class="fas fa-chevron-down small"></i>
+            </a>
+            <div class="collapse" id="additionalReportsMenu">
+                <div class="list-group list-group-flush bg-transparent">
+                    <a routerLink="/reports/cap" routerLinkActive="active"
+                        class="list-group-item list-group-item-action bg-transparent border-0 small ps-4">CAP Report</a>
+                    <a routerLink="/reports/sampling" routerLinkActive="active"
+                        class="list-group-item list-group-item-action bg-transparent border-0 small ps-4">Sampling
+                        Report</a>
+                    <a routerLink="/reports/comparison" routerLinkActive="active"
+                        class="list-group-item list-group-item-action bg-transparent border-0 small ps-4">Comparison
+                        Report</a>
+                    <a routerLink="/reports/referral" routerLinkActive="active"
+                        class="list-group-item list-group-item-action bg-transparent border-0 small ps-4">Referral
+                        Report</a>
+                </div>
+            </div>
             <a routerLink="/reports/click" routerLinkActive="active"
                 class="list-group-item list-group-item-action bg-transparent border-0 small">Click Report</a>
             <a routerLink="/reports/conversion" routerLinkActive="active"

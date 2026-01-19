@@ -32,6 +32,13 @@ import { ReferralReportComponent } from './pages/reports/referral-report/referra
 import { PostbacksPixelsComponent } from './pages/publishers/postbacks-pixels/postbacks-pixels.component';
 import { EditPostbackComponent } from './pages/publishers/postbacks-pixels/edit-postback/edit-postback.component';
 import { PostbackPixelLogsComponent } from './pages/publishers/postbacks-pixels/postback-logs/postback-pixel-logs.component';
+import { ProfileComponent } from './pages/profile/profile.component';
+import { EditDetailsComponent } from './pages/profile/edit-details/edit-details.component';
+import { EditSettingsComponent } from './pages/profile/edit-settings/edit-settings.component';
+import { EditPasswordComponent } from './pages/profile/edit-password/edit-password.component';
+import { EditApplicationComponent } from './pages/profile/edit-application/edit-application.component';
+import { TeamMembersComponent } from './pages/team-members/team-members.component';
+import { TeamMemberDetailComponent } from './pages/team-members/team-member-detail/team-member-detail.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
@@ -70,7 +77,14 @@ export const routes: Routes = [
       { path: 'advertisers/manage', component: ManageAdvertisersComponent },
       { path: 'advertisers/postback-hits', component: PostbackHitsReceivedComponent },
       { path: 'advertisers/edit/:id', component: EditAdvertiserComponent },
-      { path: 'advertisers/:id', component: AdvertiserDetailComponent }
+      { path: 'advertisers/:id', component: AdvertiserDetailComponent },
+      { path: 'profile', component: ProfileComponent },
+      { path: 'profile/edit-details', component: EditDetailsComponent },
+      { path: 'profile/edit-settings', component: EditSettingsComponent },
+      { path: 'profile/edit-password', component: EditPasswordComponent },
+      { path: 'profile/edit-application', component: EditApplicationComponent },
+      { path: 'team-members', component: TeamMembersComponent },
+      { path: 'team-members/:id', component: TeamMemberDetailComponent }
     ]
   },
   { path: '**', redirectTo: 'dashboard' }

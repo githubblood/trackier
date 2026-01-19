@@ -1,23 +1,95 @@
-<div class="d-flex align-items-center justify-content-center vh-100 bg-light">
-    <div class="card border-0 shadow-sm" style="width: 400px;">
-        <div class="card-body p-5">
-            <div class="text-center mb-4">
-                <h3 class="fw-bold text-primary">Spaxads</h3>
-                <p class="text-muted">Sign in to your account</p>
+<div class="login-page">
+    <div class="login-container">
+        <!-- Left Side - Blue Panel -->
+        <div class="left-panel">
+            <div class="logo-badge">
+                <i class="fas fa-th-large"></i>
+                <span>Spaxads Digital<br>Media Pvt Ltd</span>
             </div>
+            <h1 class="panel-title">Access your Spaxads Digital Media Pvt Ltd Dashboard</h1>
+            <p class="panel-subtitle">Log in to manage your partnerships and track your earnings effortlessly.</p>
+
+            <!-- Dashboard Mockup -->
+            <div class="mockup-window">
+                <div class="window-header">
+                    <div class="window-dots">
+                        <span class="dot red"></span>
+                        <span class="dot yellow"></span>
+                        <span class="dot green"></span>
+                    </div>
+                    <div class="window-title"></div>
+                    <span class="window-close">×</span>
+                </div>
+                <div class="window-content">
+                    <div class="sidebar-mockup">
+                        <div class="sidebar-item"></div>
+                        <div class="sidebar-item"></div>
+                        <div class="sidebar-item round"></div>
+                        <div class="sidebar-item round"></div>
+                        <div class="sidebar-item round"></div>
+                    </div>
+                    <div class="content-mockup">
+                        <div class="content-bar"></div>
+                        <div class="content-dots">
+                            <span></span><span></span><span></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side - Login Form -->
+        <div class="right-panel">
+            <h2 class="form-title">Login</h2>
+
             <form (ngSubmit)="login()">
-                <div class="mb-3">
-                    <label class="form-label">Email address</label>
-                    <input type="email" class="form-control" [(ngModel)]="email" name="email" required
-                        placeholder="Partners@spaxads.com">
+                <div class="form-group">
+                    <label class="form-label">Email <span class="required">*</span></label>
+                    <div class="input-wrapper">
+                        <i class="fas fa-user input-icon"></i>
+                        <input type="email" class="form-control" [(ngModel)]="email" name="email" required
+                            placeholder="Email">
+                    </div>
                 </div>
-                <div class="mb-3">
-                    <label class="form-label">Password</label>
-                    <input type="password" class="form-control" [(ngModel)]="password" name="password" required
-                        placeholder="Spaxads@#$11">
+
+                <div class="form-group">
+                    <label class="form-label">Password <span class="required">*</span></label>
+                    <div class="input-wrapper">
+                        <input type="password" class="form-control" [(ngModel)]="password" name="password" required
+                            placeholder="Password" #passwordInput>
+                        <i class="fas fa-eye password-toggle" (click)="togglePassword(passwordInput)"></i>
+                    </div>
                 </div>
-                <div class="d-grid">
-                    <button type="submit" class="btn btn-primary">Sign In</button>
+
+                <div class="form-options">
+                    <label class="checkbox-label">
+                        <input type="checkbox" [(ngModel)]="rememberMe" name="rememberMe">
+                        <span>Remember me (30 days)</span>
+                    </label>
+                </div>
+
+                <div class="form-actions">
+                    <a href="#" class="forgot-link">
+                        <i class="fas fa-lock"></i> Forgot your password?
+                    </a>
+                    <button type="submit" class="btn-login">Log In</button>
+                </div>
+
+                <div class="signup-section">
+                    <p class="signup-text">Don't have an account? <span>Create one now:</span></p>
+                    <div class="signup-buttons">
+                        <a routerLink="/signup/publisher" class="btn-signup">
+                            <i class="fas fa-user"></i> Sign up as Publisher
+                        </a>
+                        <a routerLink="/signup/advertiser" class="btn-signup">
+                            <i class="fas fa-user"></i> Sign up as Advertiser
+                        </a>
+                    </div>
+                </div>
+
+                <div class="footer-links">
+                    <p>You must have <a href="#">cookies enabled</a> to use this site (cookies enabled)</p>
+                    <a href="#">terms and conditions</a>
                 </div>
             </form>
         </div>

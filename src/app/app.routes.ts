@@ -39,9 +39,13 @@ import { EditPasswordComponent } from './pages/profile/edit-password/edit-passwo
 import { EditApplicationComponent } from './pages/profile/edit-application/edit-application.component';
 import { TeamMembersComponent } from './pages/team-members/team-members.component';
 import { TeamMemberDetailComponent } from './pages/team-members/team-member-detail/team-member-detail.component';
+import { PublisherSignupComponent } from './pages/signup/publisher-signup/publisher-signup.component';
+import { AdvertiserSignupComponent } from './pages/signup/advertiser-signup/advertiser-signup.component';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
+  { path: 'signup/publisher', component: PublisherSignupComponent },
+  { path: 'signup/advertiser', component: AdvertiserSignupComponent },
   {
     path: '',
     component: MainLayoutComponent,

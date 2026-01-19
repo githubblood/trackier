@@ -1,0 +1,95 @@
+<div class="signup-page">
+    <div class="signup-container">
+        <!-- Left Side - Blue Panel -->
+        <div class="left-panel">
+            <div class="logo-badge">
+                <i class="fas fa-th-large"></i>
+                <span>Spaxads Digital<br>Media Pvt Ltd</span>
+            </div>
+            <h1 class="panel-title">Elevate Your Performance Marketing Success with Spaxads Digital Media Pvt Ltd</h1>
+            <p class="panel-subtitle">Unlock new revenue streams, access exclusive offers, and grow your business with
+                our top-tier publisher marketing platform.</p>
+
+            <!-- Dashboard Mockup -->
+            <div class="mockup-window">
+                <div class="window-header">
+                    <div class="window-dots">
+                        <span class="dot red"></span>
+                        <span class="dot yellow"></span>
+                        <span class="dot green"></span>
+                    </div>
+                    <div class="window-title"></div>
+                    <span class="window-close">×</span>
+                </div>
+                <div class="window-content">
+                    <div class="sidebar-mockup">
+                        <div class="sidebar-item"></div>
+                        <div class="sidebar-item round"></div>
+                        <div class="sidebar-item round active"></div>
+                        <div class="sidebar-item round"></div>
+                        <div class="sidebar-item round"></div>
+                    </div>
+                    <div class="content-mockup">
+                        <div class="content-bar"></div>
+                        <div class="content-cards">
+                            <div class="card-placeholder"></div>
+                            <div class="card-placeholder"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side - Signup Form -->
+        <div class="right-panel">
+            <div class="form-header">
+                <h2 class="form-title">Signup</h2>
+                <span class="form-subtitle">Advertiser Register</span>
+            </div>
+
+            <form (ngSubmit)="register()">
+                <div class="form-group">
+                    <label class="form-label">Full Name<span class="required">*</span></label>
+                    <div class="input-wrapper">
+                        <input type="text" class="form-control no-icon" [(ngModel)]="fullName" name="fullName" required
+                            placeholder="Full Name">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Email<span class="required">*</span></label>
+                    <div class="input-wrapper">
+                        <input type="email" class="form-control no-icon" [(ngModel)]="email" name="email" required
+                            placeholder="Email">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Password<span class="required">*</span></label>
+                    <div class="input-wrapper">
+                        <input type="password" class="form-control no-icon" [(ngModel)]="password" name="password"
+                            required placeholder="Password" #passwordInput>
+                        <i class="fas fa-eye password-toggle" (click)="togglePassword(passwordInput)"></i>
+                    </div>
+                    <span class="hint-text">Password should be at least 8 characters</span>
+                </div>
+
+                <div class="terms-checkbox">
+                    <label class="checkbox-label">
+                        <input type="checkbox" [(ngModel)]="acceptTerms" name="acceptTerms">
+                        <span>I accept <a href="#">Terms and Conditions</a> and <a href="#">Privacy Policy</a></span>
+                    </label>
+                </div>
+
+                <div class="form-footer">
+                    <div class="footer-links">
+                        <a routerLink="/login">Already have an account?</a>
+                        <span class="divider">|</span>
+                        <a routerLink="/signup/publisher">Are you a publisher?</a>
+                    </div>
+                    <button type="submit" class="btn-register">Register</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

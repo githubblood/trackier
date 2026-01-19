@@ -1,17 +1,19 @@
 import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [FormsModule],
+  imports: [CommonModule, FormsModule, RouterModule],
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss'
 })
 export class LoginComponent {
   email = '';
   password = '';
+  rememberMe = false;
 
   constructor(private router: Router) { }
 
@@ -21,5 +23,9 @@ export class LoginComponent {
     } else {
       this.router.navigate(['/dashboard']);
     }
+  }
+
+  togglePassword(input: HTMLInputElement) {
+    input.type = input.type === 'password' ? 'text' : 'password';
   }
 }

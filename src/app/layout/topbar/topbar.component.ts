@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-topbar',
@@ -10,4 +11,9 @@ import { RouterModule } from '@angular/router';
 })
 export class TopbarComponent {
 
+  constructor(public authService: AuthService) { }
+
+  onLogout(): void {
+    this.authService.logout();
+  }
 }

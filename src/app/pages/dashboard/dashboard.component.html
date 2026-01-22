@@ -1,44 +1,148 @@
 <h2 class="h5 mb-4 fw-bold" style="color: #444;">Dashboard</h2>
-<div class="row g-3 mb-4">
-    <div class="col-xl-2 col-md-4 col-sm-6" *ngFor="let m of metrics">
-        <div class="card h-100" style="padding: 16px 24px 24px;">
-            <div class="card-body p-0">
-                <h6 class="card-title text-muted text-uppercase mb-3"
-                    style="font-size: 11px; font-weight: 600; letter-spacing: 0.5px;">{{m.title}}</h6>
-                <h3 class="fw-bold mb-3" [ngClass]="'text-' + m.color" style="font-size: 28px;">{{m.today}}</h3>
-                <div class="d-flex justify-content-between" style="font-size: 12px; color: #6c757d;">
-                    <div>
-                        <div class="text-muted mb-1" style="font-size: 10px;">YESTERDAY</div>
-                        <div class="fw-bold text-dark">{{m.yesterday}}</div>
-                    </div>
-                    <div class="text-end">
-                        <div class="text-muted mb-1" style="font-size: 10px;">MTD</div>
-                        <div class="fw-bold text-dark">{{m.mtd}}</div>
-                    </div>
-                </div>
-            </div>
-        </div>
+
+<!-- Loading State -->
+<div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Loading...</span>
     </div>
+    <p class="text-muted mt-3">Loading dashboard data...</p>
 </div>
 
-<!-- Charts -->
-<div class="row g-3">
-    <div class="col-md-8">
-        <div class="card h-100">
-            <div class="card-body" style="padding: 20px 24px;">
-                <h6 class="mb-3 fw-bold" style="color: #444; font-size: 15px;">Performance Report</h6>
-                <div class="d-flex align-items-center justify-content-center" style="min-height: 300px;">
-                    <p class="text-muted">Chart: Campaign Performance (Placeholder)</p>
+<!-- Error State -->
+<div *ngIf="error && !loading" class="alert alert-danger" role="alert">
+    <i class="fas fa-exclamation-triangle me-2"></i>
+    {{ error }}
+    <button class="btn btn-sm btn-outline-danger ms-3" (click)="loadDashboardData()">
+        <i class="fas fa-redo me-1"></i> Retry
+    </button>
+</div>
+
+<!-- Dashboard Content -->
+<div *ngIf="!loading && !error">
+    <!-- Metrics Cards -->
+    <div class="row g-3 mb-4">
+        <div class="col-xl-2 col-md-4 col-sm-6" *ngFor="let m of metrics">
+            <div class="card h-100" style="padding: 16px 24px 24px;">
+                <div class="card-body p-0">
+                    <h6 class="card-title text-muted text-uppercase mb-3"
+                        style="font-size: 11px; font-weight: 600; letter-spacing: 0.5px;">{{m.title}}</h6>
+                    <h3 class="fw-bold mb-3" [ngClass]="'text-' + m.color" style="font-size: 28px;">{{m.today}}</h3>
+                    <div class="d-flex justify-content-between" style="font-size: 12px; color: #6c757d;">
+                        <div>
+                            <div class="text-muted mb-1" style="font-size: 10px;">YESTERDAY</div>
+                            <div class="fw-bold text-dark">{{m.yesterday}}</div>
+                        </div>
+                        <div class="text-end">
+                            <div class="text-muted mb-1" style="font-size: 10px;">MTD</div>
+                            <div class="fw-bold text-dark">{{m.mtd}}</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="card h-100">
-            <div class="card-body" style="padding: 20px 24px;">
-                <h6 class="mb-3 fw-bold" style="color: #444; font-size: 15px;">Top 10 GEO Active Campaigns</h6>
-                <div class="d-flex align-items-center justify-content-center" style="min-height: 300px;">
-                    <p class="text-muted">Chart: Geo Distribution (Placeholder)</p>
+
+    <!-- Campaign Status (if available) -->
+    <div class="row g-3 mb-4" *ngIf="campaignStatus">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body" style="padding: 20px 24px;">
+                    <h6 class="mb-3 fw-bold" style="color: #444; font-size: 15px;">Campaign Status</h6>
+                    <div class="row g-3">
+                        <div class="col-md-2 col-sm-4 col-6">
+                            <div class="text-center">
+                                <div class="text-muted small">Active</div>
+                                <h4 class="fw-bold text-success mb-0">{{campaignStatus.active}}</h4>
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-sm-4 col-6">
+                            <div class="text-center">
+                                <div class="text-muted small">Paused</div>
+                                <h4 class="fw-bold text-warning mb-0">{{campaignStatus.paused}}</h4>
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-sm-4 col-6">
+                            <div class="text-center">
+                                <div class="text-muted small">Pending</div>
+                                <h4 class="fw-bold text-info mb-0">{{campaignStatus.pending}}</h4>
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-sm-4 col-6">
+                            <div class="text-center">
+                                <div class="text-muted small">Disabled</div>
+                                <h4 class="fw-bold text-danger mb-0">{{campaignStatus.disabled}}</h4>
+                            </div>
+                        </div>
+                        <div class="col-md-2 col-sm-4 col-6">
+                            <div class="text-center">
+                                <div class="text-muted small">Expired</div>
+                                <h4 class="fw-bold text-secondary mb-0">{{campaignStatus.expired}}</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reports Section -->
+    <div class="row g-3">
+        <div class="col-12">
+            <div class="card h-100">
+                <div class="card-body" style="padding: 20px 24px;">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h6 class="fw-bold m-0" style="color: #444; font-size: 15px;">Performance Report</h6>
+                        <button class="btn btn-sm btn-outline-secondary">
+                            <i class="fas fa-download me-1"></i> Export
+                        </button>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="border-0 text-muted small fw-bold text-uppercase py-3"
+                                        style="font-size: 11px;">Date</th>
+                                    <th class="border-0 text-muted small fw-bold text-uppercase py-3 text-end"
+                                        style="font-size: 11px;">Impressions</th>
+                                    <th class="border-0 text-muted small fw-bold text-uppercase py-3 text-end"
+                                        style="font-size: 11px;">Clicks</th>
+                                    <th class="border-0 text-muted small fw-bold text-uppercase py-3 text-end"
+                                        style="font-size: 11px;">Unique Clicks</th>
+                                    <th class="border-0 text-muted small fw-bold text-uppercase py-3 text-end"
+                                        style="font-size: 11px;">Conversions</th>
+                                    <th class="border-0 text-muted small fw-bold text-uppercase py-3 text-end"
+                                        style="font-size: 11px;">Payout</th>
+                                    <th class="border-0 text-muted small fw-bold text-uppercase py-3 text-end"
+                                        style="font-size: 11px;">Revenue</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let item of analytics">
+                                    <td class="py-3 border-bottom-0" style="font-size: 13px; font-weight: 500;">
+                                        {{item.date | date:'mediumDate'}}
+                                    </td>
+                                    <td class="text-end py-3 border-bottom-0" style="font-size: 13px;">-</td>
+                                    <td class="text-end py-3 border-bottom-0" style="font-size: 13px;">{{item.clicks |
+                                        number}}</td>
+                                    <td class="text-end py-3 border-bottom-0" style="font-size: 13px;">
+                                        {{item.unique_clicks | number}}</td>
+                                    <td class="text-end py-3 border-bottom-0" style="font-size: 13px;">
+                                        {{item.conversions | number}}</td>
+                                    <td class="text-end py-3 border-bottom-0 fw-bold text-success"
+                                        style="font-size: 13px;">{{item.payout | currency}}</td>
+                                    <td class="text-end py-3 border-bottom-0 fw-bold text-primary"
+                                        style="font-size: 13px;">{{item.revenue | currency}}</td>
+                                </tr>
+                                <tr *ngIf="analytics.length === 0">
+                                    <td colspan="7" class="text-center py-5 text-muted">
+                                        <i class="fas fa-chart-bar fa-2x mb-3 d-block text-secondary"></i>
+                                        No data available for this period
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>

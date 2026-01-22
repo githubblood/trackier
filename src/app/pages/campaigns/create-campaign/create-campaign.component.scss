@@ -164,119 +164,7 @@ small.text-muted {
     font-size: 11px;
 }
 
-// Rich Text Editor
-.rich-text-editor {
-    border: 1px solid #dee2e6;
-    border-radius: 4px;
-    overflow: hidden;
-}
 
-.editor-toolbar {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    padding: 8px 10px;
-    background: #f8f9fa;
-    border-bottom: 1px solid #dee2e6;
-    gap: 5px;
-}
-
-.toolbar-group {
-    display: flex;
-    align-items: center;
-    gap: 2px;
-}
-
-.toolbar-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-width: 28px;
-    height: 28px;
-    padding: 4px 8px;
-    background: transparent;
-    border: 1px solid transparent;
-    border-radius: 3px;
-    cursor: pointer;
-    font-size: 13px;
-    color: #495057;
-    transition: all 0.15s ease;
-
-    &:hover {
-        background: #e9ecef;
-        border-color: #dee2e6;
-    }
-
-    &:active {
-        background: #dee2e6;
-    }
-
-    &.active {
-        background: #e9ecef;
-        border-color: #ced4da;
-    }
-
-    i {
-        font-size: 13px;
-    }
-
-    b,
-    u {
-        font-size: 14px;
-    }
-}
-
-.toolbar-select {
-    height: 28px;
-    padding: 2px 8px;
-    border: 1px solid #dee2e6;
-    border-radius: 3px;
-    background: #fff;
-    font-size: 13px;
-    color: #495057;
-    cursor: pointer;
-
-    &:focus {
-        outline: none;
-        border-color: #17a2b8;
-    }
-}
-
-.toolbar-divider {
-    width: 1px;
-    height: 24px;
-    background: #dee2e6;
-    margin: 0 5px;
-}
-
-.editor-content {
-    min-height: 200px;
-    max-height: 400px;
-    padding: 15px;
-    background: #fff;
-    overflow-y: auto;
-    font-size: 15px;
-    line-height: 1.6;
-    color: #333;
-
-    &:focus {
-        outline: none;
-    }
-
-    &:empty:before {
-        content: 'Enter campaign description...';
-        color: #adb5bd;
-    }
-
-    ul,
-    ol {
-        margin-left: 20px;
-    }
-
-    a {
-        color: #17a2b8;
-    }
-}
 
 // Responsive
 @media (max-width: 991px) {
@@ -297,13 +185,5 @@ small.text-muted {
         }
     }
 
-    .editor-toolbar {
-        padding: 6px 8px;
-    }
 
-    .toolbar-btn {
-        min-width: 24px;
-        height: 24px;
-        font-size: 12px;
-    }
 }

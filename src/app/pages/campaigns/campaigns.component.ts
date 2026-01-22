@@ -1,7 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { CampaignService } from '../../core/services/campaign.service';
+import { Campaign, CampaignListParams } from '../../core/models/campaign.model';
 
 @Component({
   selector: 'app-campaigns',
@@ -10,14 +12,12 @@ import { RouterLink } from '@angular/router';
   templateUrl: './campaigns.component.html',
   styleUrl: './campaigns.component.scss'
 })
-export class CampaignsComponent {
-  campaigns = [
-    { id: 1024, name: 'Install App - IOS - US', advertiser: 'App Company', status: 'Active', geo: 'US', payout: '$2.00', revenue: '$3.50', visibility: 'Public', selected: false },
-    { id: 1025, name: 'Sweepstakes Win', advertiser: 'AdNet', status: 'Paused', geo: 'GB', payout: '$1.50', revenue: '$2.00', visibility: 'Private', selected: false },
-    { id: 1026, name: 'Utility Cleaner Android', advertiser: 'SoftInc', status: 'Active', geo: 'Global', payout: '$0.50', revenue: '$1.00', visibility: 'Public', selected: false },
-    { id: 1027, name: 'Casino Royale', advertiser: 'BetKing', status: 'Disabled', geo: 'DE', payout: '$50.00', revenue: '$70.00', visibility: 'Private', selected: false },
-    { id: 1028, name: 'Dating App Sign up', advertiser: 'DateMe', status: 'Active', geo: 'US, CA', payout: '$4.00', revenue: '$6.00', visibility: 'Public', selected: false },
-  ];
+export class CampaignsComponent implements OnInit {
+  campaigns: any[] = [];
+  loading = false;
+  total = 0;
+  currentPage = 1;
+  pageSize = 10;
 
   bulkActions = [
     { icon: 'fa-check', label: 'Active', action: 'active' },
@@ -98,6 +98,55 @@ export class CampaignsComponent {
   columnSearch = '';
   onlyExportSelectedField = false;
 
+  constructor(private campaignService: CampaignService) { }
+
+  ngOnInit(): void {
+    this.loadCampaigns();
+  }
+
+  loadCampaigns(): void {
+    this.loading = true;
+    const params: CampaignListParams = {
+      page: this.currentPage,
+      limit: this.pageSize
+    };
+
+    // Apply status filter if set
+    if (this.filters.status) {
+      params.status = this.filters.status.toLowerCase();
+    }
+
+    // Apply search if set
+    if (this.filters.title) {
+      params.search = this.filters.title;
+    }
+
+    this.campaignService.getCampaigns(params).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.campaigns = response.data.map(c => ({
+            ...c,
+            name: c.title,
+            advertiser: c.advertiser_name || `Advertiser ID: ${c.advertiser_id}`,
+            status: c.status.charAt(0).toUpperCase() + c.status.slice(1),
+            geo: Array.isArray(c.geo_coverage) ? c.geo_coverage.join(', ') : c.geo_coverage,
+            // Default values for fields not in list API
+            payout: 'N/A',
+            revenue: 'N/A',
+            visibility: c.visibility.charAt(0).toUpperCase() + c.visibility.slice(1),
+            selected: false
+          }));
+          this.total = response.pagination.total;
+        }
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('Failed to load campaigns', err);
+        this.loading = false;
+      }
+    });
+  }
+
   getStatusClass(status: string) {
     switch (status) {
       case 'Active': return 'badge bg-success';
@@ -153,6 +202,7 @@ export class CampaignsComponent {
       maxPayout: '',
       addDateRange: false
     };
+    this.loadCampaigns(); // Reload on clear
   }
 
   selectAllColumns() {
@@ -169,7 +219,8 @@ export class CampaignsComponent {
 
   applyFilters() {
     console.log('Applying filters:', this.filters);
-    console.log('Visible columns:', this.columns);
+    this.currentPage = 1; // Reset to first page
+    this.loadCampaigns();
     this.showFilterPanel = false;
   }
 

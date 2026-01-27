@@ -89,6 +89,12 @@ export const routes: Routes = [
         data: { roles: ['admin'] }
       },
       {
+        path: 'campaigns/edit/:id',
+        component: CreateCampaignComponent,
+        canActivate: [roleGuard],
+        data: { roles: ['admin'] }
+      },
+      {
         path: 'campaigns/access',
         component: CampaignAccessComponent,
         canActivate: [roleGuard],

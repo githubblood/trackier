@@ -1,7 +1,8 @@
 <div class="create-campaign-container">
     <!-- Header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h4 class="fw-medium m-0" style="color: #444; font-size: 18px;">Create Campaign</h4>
+        <h4 class="fw-medium m-0" style="color: #444; font-size: 18px;">{{ isEditMode ? 'Edit Campaign' : 'Create
+            Campaign' }}</h4>
     </div>
 
     <!-- Details Section -->
@@ -717,7 +718,8 @@
     <!-- Sticky Footer with Create Button -->
     <div class="sticky-footer">
         <button class="btn btn-primary" (click)="createCampaign()">
-            <i class="fas fa-plus me-2"></i> Create
+            <i class="fas" [ngClass]="isEditMode ? 'fa-save' : 'fa-plus'"></i> {{ isEditMode ? 'Save Changes' : 'Create'
+            }}
         </button>
     </div>
 </div>

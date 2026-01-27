@@ -370,12 +370,6 @@
                         </li>
                     </ul>
                 </div>
-
-                <!-- Search -->
-                <div class="input-group input-group-sm" style="max-width: 300px;">
-                    <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
-                    <input type="text" class="form-control" placeholder="Search campaigns...">
-                </div>
             </div>
             <div class="col-md-6 text-end">
                 <span class="text-muted small me-3" *ngIf="getSelectedCount() > 0">
@@ -394,14 +388,12 @@
                             <input type="checkbox" class="form-check-input" [checked]="selectAll"
                                 (change)="toggleSelectAll()">
                         </th>
-                        <th scope="col">ID</th>
-                        <th scope="col">Status</th>
-                        <th scope="col" style="min-width: 200px;">Title</th>
-                        <th scope="col">Advertiser</th>
-                        <th scope="col">Geo</th>
-                        <th scope="col">Payout</th>
-                        <th scope="col">Revenue</th>
-                        <th scope="col">Visibility</th>
+                        <!-- Dynamic columns based on selection -->
+                        <ng-container *ngFor="let col of getVisibleColumns()">
+                            <th scope="col" [style.min-width]="col.key === 'title' ? '200px' : 'auto'">
+                                {{col.label}}
+                            </th>
+                        </ng-container>
                         <th scope="col">Actions</th>
                     </tr>
                 </thead>
@@ -410,33 +402,83 @@
                         <td>
                             <input type="checkbox" class="form-check-input" [(ngModel)]="c.selected">
                         </td>
-                        <td class="fw-medium text-muted">{{c.id}}</td>
-                        <td><span [ngClass]="getStatusClass(c.status)">{{c.status}}</span></td>
-                        <td><a href="#" class="text-decoration-none fw-medium" style="color: #138fc2;">{{c.name}}</a>
-                        </td>
-                        <td>{{c.advertiser}}</td>
-                        <td>{{c.geo}}</td>
-                        <td>{{c.payout}}</td>
-                        <td>{{c.revenue}}</td>
-                        <td><span class="badge bg-light text-dark border">{{c.visibility}}</span></td>
+                        <!-- Dynamic column data -->
+                        <ng-container *ngFor="let col of getVisibleColumns()">
+                            <td [ngSwitch]="col.key">
+                                <!-- Status column with badge -->
+                                <ng-container *ngSwitchCase="'status'">
+                                    <span [ngClass]="getStatusClass(c.status)">{{c.status}}</span>
+                                </ng-container>
+                                <!-- Title column with link -->
+                                <ng-container *ngSwitchCase="'title'">
+                                    <a [routerLink]="['/campaigns', c.id]" class="text-decoration-none fw-medium"
+                                        style="color: #138fc2; cursor: pointer;">
+                                        {{getColumnValue(c, col.dataKey)}}
+                                    </a>
+                                </ng-container>
+                                <!-- ID column with muted text -->
+                                <ng-container *ngSwitchCase="'id'">
+                                    <span class="fw-medium text-muted">{{getColumnValue(c, col.dataKey)}}</span>
+                                </ng-container>
+                                <!-- Visibility column with badge -->
+                                <ng-container *ngSwitchCase="'visibility'">
+                                    <span class="badge bg-light text-dark border">{{getColumnValue(c,
+                                        col.dataKey)}}</span>
+                                </ng-container>
+                                <!-- Default rendering for other columns -->
+                                <ng-container *ngSwitchDefault>
+                                    {{getColumnValue(c, col.dataKey)}}
+                                </ng-container>
+                            </td>
+                        </ng-container>
                         <td>
                             <button class="btn btn-sm btn-link text-muted p-0"><i
                                     class="fas fa-ellipsis-v"></i></button>
+                        </td>
+                    </tr>
+                    <!-- Empty state when no campaigns -->
+                    <tr *ngIf="campaigns.length === 0 && !loading">
+                        <td [attr.colspan]="getVisibleColumns().length + 2" class="text-center py-4 text-muted">
+                            <i class="fas fa-folder-open fa-2x mb-2 d-block"></i>
+                            No campaigns found
+                        </td>
+                    </tr>
+                    <!-- Loading state -->
+                    <tr *ngIf="loading">
+                        <td [attr.colspan]="getVisibleColumns().length + 2" class="text-center py-4">
+                            <div class="spinner-border spinner-border-sm text-primary" role="status">
+                                <span class="visually-hidden">Loading...</span>
+                            </div>
+                            <span class="ms-2">Loading campaigns...</span>
                         </td>
                     </tr>
                 </tbody>
             </table>
         </div>
 
+        <!-- Pagination -->
         <div class="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
-            <small class="text-muted">Showing {{campaigns.length}} of {{campaigns.length}} entries</small>
-            <nav>
-                <ul class="pagination pagination-sm m-0">
-                    <li class="page-item disabled"><a class="page-link" href="#">Previous</a></li>
-                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                    <li class="page-item"><a class="page-link" href="#">Next</a></li>
-                </ul>
-            </nav>
+            <div class="d-flex align-items-center gap-3">
+                <small class="text-muted">
+                    <span *ngIf="total > 0">
+                        Showing {{getStartIndex()}} to {{getEndIndex()}} of {{total}} entries
+                    </span>
+                    <span *ngIf="total === 0">
+                        No entries found
+                    </span>
+                </small>
+                <div class="d-flex align-items-center gap-2">
+                    <label class="text-muted small mb-0">Show:</label>
+                    <select class="form-select form-select-sm" style="width: 75px;" [(ngModel)]="pageSize"
+                        (change)="onPageSizeChange()">
+                        <option *ngFor="let size of pageSizeOptions" [value]="size">{{size}}</option>
+                    </select>
+                </div>
+            </div>
+            <ngb-pagination *ngIf="total > 0" [collectionSize]="total" [(page)]="currentPage" [pageSize]="pageSize"
+                [maxSize]="5" [rotate]="true" [boundaryLinks]="true" [ellipses]="true"
+                (pageChange)="onPageChange($event)" size="sm">
+            </ngb-pagination>
         </div>
     </div>
 </div>

@@ -20,33 +20,20 @@
     <!-- Sub Header -->
     <div class="sub-header">
         <span>Manage: Publishers <strong>Page {{currentPage}} of {{totalPages}}</strong></span>
-        <span class="text-muted small ms-3">Go to the new version by <a href="javascript:void(0)">clicking
-                here</a></span>
     </div>
 
     <!-- Toolbar -->
     <div class="action-toolbar">
         <div class="toolbar-left">
             <div class="pagination-controls">
-                <button class="btn btn-sm btn-light border" (click)="goToPage(1)" [disabled]="currentPage === 1">
-                    <i class="fas fa-angle-double-left"></i>
-                </button>
-                <button class="btn btn-sm btn-light border" (click)="goToPage(currentPage - 1)"
-                    [disabled]="currentPage === 1">
-                    <i class="fas fa-angle-left"></i>
-                </button>
-                <span class="page-info mx-2">{{currentPage}} of {{totalPages}}</span>
-                <button class="btn btn-sm btn-light border" (click)="goToPage(currentPage + 1)"
-                    [disabled]="currentPage === totalPages">
-                    <i class="fas fa-angle-right"></i>
-                </button>
-                <button class="btn btn-sm btn-light border" (click)="goToPage(totalPages)"
-                    [disabled]="currentPage === totalPages">
-                    <i class="fas fa-angle-double-right"></i>
-                </button>
+                <ngb-pagination *ngIf="totalCount > 0" [collectionSize]="totalCount" [(page)]="currentPage"
+                    [pageSize]="perPage" [maxSize]="3" [rotate]="true" [boundaryLinks]="true"
+                    (pageChange)="onPageChange($event)" size="sm">
+                </ngb-pagination>
             </div>
             <div class="per-page-select ms-3">
-                <select class="form-select form-select-sm" [(ngModel)]="perPage">
+                <select class="form-select form-select-sm" [(ngModel)]="perPage" (change)="onPageSizeChange()">
+                    <option [value]="10">10</option>
                     <option [value]="50">50</option>
                     <option [value]="100">100</option>
                     <option [value]="200">200</option>
@@ -124,7 +111,8 @@
             </table>
         </div>
         <div class="pagination-info">
-            Showing 1 to {{filteredPublishers.length}} of {{totalCount}} entries
+            Showing {{ (currentPage - 1) * perPage + 1 }} to {{ (currentPage - 1) * perPage + publishers.length }} of
+            {{totalCount}} entries
         </div>
     </div>
 

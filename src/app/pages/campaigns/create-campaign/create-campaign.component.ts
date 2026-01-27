@@ -1,7 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { NgSelectModule } from '@ng-select/ng-select';
 import { CampaignService } from '../../../core/services/campaign.service';
 import { CreateCampaignRequest, CampaignGoal } from '../../../core/models/campaign.model';
@@ -13,7 +13,12 @@ import { CreateCampaignRequest, CampaignGoal } from '../../../core/models/campai
   templateUrl: './create-campaign.component.html',
   styleUrl: './create-campaign.component.scss'
 })
-export class CreateCampaignComponent {
+export class CreateCampaignComponent implements OnInit {
+  isEditMode = false;
+  campaignId: string | null = null;
+  defaultGoalId: number | undefined;
+  allGoals: any[] = [];
+  totalClicks = 0;
   // Objectives
   objectives = [
     { id: 'conversions', label: 'Conversions', icon: 'fa-chart-line' },
@@ -39,7 +44,7 @@ export class CreateCampaignComponent {
     defaultCampaignUrl: '',
     termsAndConditions: '',
     requireTerms: false,
-    category: [],
+    category: [] as string[],
     status: 'Active',
     note: ''
   };
@@ -635,9 +640,6 @@ export class CreateCampaignComponent {
     // ... (rest would be similar, just ensuring filtering works)
   ];
 
-
-
-
   // URL Tokens
   urlTokens = [
     { token: '{click_id}', label: 'Click ID' },
@@ -697,32 +699,163 @@ export class CreateCampaignComponent {
 
   constructor(
     private campaignService: CampaignService,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute
   ) { }
+
+  ngOnInit() {
+    this.campaignId = this.route.snapshot.paramMap.get('id');
+    if (this.campaignId) {
+      this.isEditMode = true;
+      this.loadCampaign(this.campaignId);
+    }
+  }
+
+  loadCampaign(id: string) {
+    this.loading = true;
+    this.campaignService.getCampaignDetail(id).subscribe({
+      next: (res) => {
+        this.loading = false;
+        if (res.success && res.data) {
+          const data = res.data;
+          // Map API data to form
+          this.totalClicks = data.total_clicks || 0;
+          this.campaign.title = data.title;
+          this.campaign.description = data.description;
+          this.campaign.advertiser = data.advertiser_id.toString();
+          this.campaign.previewUrl = data.preview_url || '';
+          this.campaign.defaultCampaignUrl = data.tracking_url;
+          this.campaign.termsAndConditions = data.terms_conditions || '';
+          // Helper to title case
+          const toTitleCase = (str: string) => str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : '';
+
+          this.campaign.status = data.status ? toTitleCase(data.status) : 'Active';
+
+          this.advancedSettings.visibility = data.visibility;
+
+          // Map devices
+          if (!data.device || data.device === 'all') {
+            this.advancedSettings.devices = ['ALL'];
+          } else {
+            this.advancedSettings.devices = data.device.split(',').map(d => {
+              const trimmed = d.trim();
+              return trimmed.toLowerCase() === 'all' ? 'ALL' : toTitleCase(trimmed);
+            });
+          }
+          this.revenueAndPayout.geoCoverage = data.geo_coverage === 'global' ? ['ALL'] : (Array.isArray(data.geo_coverage) ? data.geo_coverage : [data.geo_coverage]);
+          this.revenueAndPayout.currency = data.currency;
+
+          // Additional mappings
+          this.campaign.objective = data.objective || 'conversions';
+          this.campaign.kpi = data.kpi || '';
+          this.campaign.category = data.category || [];
+          this.campaign.trafficChannels = data.traffic_channels || [];
+          this.campaign.conversionTracking = data.conversion_tracking || 'server-postback';
+          this.campaign.primaryTrackingDomain = data.primary_tracking_domain || '';
+          this.campaign.conversionTrackingDomain = data.conversion_tracking_domain || '';
+          this.campaign.requireTerms = data.require_terms || false;
+          this.campaign.note = data.note || '';
+
+          // Advanced settings mappings
+          this.advancedSettings.defaultGoalName = data.default_goal_name || '';
+          this.advancedSettings.defaultLandingPageName = data.default_landing_page_name || '';
+          this.advancedSettings.appName = data.app_name || '';
+          this.advancedSettings.appId = data.app_id || '';
+          this.advancedSettings.conversionFlow = data.conversion_flow || '';
+          this.advancedSettings.unsubscribeUrl = data.unsubscribe_url || '';
+          this.advancedSettings.suppressionUrl = data.suppression_url || '';
+          this.advancedSettings.externalOfferId = data.external_offer_id || '';
+          this.advancedSettings.redirectType = data.redirect_type || '302';
+          this.advancedSettings.uniqueClickSessionDuration = data.unique_click_session_duration?.toString() || '';
+          this.advancedSettings.duplicateClickAction = data.duplicate_click_action || false;
+          this.advancedSettings.duplicateClickRedirect = data.duplicate_click_redirect || 'blank_page';
+          this.advancedSettings.conversionHoldPeriod = data.conversion_hold_period?.toString() || '';
+          this.advancedSettings.conversionStatusAfterHold = data.conversion_status_after_hold || 'Approved';
+          this.advancedSettings.operatingSystem = data.operating_system || 'ALL';
+          this.advancedSettings.minOsVersion = data.min_os_version || '';
+          this.advancedSettings.maxOsVersion = data.max_os_version || '';
+          this.advancedSettings.carrierTargeting = data.carrier_targeting || [];
+          this.advancedSettings.deepLink = data.deep_link || 'Enabled';
+          this.advancedSettings.allowedTrackingLinkFormat = data.allowed_tracking_link_format || 'numeric';
+          this.advancedSettings.enableStartEndDate = data.enable_start_end_date || false;
+          this.advancedSettings.startDate = data.start_date || '';
+          this.advancedSettings.endDate = data.end_date || '';
+          this.advancedSettings.campaignStatus = data.campaign_status_after || 'Expired';
+          this.advancedSettings.scheduleStatusChange = data.schedule_status_change || false;
+          this.advancedSettings.statusToBeSet = data.status_to_be_set || '';
+          this.advancedSettings.scheduleDate = data.schedule_date || '';
+          this.advancedSettings.publisherManualNotify = data.publisher_manual_notify || false;
+          this.advancedSettings.publisherNotifyTime = data.publisher_notify_time || '';
+
+          // Time targeting mappings
+          this.timeTargeting.enabled = data.time_targeting_enabled || false;
+          this.timeTargeting.timezone = data.time_targeting_timezone || '';
+          this.timeTargeting.startHour = data.time_targeting_start_hour?.toString() || '0';
+          this.timeTargeting.endHour = data.time_targeting_end_hour?.toString() || '0';
+          this.timeTargeting.enableInactiveHours = data.time_targeting_enable_inactive_hours || false;
+          this.timeTargeting.days = data.time_targeting_days || [];
+
+          // Find default goal to set revenue/payout
+          this.allGoals = data.goals || [];
+          const defaultGoal = data.goals?.find(g => g.is_default);
+          if (defaultGoal) {
+            this.defaultGoalId = defaultGoal.id;
+            this.revenueAndPayout.revenue = defaultGoal.revenue.toString();
+            this.revenueAndPayout.payout = defaultGoal.payout.toString();
+            this.advancedSettings.defaultGoalName = defaultGoal.goal_name;
+          }
+        }
+      },
+      error: (err) => {
+        this.loading = false;
+        this.error = 'Failed to load campaign details';
+        console.error(err);
+      }
+    });
+  }
 
   createCampaign() {
     this.loading = true;
     this.error = '';
 
     try {
-      const requestData: CreateCampaignRequest = this.mapFormToRequest();
+      const requestData = this.mapFormToRequest();
 
-      this.campaignService.createCampaign(requestData).subscribe({
-        next: (response) => {
-          this.loading = false;
-          if (response.success) {
-            alert('Campaign created successfully!');
-            this.router.navigate(['/campaigns']);
-          } else {
-            this.error = response.message || 'Failed to create campaign';
+      if (this.isEditMode && this.campaignId) {
+        this.campaignService.updateCampaign(this.campaignId, requestData).subscribe({
+          next: (response) => {
+            this.loading = false;
+            if (response.success) {
+              alert('Campaign updated successfully!');
+              this.router.navigate(['/campaigns', this.campaignId]);
+            } else {
+              this.error = response.message || 'Failed to update campaign';
+            }
+          },
+          error: (err) => {
+            console.error('Update campaign failed', err);
+            this.loading = false;
+            this.error = err.error?.message || 'An error occurred while updating the campaign';
           }
-        },
-        error: (err) => {
-          console.error('Create campaign failed', err);
-          this.loading = false;
-          this.error = err.error?.message || 'An error occurred while creating the campaign';
-        }
-      });
+        });
+      } else {
+        this.campaignService.createCampaign(requestData).subscribe({
+          next: (response) => {
+            this.loading = false;
+            if (response.success) {
+              alert('Campaign created successfully!');
+              this.router.navigate(['/campaigns']);
+            } else {
+              this.error = response.message || 'Failed to create campaign';
+            }
+          },
+          error: (err) => {
+            console.error('Create campaign failed', err);
+            this.loading = false;
+            this.error = err.error?.message || 'An error occurred while creating the campaign';
+          }
+        });
+      }
     } catch (e: any) {
       this.loading = false;
       this.error = e.message;
@@ -736,8 +869,9 @@ export class CreateCampaignComponent {
 
     // Map goals (constructing a default goal from the main payout settings)
     const defaultGoal: CampaignGoal = {
+      id: this.defaultGoalId,
       goal_id: 'default', // standard default
-      goal_name: 'Default',
+      goal_name: this.advancedSettings.defaultGoalName || 'Default',
       goal_value: 0,
       payout: this.revenueAndPayout.payout || 0,
       revenue: this.revenueAndPayout.revenue || 0,
@@ -760,24 +894,92 @@ export class CreateCampaignComponent {
     // Determine Device
     let device = 'all';
     if (this.advancedSettings.devices && !this.advancedSettings.devices.includes('ALL')) {
-      // Simplification: if multiple selected, just take first or join? API spec says string "all" or specific? 
-      // Assuming comma separated or simple string for now based on spec "device": "all"
       device = this.advancedSettings.devices.join(',');
     }
 
-    return {
+    // Prepare goals payload - preserve existing goals in edit mode
+    let goalsPayload = [defaultGoal];
+    if (this.isEditMode && this.allGoals.length > 0) {
+      const hasDefault = this.allGoals.some(g => g.is_default);
+      goalsPayload = this.allGoals.map(g => g.is_default ? defaultGoal : g);
+      if (!hasDefault) goalsPayload.push(defaultGoal);
+    }
+
+    // Build the complete request with all form fields
+    const request: CreateCampaignRequest = {
+      // Required fields
       advertiser_id: Number(this.campaign.advertiser),
       title: this.campaign.title,
-      description: this.campaign.description,
-      preview_url: this.campaign.previewUrl,
-      terms_conditions: this.campaign.termsAndConditions,
+      description: this.campaign.description || '',
+      preview_url: this.campaign.previewUrl || '',
+      terms_conditions: this.campaign.termsAndConditions || '',
       device: device,
       geo_coverage: geo,
       visibility: visibility,
-      total_clicks: 0,
+      total_clicks: this.totalClicks,
       tracking_url: this.campaign.defaultCampaignUrl,
-      goals: [defaultGoal]
+      goals: goalsPayload,
+
+      // Additional campaign fields
+      currency: this.revenueAndPayout.currency || 'INR',
+      status: this.campaign.status?.toLowerCase() || 'active',
+      objective: this.campaign.objective,
+      kpi: this.campaign.kpi || '',
+      category: Array.isArray(this.campaign.category) ? this.campaign.category : [],
+      traffic_channels: this.campaign.trafficChannels || [],
+      conversion_tracking: this.campaign.conversionTracking || 'server-postback',
+      primary_tracking_domain: this.campaign.primaryTrackingDomain || '',
+      conversion_tracking_domain: this.campaign.conversionTrackingDomain || '',
+      require_terms: this.campaign.requireTerms || false,
+      note: this.campaign.note || '',
+
+      // Advanced Settings
+      default_goal_name: this.advancedSettings.defaultGoalName || '',
+      default_landing_page_name: this.advancedSettings.defaultLandingPageName || '',
+      app_name: this.advancedSettings.appName || '',
+      app_id: this.advancedSettings.appId || '',
+      conversion_flow: this.advancedSettings.conversionFlow || '',
+      unsubscribe_url: this.advancedSettings.unsubscribeUrl || '',
+      suppression_url: this.advancedSettings.suppressionUrl || '',
+      external_offer_id: this.advancedSettings.externalOfferId || '',
+      redirect_type: this.advancedSettings.redirectType || '302',
+      unique_click_session_duration: this.advancedSettings.uniqueClickSessionDuration
+        ? Number(this.advancedSettings.uniqueClickSessionDuration)
+        : undefined,
+      duplicate_click_action: this.advancedSettings.duplicateClickAction || false,
+      duplicate_click_redirect: this.advancedSettings.duplicateClickRedirect || '',
+      conversion_hold_period: this.advancedSettings.conversionHoldPeriod
+        ? Number(this.advancedSettings.conversionHoldPeriod)
+        : undefined,
+      conversion_status_after_hold: this.advancedSettings.conversionStatusAfterHold || '',
+      operating_system: this.advancedSettings.operatingSystem !== 'ALL'
+        ? this.advancedSettings.operatingSystem
+        : '',
+      min_os_version: this.advancedSettings.minOsVersion || '',
+      max_os_version: this.advancedSettings.maxOsVersion || '',
+      carrier_targeting: this.advancedSettings.carrierTargeting || [],
+      deep_link: this.advancedSettings.deepLink || 'Enabled',
+      allowed_tracking_link_format: this.advancedSettings.allowedTrackingLinkFormat || 'numeric',
+      enable_start_end_date: this.advancedSettings.enableStartEndDate || false,
+      start_date: this.advancedSettings.startDate || '',
+      end_date: this.advancedSettings.endDate || '',
+      campaign_status_after: this.advancedSettings.campaignStatus || '',
+      schedule_status_change: this.advancedSettings.scheduleStatusChange || false,
+      status_to_be_set: this.advancedSettings.statusToBeSet || '',
+      schedule_date: this.advancedSettings.scheduleDate || '',
+      publisher_manual_notify: this.advancedSettings.publisherManualNotify || false,
+      publisher_notify_time: this.advancedSettings.publisherNotifyTime || '',
+
+      // Time Targeting
+      time_targeting_enabled: this.timeTargeting.enabled || false,
+      time_targeting_timezone: this.timeTargeting.timezone || '',
+      time_targeting_start_hour: Number(this.timeTargeting.startHour) || 0,
+      time_targeting_end_hour: Number(this.timeTargeting.endHour) || 0,
+      time_targeting_enable_inactive_hours: this.timeTargeting.enableInactiveHours || false,
+      time_targeting_days: this.timeTargeting.days || []
     };
+
+    return request;
   }
 
   // Rich text editor methods

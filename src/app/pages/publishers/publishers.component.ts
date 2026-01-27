@@ -1,29 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
-
-interface Publisher {
-  id: number;
-  name: string;
-  email: string;
-  company: string;
-  status: string;
-  createdDate: string;
-  lastLogin: string;
-  referenceId: string;
-  taxId: string;
-  referredBy: string;
-  manager: string;
-  username: string;
-  country: string;
-  currency: string;
-  city: string;
-  phone: string;
-  signupIpAddress: string;
-  trafficChannels: string;
-  tags: string;
-}
+import { NgbPaginationModule } from '@ng-bootstrap/ng-bootstrap';
+import { PublisherService } from '../../core/services/publisher.service';
+import { Publisher } from '../../core/models/publisher.model';
 
 interface ColumnConfig {
   key: string;
@@ -41,17 +22,20 @@ interface StatusOption {
 @Component({
   selector: 'app-publishers',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, NgbPaginationModule],
   templateUrl: './publishers.component.html',
   styleUrls: ['./publishers.component.scss']
 })
-export class PublishersComponent {
+
+export class PublishersComponent implements OnInit {
   showFilterPanel = false;
   showNewPublisherModal = false;
   showAdvancedSetup = false;
-  perPage = 100;
+  perPage = 10;
   currentPage = 1;
-  totalPages = 4;
+  totalPages = 1;
+  totalCount = 0;
+  loading = false;
   selectAll = false;
   columnSearchQuery = '';
 
@@ -140,22 +124,22 @@ export class PublishersComponent {
   columns: ColumnConfig[] = [
     { key: 'id', label: 'ID', visible: true, default: true },
     { key: 'name', label: 'Name', visible: true, default: true },
-    { key: 'company', label: 'Company', visible: true, default: true },
+    { key: 'company_name', label: 'Company', visible: true, default: true },
     { key: 'status', label: 'Status', visible: true, default: true },
-    { key: 'createdDate', label: 'Created Date', visible: true, default: true },
-    { key: 'lastLogin', label: 'Last Login', visible: true, default: true },
-    { key: 'referenceId', label: 'Reference ID', visible: true, default: true },
-    { key: 'taxId', label: 'Tax ID', visible: true, default: true },
-    { key: 'referredBy', label: 'Referred By', visible: true, default: true },
-    { key: 'managers', label: 'Managers', visible: true, default: true },
+    { key: 'created_at', label: 'Created Date', visible: true, default: true },
+    { key: 'last_login', label: 'Last Login', visible: true, default: true },
+    { key: 'reference_id', label: 'Reference ID', visible: true, default: true },
+    { key: 'tax_id', label: 'Tax ID', visible: true, default: true },
+    { key: 'referred_by', label: 'Referred By', visible: true, default: true },
+    { key: 'manager', label: 'Manager', visible: true, default: true },
     { key: 'username', label: 'Username', visible: false, default: false },
     { key: 'country', label: 'Country', visible: false, default: false },
     { key: 'currency', label: 'Currency', visible: false, default: false },
     { key: 'tags', label: 'Tags', visible: false, default: false },
     { key: 'city', label: 'City', visible: false, default: false },
     { key: 'phone', label: 'Phone', visible: false, default: false },
-    { key: 'signupIpAddress', label: 'Signup IP Address', visible: false, default: false },
-    { key: 'trafficChannels', label: 'Traffic Channels', visible: false, default: false }
+    { key: 'signup_ip', label: 'Signup IP Address', visible: false, default: false },
+    { key: 'traffic_channels', label: 'Traffic Channels', visible: false, default: false }
   ];
 
   // Temporary column visibility (for Apply functionality)
@@ -169,29 +153,42 @@ export class PublishersComponent {
     { id: 4, name: 'Admin User' }
   ];
 
-  // Publishers data matching Trackier's display
-  publishers: Publisher[] = [
-    { id: 568, name: 'Gasmobi Pub Gaming Jan\'26', email: 'gasmobi@pub.com', company: 'Gasmobi Gaming', status: 'Active', createdDate: '2026-01-14 10:30', lastLogin: '2026-01-15 09:15', referenceId: 'REF001', taxId: 'TX001', referredBy: '-', manager: 'John Smith', username: 'gasmobi_pub', country: 'India', currency: 'INR', city: 'Mumbai', phone: '+91 98765 43210', signupIpAddress: '192.168.1.1', trafficChannels: 'Social', tags: 'Premium' },
-    { id: 567, name: 'AL Gaming Pub Jan\'26', email: 'al@gaming.com', company: 'AL Gaming', status: 'Active', createdDate: '2026-01-14 09:45', lastLogin: '2026-01-15 08:30', referenceId: 'REF002', taxId: 'TX002', referredBy: '-', manager: 'Sarah Johnson', username: 'al_gaming', country: 'UK', currency: 'GBP', city: 'London', phone: '+44 20 7123 4567', signupIpAddress: '192.168.1.2', trafficChannels: 'Display', tags: 'Standard' },
-    { id: 566, name: 'FM David Jan\'26', email: 'fm@david.com', company: 'FM Media', status: 'Active', createdDate: '2026-01-14 08:20', lastLogin: '2026-01-14 16:45', referenceId: 'REF003', taxId: 'TX003', referredBy: '-', manager: 'Mike Wilson', username: 'fm_david', country: 'Germany', currency: 'EUR', city: 'Berlin', phone: '+49 30 1234 5678', signupIpAddress: '192.168.1.3', trafficChannels: 'Search', tags: 'Premium' },
-    { id: 565, name: 'LL David Gaming Pub Jan\'26', email: 'lldavid@gaming.com', company: 'LL Gaming', status: 'Active', createdDate: '2026-01-13 14:30', lastLogin: '2026-01-15 10:20', referenceId: 'REF004', taxId: 'TX004', referredBy: '-', manager: 'John Smith', username: 'll_david', country: 'India', currency: 'INR', city: 'Delhi', phone: '+91 98765 43211', signupIpAddress: '192.168.1.4', trafficChannels: 'Social', tags: 'Standard' },
-    { id: 564, name: 'Propeller Ads Gaming Pub', email: 'propeller@ads.com', company: 'Propeller Ads', status: 'Active', createdDate: '2026-01-13 11:15', lastLogin: '2026-01-14 15:30', referenceId: 'REF005', taxId: 'TX005', referredBy: '-', manager: 'Sarah Johnson', username: 'propeller_ads', country: 'USA', currency: 'USD', city: 'New York', phone: '+1 212 555 1234', signupIpAddress: '192.168.1.5', trafficChannels: 'Display', tags: 'Premium' },
-    { id: 563, name: 'Maacle', email: 'contact@maacle.com', company: 'Maacle Inc', status: 'Active', createdDate: '2026-01-12 16:45', lastLogin: '2026-01-15 11:00', referenceId: 'REF006', taxId: 'TX006', referredBy: '-', manager: 'Mike Wilson', username: 'maacle', country: 'India', currency: 'INR', city: 'Bangalore', phone: '+91 98765 43212', signupIpAddress: '192.168.1.6', trafficChannels: 'Search', tags: 'Standard' },
-    { id: 562, name: 'Jonas Gaming Pub Jan\'26', email: 'jonas@gaming.com', company: 'Jonas Media', status: 'Active', createdDate: '2026-01-12 10:30', lastLogin: '2026-01-13 14:45', referenceId: 'REF007', taxId: 'TX007', referredBy: '-', manager: 'John Smith', username: 'jonas_gaming', country: 'UK', currency: 'GBP', city: 'Manchester', phone: '+44 20 7123 4568', signupIpAddress: '192.168.1.7', trafficChannels: 'Social', tags: 'Premium' },
-    { id: 561, name: 'Betmen Pub Jan\'26', email: 'betmen@pub.com', company: 'Betmen Media', status: 'Active', createdDate: '2026-01-11 09:00', lastLogin: '2026-01-14 12:30', referenceId: 'REF008', taxId: 'TX008', referredBy: '-', manager: 'Sarah Johnson', username: 'betmen_pub', country: 'Germany', currency: 'EUR', city: 'Munich', phone: '+49 30 1234 5679', signupIpAddress: '192.168.1.8', trafficChannels: 'Display', tags: 'Standard' },
-    { id: 559, name: 'Spinbet Pub Jan\'26', email: 'spinbet@pub.com', company: 'Spinbet Gaming', status: 'Pending', createdDate: '2026-01-10 14:20', lastLogin: '-', referenceId: 'REF009', taxId: 'TX009', referredBy: '-', manager: 'Mike Wilson', username: 'spinbet_pub', country: 'India', currency: 'INR', city: 'Chennai', phone: '+91 98765 43213', signupIpAddress: '192.168.1.9', trafficChannels: 'Search', tags: 'New' },
-    { id: 557, name: 'FM Gaming Pub Jan\'26', email: 'fmgaming@pub.com', company: 'FM Gaming Co', status: 'Active', createdDate: '2026-01-10 11:00', lastLogin: '2026-01-12 16:15', referenceId: 'REF010', taxId: 'TX010', referredBy: '-', manager: 'John Smith', username: 'fm_gaming', country: 'USA', currency: 'USD', city: 'Los Angeles', phone: '+1 310 555 1234', signupIpAddress: '192.168.1.10', trafficChannels: 'Social', tags: 'Premium' },
-    { id: 556, name: 'Jack Gaming Pub Jan\'26', email: 'jack@gaming.com', company: 'Jack Media', status: 'Active', createdDate: '2026-01-09 15:30', lastLogin: '2026-01-14 09:45', referenceId: 'REF011', taxId: 'TX011', referredBy: '-', manager: 'Sarah Johnson', username: 'jack_gaming', country: 'UK', currency: 'GBP', city: 'Liverpool', phone: '+44 20 7123 4569', signupIpAddress: '192.168.1.11', trafficChannels: 'Display', tags: 'Standard' },
-    { id: 555, name: 'GF Gaming Pub Jan\'26', email: 'gf@gaming.com', company: 'GF Gaming', status: 'Disabled', createdDate: '2026-01-09 10:15', lastLogin: '2026-01-11 08:30', referenceId: 'REF012', taxId: 'TX012', referredBy: '-', manager: 'Mike Wilson', username: 'gf_gaming', country: 'Germany', currency: 'EUR', city: 'Frankfurt', phone: '+49 30 1234 5680', signupIpAddress: '192.168.1.12', trafficChannels: 'Search', tags: 'Inactive' },
-    { id: 554, name: 'CD Gaming David Jan\'26', email: 'cdgaming@pub.com', company: 'CD Gaming', status: 'Active', createdDate: '2026-01-08 13:45', lastLogin: '2026-01-13 11:20', referenceId: 'REF013', taxId: 'TX013', referredBy: '-', manager: 'John Smith', username: 'cd_gaming', country: 'India', currency: 'INR', city: 'Hyderabad', phone: '+91 98765 43214', signupIpAddress: '192.168.1.13', trafficChannels: 'Social', tags: 'Premium' },
-    { id: 553, name: 'Gentle Partners Pub Gaming Jan\'26', email: 'gentle@partners.com', company: 'Gentle Partners', status: 'Active', createdDate: '2026-01-08 09:30', lastLogin: '2026-01-12 14:00', referenceId: 'REF014', taxId: 'TX014', referredBy: '-', manager: 'Sarah Johnson', username: 'gentle_partners', country: 'USA', currency: 'USD', city: 'Miami', phone: '+1 305 555 1234', signupIpAddress: '192.168.1.14', trafficChannels: 'Display', tags: 'Standard' },
-    { id: 551, name: 'KA David Pub- Jan\'26', email: 'kadavid@pub.com', company: 'KA Media', status: 'Rejected', createdDate: '2026-01-07 16:00', lastLogin: '-', referenceId: 'REF015', taxId: 'TX015', referredBy: '-', manager: 'Mike Wilson', username: 'ka_david', country: 'India', currency: 'INR', city: 'Pune', phone: '+91 98765 43215', signupIpAddress: '192.168.1.15', trafficChannels: 'Search', tags: 'Rejected' }
-  ];
+  // Publishers data
+  publishers: Publisher[] = [];
 
   selectedItems: Set<number> = new Set();
 
-  constructor() {
+  constructor(private publisherService: PublisherService) {
     this.initTempColumnVisibility();
+  }
+
+  ngOnInit(): void {
+    this.loadPublishers();
+  }
+
+  loadPublishers(): void {
+    this.loading = true;
+    const params = {
+      page: this.currentPage,
+      limit: this.perPage,
+      search: this.filters.contactName || this.filters.email || undefined,
+      status: this.statusOptions.find(o => o.selected)?.value || undefined
+    };
+
+    this.publisherService.getPublishers(params).subscribe({
+      next: (response) => {
+        if (response.success) {
+          this.publishers = response.data;
+          this.totalCount = response.pagination?.total;
+          this.totalPages = Math.ceil(this.totalCount / this.perPage);
+        }
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('Failed to load publishers', err);
+        this.loading = false;
+      }
+    });
   }
 
   initTempColumnVisibility(): void {
@@ -214,30 +211,7 @@ export class PublishersComponent {
   }
 
   get filteredPublishers(): Publisher[] {
-    return this.publishers.filter(pub => {
-      const matchesPublisherId = !this.filters.publisherId ||
-        pub.id.toString().includes(this.filters.publisherId);
-
-      const matchesContactName = !this.filters.contactName ||
-        pub.name.toLowerCase().includes(this.filters.contactName.toLowerCase()) ||
-        pub.company.toLowerCase().includes(this.filters.contactName.toLowerCase());
-
-      const selectedStatuses = this.statusOptions.filter(opt => opt.selected);
-      const matchesStatus = selectedStatuses.length === 0 ||
-        selectedStatuses.some(opt => pub.status.toLowerCase() === opt.value);
-
-      const matchesEmail = !this.filters.email ||
-        pub.email.toLowerCase().includes(this.filters.email.toLowerCase());
-
-      const matchesReferenceId = !this.filters.referenceId ||
-        pub.referenceId.toLowerCase().includes(this.filters.referenceId.toLowerCase());
-
-      return matchesPublisherId && matchesContactName && matchesStatus && matchesEmail && matchesReferenceId;
-    });
-  }
-
-  get totalCount(): number {
-    return 343;
+    return this.publishers;
   }
 
   toggleSection(section: keyof typeof this.collapsedSections): void {
@@ -260,6 +234,9 @@ export class PublishersComponent {
     this.columns.forEach(col => {
       col.visible = this.tempColumnVisibility[col.key];
     });
+    // Trigger data reload with new filters
+    this.currentPage = 1;
+    this.loadPublishers();
     this.closeFilterPanel();
   }
 
@@ -333,27 +310,29 @@ export class PublishersComponent {
     }
 
     // Create new publisher object
-    const newId = Math.max(...this.publishers.map(p => p.id)) + 1;
+    const newId = this.publishers.length > 0 ? Math.max(...this.publishers.map(p => p.id)) + 1 : 1;
     const newPub: Publisher = {
       id: newId,
+      user_id: newId, // mock
+      uid: `pub_${newId}`, // mock
       name: this.newPublisher.fullName,
       email: this.newPublisher.email,
-      company: this.newPublisher.company || '-',
+      company_name: this.newPublisher.company || '-',
       status: this.newPublisher.accountStatus,
-      createdDate: new Date().toISOString().slice(0, 16).replace('T', ' '),
-      lastLogin: '-',
-      referenceId: this.newPublisher.referenceId || '-',
-      taxId: this.newPublisher.taxId || '-',
-      referredBy: '-',
+      created_at: new Date().toISOString(),
+      last_login: '-',
+      reference_id: this.newPublisher.referenceId || '-',
+      tax_id: this.newPublisher.taxId || '-',
+      referred_by: '-',
       manager: this.newPublisher.accountManager || '-',
       username: this.newPublisher.username || this.newPublisher.fullName.toLowerCase().replace(/\s+/g, '_'),
       country: this.countryOptions.find(c => c.code === this.newPublisher.country)?.name || '-',
       currency: this.newPublisher.country === 'IN' ? 'INR' : this.newPublisher.country === 'US' ? 'USD' : 'EUR',
       city: this.newPublisher.city || '-',
       phone: this.newPublisher.phone || '-',
-      signupIpAddress: '0.0.0.0',
-      trafficChannels: '-',
-      tags: this.newPublisher.tags || '-'
+      signup_ip: '0.0.0.0',
+      traffic_channels: [],
+      tags: this.newPublisher.tags ? [this.newPublisher.tags] : []
     };
 
     // Add to beginning of publishers list
@@ -430,6 +409,17 @@ export class PublishersComponent {
   goToPage(page: number): void {
     if (page >= 1 && page <= this.totalPages) {
       this.currentPage = page;
+      this.loadPublishers();
     }
+  }
+
+  onPageChange(page: number): void {
+    this.currentPage = page;
+    this.loadPublishers();
+  }
+
+  onPageSizeChange(): void {
+    this.currentPage = 1;
+    this.loadPublishers();
   }
 }

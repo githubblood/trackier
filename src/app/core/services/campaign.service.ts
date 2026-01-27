@@ -5,7 +5,10 @@ import {
     Campaign,
     CampaignListResponse,
     CampaignCreateResponse,
+    CampaignDetailResponse,
     CreateCampaignRequest,
+    UpdateCampaignRequest,
+    CampaignUpdateResponse,
     CampaignListParams
 } from '../models/campaign.model';
 
@@ -21,14 +24,19 @@ export class CampaignService {
         return this.apiService.post<CampaignCreateResponse>('/admin/campaign/create', data);
     }
 
+    // Update an existing campaign
+    updateCampaign(id: number | string, data: UpdateCampaignRequest): Observable<CampaignUpdateResponse> {
+        return this.apiService.put<CampaignUpdateResponse>(`/admin/campaign/edit/${id}`, data);
+    }
+
     // Get list of campaigns
     getCampaigns(params: CampaignListParams = {}): Observable<CampaignListResponse> {
         return this.apiService.get<CampaignListResponse>('/admin/campaigns', { params });
     }
 
-    // Get single campaign detail (stub for now, can be expanded)
-    getCampaign(id: number): Observable<any> {
-        return this.apiService.get<any>(`/admin/campaign/${id}`);
+    // Get single campaign detail
+    getCampaignDetail(id: number | string): Observable<CampaignDetailResponse> {
+        return this.apiService.get<CampaignDetailResponse>(`/admin/campaign/manage/${id}`);
     }
 
     // Update campaign status

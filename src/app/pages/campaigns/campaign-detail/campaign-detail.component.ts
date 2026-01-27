@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { CampaignService } from '../../../core/services/campaign.service';
+import { CampaignDetail, CampaignGoalDetail, CampaignAccess } from '../../../core/models/campaign.model';
 
 @Component({
     selector: 'app-campaign-detail',
@@ -11,36 +13,41 @@ import { FormsModule } from '@angular/forms';
     styleUrls: ['./campaign-detail.component.scss']
 })
 export class CampaignDetailComponent implements OnInit {
-    campaign: any = {
-        id: '941',
-        title: 'Boho- CA- Dec\'25',
-        objective: 'Conversions',
-        visibility: 'Public',
-        advertiser: { id: '529', name: 'Gulfstream Dec\'25' },
-        status: 'Active',
-        currency: 'INR',
-        previewUrl: '',
-        url: 'https://traylpax.com/click?pid=62&offer_id=834284176&click_id',
-        devices: 'All',
-        os: 'all',
-        created: 'December 5, 2025 at 5:26 pm',
-        activatedDate: 'December 5, 2025 at 5:26 pm',
-        uniqueId: '6932c870839f0556b76497b2'
-    };
+    // Loading state
+    loading = true;
+    error: string | null = null;
 
-    // Revenue, Payout and Goals
-    payoutGoals: any[] = [
-        { goal: 'Default', goalId: '', country: 'CA', countryCode: 'CA', region: 'ALL', revenue: '₹ 0.1', payout: '₹ 0.1' },
-        { goal: 'FTD', goalId: 'ft5c6a2de97d6ed64f0e', country: 'ALL', countryCode: '', region: 'ALL', revenue: '₹ 1', payout: '₹ 1' },
-        { goal: 'registration', goalId: 'r8r60cd4e0512c6fe9a2c0e4', country: 'ALL', countryCode: '', region: 'ALL', revenue: '₹ 0.1', payout: '₹ 0.1' }
-    ];
+    // Campaign data from API
+    campaign: CampaignDetail | null = null;
+
+    // Default campaign structure for initial rendering
+    defaultCampaign = {
+        id: 0,
+        uid: '',
+        advertiser_id: 0,
+        advertiser_name: '',
+        name: '',
+        title: '',
+        description: '',
+        url: '',
+        tracking_url: '',
+        preview_url: '',
+        terms_conditions: '',
+        currency: 'INR',
+        device: 'all',
+        geo_coverage: 'global',
+        visibility: 'public' as const,
+        total_clicks: 0,
+        status: 'active' as const,
+        created_at: '',
+        updated_at: null,
+        goals: [] as CampaignGoalDetail[],
+        access: [] as CampaignAccess[]
+    };
 
     // Tracking Link
     selectedPublisher = '';
-    publishers: any[] = [
-        { id: '568', name: 'Gasmobi Pub Gaming Jan\'26' },
-        { id: '532', name: 'Gasmobi Pub Dec\'25' }
-    ];
+    publishers: any[] = [];
     generatedLink = '';
     trackingOptions = {
         addTrackingParam: false,
@@ -65,7 +72,7 @@ export class CampaignDetailComponent implements OnInit {
 
     // Conversion Tracking
     selectedPostbackType = 'Campaign Advertiser Global Postback';
-    generatedPostback = 'https://spaxads.trackier.co/acquisition?click_id=CLICK_ID&security_token=fl22a616007261559f12e';
+    generatedPostback = '';
     postbackOptions = {
         passMacros: false,
         coupon: false,
@@ -87,27 +94,121 @@ export class CampaignDetailComponent implements OnInit {
     performanceData = {
         dateRange: { start: '2026-01-08', end: '2026-01-15' },
         metrics: {
-            clicks: 296.0,
-            revenue: 3.85,
-            conversions: 20,
-            payout: 3.85,
-            profit: 0.00,
-            impressions: 0.00
+            clicks: 0,
+            revenue: 0,
+            conversions: 0,
+            payout: 0,
+            profit: 0,
+            impressions: 0
         }
     };
 
-    constructor(private route: ActivatedRoute) { }
+    constructor(
+        private route: ActivatedRoute,
+        private router: Router,
+        private campaignService: CampaignService
+    ) { }
 
     ngOnInit(): void {
         const id = this.route.snapshot.paramMap.get('id');
         if (id) {
             this.loadCampaign(id);
+        } else {
+            this.error = 'Campaign ID not found';
+            this.loading = false;
         }
     }
 
     loadCampaign(id: string): void {
-        // In a real app, this would fetch from an API
-        console.log('Loading campaign:', id);
+        this.loading = true;
+        this.error = null;
+
+        this.campaignService.getCampaignDetail(id).subscribe({
+            next: (response) => {
+                if (response.success && response.data) {
+                    this.campaign = response.data;
+
+                    // Update publishers from access list
+                    this.publishers = response.data.access.map(a => ({
+                        id: a.publisher_id.toString(),
+                        name: a.publisher_name
+                    }));
+
+                    // Generate postback URL with campaign UID
+                    this.generatedPostback = `https://spaxads.trackier.co/acquisition?click_id=CLICK_ID&security_token=${response.data.uid}`;
+
+                    // Update performance data with total clicks
+                    this.performanceData.metrics.clicks = response.data.total_clicks || 0;
+                }
+                this.loading = false;
+            },
+            error: (err) => {
+                console.error('Failed to load campaign', err);
+                this.error = 'Failed to load campaign details. Please try again.';
+                this.loading = false;
+            }
+        });
+    }
+
+    // Helper to get campaign data safely
+    get campaignData(): CampaignDetail {
+        return this.campaign || this.defaultCampaign;
+    }
+
+    // Format date for display
+    formatDate(dateString: string | null | undefined): string {
+        if (!dateString) return '-';
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: 'numeric',
+            minute: '2-digit',
+            hour12: true
+        });
+    }
+
+    // Get status class for styling
+    getStatusClass(status: string): string {
+        const statusLower = status?.toLowerCase() || '';
+        switch (statusLower) {
+            case 'active': return 'status-badge status-active';
+            case 'paused': return 'status-badge status-paused';
+            case 'archived': return 'status-badge status-archived';
+            case 'pending': return 'status-badge status-pending';
+            case 'expired': return 'status-badge status-expired';
+            default: return 'status-badge';
+        }
+    }
+
+    // Get visibility display text
+    getVisibilityDisplay(visibility: string): string {
+        switch (visibility?.toLowerCase()) {
+            case 'public': return 'Public';
+            case 'private': return 'Private';
+            case 'need_permission': return 'Need Permission';
+            default: return visibility || '-';
+        }
+    }
+
+    // Get device display text
+    getDeviceDisplay(device: string): string {
+        switch (device?.toLowerCase()) {
+            case 'all': return 'All';
+            case 'mobile': return 'Mobile';
+            case 'desktop': return 'Desktop';
+            case 'tablet': return 'Tablet';
+            default: return device || '-';
+        }
+    }
+
+    // Get geo coverage display
+    getGeoDisplay(geo: string | string[]): string {
+        if (Array.isArray(geo)) {
+            return geo.join(', ').toUpperCase();
+        }
+        return geo?.toUpperCase() || '-';
     }
 
     cloneCampaign(): void {
@@ -119,7 +220,9 @@ export class CampaignDetailComponent implements OnInit {
     }
 
     editCampaign(): void {
-        console.log('Editing campaign');
+        if (this.campaign) {
+            this.router.navigate(['/campaigns/edit', this.campaign.id]);
+        }
     }
 
     managePayoutsAndGoals(): void {
@@ -135,13 +238,14 @@ export class CampaignDetailComponent implements OnInit {
     }
 
     generateTrackingLink(): void {
-        if (this.selectedPublisher) {
+        if (this.selectedPublisher && this.campaign) {
             this.generatedLink = `https://traylpax.com/p/${this.selectedPublisher}?o=${this.campaign.id}`;
         }
     }
 
     copyLink(): void {
-        navigator.clipboard.writeText(this.generatedLink);
+        const textToCopy = this.generatedLink || this.campaign?.url || '';
+        navigator.clipboard.writeText(textToCopy);
     }
 
     editTargeting(): void {
@@ -179,5 +283,15 @@ export class CampaignDetailComponent implements OnInit {
             .split('')
             .map(char => 127397 + char.charCodeAt(0));
         return String.fromCodePoint(...codePoints);
+    }
+
+    // Format currency value
+    formatCurrency(value: string | number, currency?: string): string {
+        const curr = currency || this.campaign?.currency || 'INR';
+        const numValue = typeof value === 'string' ? parseFloat(value) : value;
+        if (isNaN(numValue)) return '-';
+
+        const symbol = curr === 'INR' ? '₹' : curr === 'USD' ? '$' : curr;
+        return `${symbol} ${numValue.toFixed(2)}`;
     }
 }

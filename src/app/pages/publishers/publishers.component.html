@@ -320,6 +320,21 @@
                     placeholder="Company/Organization name">
             </div>
 
+            <!-- Website -->
+            <div class="form-group mb-3">
+                <label class="form-label">Website (Optional)</label>
+                <input type="url" class="form-control" [(ngModel)]="newPublisher.website"
+                    placeholder="https://example.com">
+            </div>
+
+            <!-- Traffic Sources -->
+            <div class="form-group mb-3">
+                <label class="form-label">Traffic Sources (Optional)</label>
+                <input type="text" class="form-control" [(ngModel)]="newPublisher.trafficSources"
+                    placeholder="Facebook, Google Ads, SEO">
+                <div class="form-text small">Comma-separated list of traffic sources</div>
+            </div>
+
             <!-- Reference ID -->
             <div class="form-group mb-3">
                 <label class="form-label">Reference ID</label>
@@ -338,7 +353,7 @@
             <div class="advanced-setup" *ngIf="showAdvancedSetup">
                 <!-- Password -->
                 <div class="form-group mb-3">
-                    <label class="form-label">Password (Optional)</label>
+                    <label class="form-label">Password</label>
                     <input type="password" class="form-control" [(ngModel)]="newPublisher.password"
                         placeholder="Leave empty to Auto Generate">
                 </div>
@@ -438,10 +453,16 @@
         </div>
 
         <div class="sidebar-footer">
-            <button class="btn btn-primary btn-sm me-2" (click)="savePublisher()">
-                <i class="fas fa-check-circle me-1"></i> Save
+            <button class="btn btn-primary btn-sm me-2" (click)="savePublisher()" [disabled]="loading">
+                <span *ngIf="!loading">
+                    <i class="fas fa-check-circle me-1"></i> Save
+                </span>
+                <span *ngIf="loading">
+                    <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                    Saving...
+                </span>
             </button>
-            <button class="btn btn-outline-secondary btn-sm" (click)="closeNewPublisherModal()">
+            <button class="btn btn-outline-secondary btn-sm" (click)="closeNewPublisherModal()" [disabled]="loading">
                 Cancel
             </button>
         </div>

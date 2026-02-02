@@ -30,6 +30,23 @@
     }
 }
 
+// Loading State
+.loading-container {
+    background: #fff;
+    border-radius: 8px;
+    padding: 60px 20px;
+    
+    .spinner-border {
+        width: 3rem;
+        height: 3rem;
+    }
+
+    p {
+        font-size: 14px;
+        color: #666;
+    }
+}
+
 // Content Cards
 .content-card {
     background: #fff;

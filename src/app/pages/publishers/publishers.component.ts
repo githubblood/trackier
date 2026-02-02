@@ -46,6 +46,8 @@ export class PublishersComponent implements OnInit {
     accountStatus: 'Active',
     country: 'IN',
     company: '',
+    website: '',
+    trafficSources: '',
     referenceId: '',
     password: '',
     accountManager: '',
@@ -279,6 +281,8 @@ export class PublishersComponent implements OnInit {
       accountStatus: 'Active',
       country: 'IN',
       company: '',
+      website: '',
+      trafficSources: '',
       referenceId: '',
       password: '',
       accountManager: '',
@@ -309,37 +313,60 @@ export class PublishersComponent implements OnInit {
       return;
     }
 
-    // Create new publisher object
-    const newId = this.publishers.length > 0 ? Math.max(...this.publishers.map(p => p.id)) + 1 : 1;
-    const newPub: Publisher = {
-      id: newId,
-      user_id: newId, // mock
-      uid: `pub_${newId}`, // mock
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(this.newPublisher.email)) {
+      alert('Please enter a valid email address');
+      return;
+    }
+
+    // Prepare API request data
+    const requestData: any = {
       name: this.newPublisher.fullName,
       email: this.newPublisher.email,
-      company_name: this.newPublisher.company || '-',
-      status: this.newPublisher.accountStatus,
-      created_at: new Date().toISOString(),
-      last_login: '-',
-      reference_id: this.newPublisher.referenceId || '-',
-      tax_id: this.newPublisher.taxId || '-',
-      referred_by: '-',
-      manager: this.newPublisher.accountManager || '-',
-      username: this.newPublisher.username || this.newPublisher.fullName.toLowerCase().replace(/\s+/g, '_'),
-      country: this.countryOptions.find(c => c.code === this.newPublisher.country)?.name || '-',
-      currency: this.newPublisher.country === 'IN' ? 'INR' : this.newPublisher.country === 'US' ? 'USD' : 'EUR',
-      city: this.newPublisher.city || '-',
-      phone: this.newPublisher.phone || '-',
-      signup_ip: '0.0.0.0',
-      traffic_channels: [],
-      tags: this.newPublisher.tags ? [this.newPublisher.tags] : []
     };
 
-    // Add to beginning of publishers list
-    this.publishers.unshift(newPub);
+    // Add optional fields
+    if (this.newPublisher.password) {
+      requestData.password = this.newPublisher.password;
+    }
+    if (this.newPublisher.company) {
+      requestData.company_name = this.newPublisher.company;
+    }
+    if (this.newPublisher.website) {
+      requestData.website = this.newPublisher.website;
+    }
+    if (this.newPublisher.trafficSources) {
+      requestData.traffic_sources = this.newPublisher.trafficSources;
+    }
 
-    console.log('Publisher saved:', newPub);
-    this.closeNewPublisherModal();
+    // Set loading state
+    this.loading = true;
+
+    // Call the API
+    this.publisherService.addPublisher(requestData).subscribe({
+      next: (response) => {
+        if (response.success) {
+          console.log('Publisher created successfully:', response.data);
+          alert(response.message || 'Publisher created successfully!');
+
+          // Reload the publishers list
+          this.loadPublishers();
+
+          // Close the modal
+          this.closeNewPublisherModal();
+        } else {
+          alert(response.error?.message || 'Failed to create publisher');
+        }
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('Error creating publisher:', err);
+        const errorMessage = err.error?.message || err.error?.error?.message || 'Failed to create publisher. Please try again.';
+        alert(errorMessage);
+        this.loading = false;
+      }
+    });
   }
 
   toggleSelectAll(): void {

@@ -44,3 +44,55 @@ export interface PublisherListParams {
     search?: string;
     status?: string;
 }
+
+export interface PublisherDetail {
+    id: number;
+    user_id: number;
+    uid: string;
+    name: string;
+    email: string;
+    company_name: string;
+    website: string;
+    traffic_sources: string;
+    status: string;
+    created_at: string;
+    updated_at: string | null;
+}
+
+export interface PublisherDetailResponse {
+    success: boolean;
+    data: PublisherDetail;
+    error?: {
+        code: string;
+        message: string;
+    };
+}
+
+export interface AddPublisherRequest {
+    name: string;
+    email: string;
+    password?: string;
+    company_name?: string;
+    website?: string;
+    traffic_sources?: string;
+}
+
+export interface AddPublisherResponse {
+    success: boolean;
+    data: {
+        id: number;
+        user_id: number;
+        email: string;
+        name: string;
+        company_name: string;
+        website: string;
+        traffic_sources: string;
+        status: string;
+        created_at: string;
+    };
+    message: string;
+    error?: {
+        code: string;
+        message: string;
+    };
+}

@@ -57,6 +57,20 @@ export interface PublisherDetail {
     status: string;
     created_at: string;
     updated_at: string | null;
+    // Extended fields
+    reference_id?: string;
+    manager?: string;
+    phone?: string;
+    skype?: string;
+    address?: string;
+    city?: string;
+    state?: string;
+    zipcode?: string;
+    country?: string;
+    tags?: string | string[];
+    tax_id?: string;
+    username?: string;
+    notes?: string;
 }
 
 export interface PublisherDetailResponse {
@@ -66,15 +80,6 @@ export interface PublisherDetailResponse {
         code: string;
         message: string;
     };
-}
-
-export interface AddPublisherRequest {
-    name: string;
-    email: string;
-    password?: string;
-    company_name?: string;
-    website?: string;
-    traffic_sources?: string;
 }
 
 export interface AddPublisherResponse {
@@ -90,6 +95,16 @@ export interface AddPublisherResponse {
         status: string;
         created_at: string;
     };
+    message: string;
+    error?: {
+        code: string;
+        message: string;
+    };
+}
+
+export interface UpdatePublisherResponse {
+    success: boolean;
+    data: Publisher;
     message: string;
     error?: {
         code: string;

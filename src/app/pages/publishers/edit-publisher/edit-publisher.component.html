@@ -1,0 +1,216 @@
+<!-- Sidebar Overlay -->
+<div class="filter-sidebar-overlay" *ngIf="show" (click)="closeSidebar()"></div>
+
+<!-- Sidebar Panel -->
+<div class="add-publisher-sidebar" [class.open]="show">
+    <div class="sidebar-header">
+        <div class="header-title">
+            <h5>Edit Publisher</h5>
+            <a href="javascript:void(0)" class="help-link">To know more, click here <i
+                    class="fas fa-external-link-alt"></i></a>
+        </div>
+        <button type="button" class="btn-close" (click)="closeSidebar()" [disabled]="saving"></button>
+    </div>
+
+    <!-- Loading State -->
+    <div class="sidebar-body" *ngIf="loading">
+        <div class="loading-container">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-3">Loading publisher details...</p>
+        </div>
+    </div>
+
+    <!-- Error State -->
+    <div class="sidebar-body" *ngIf="error && !loading">
+        <div class="error-container">
+            <div class="alert alert-danger" role="alert">
+                <i class="fas fa-exclamation-triangle me-2"></i>
+                {{ error }}
+            </div>
+            <button class="btn btn-primary" (click)="retryLoad()">
+                <i class="fas fa-redo me-2"></i>Retry
+            </button>
+        </div>
+    </div>
+
+    <!-- Edit Form -->
+    <div class="sidebar-body" *ngIf="!loading && !error && publisherDetail">
+        <h6 class="section-title">Basic Details</h6>
+
+        <!-- Full Name -->
+        <div class="form-group mb-3">
+            <label class="form-label required">Full Name</label>
+            <input type="text" class="form-control" [(ngModel)]="editPublisher.name"
+                placeholder="Full name of the publisher">
+        </div>
+
+        <!-- Email -->
+        <div class="form-group mb-3">
+            <label class="form-label required">Email</label>
+            <input type="email" class="form-control" [(ngModel)]="editPublisher.email"
+                placeholder="Unique Publisher Email">
+        </div>
+
+        <!-- Account Status -->
+        <div class="form-group mb-3">
+            <label class="form-label required">Account Status</label>
+            <select class="form-select" [(ngModel)]="editPublisher.accountStatus">
+                <option *ngFor="let status of accountStatusOptions" [value]="status.value">{{status.label}}</option>
+            </select>
+        </div>
+
+        <!-- Country -->
+        <div class="form-group mb-3">
+            <label class="form-label">Country</label>
+            <select class="form-select" [(ngModel)]="editPublisher.country">
+                <option *ngFor="let country of countryOptions" [value]="country.code">[{{country.code}}]
+                    {{country.name}}</option>
+            </select>
+        </div>
+
+        <!-- Company -->
+        <div class="form-group mb-3">
+            <label class="form-label">Company (Optional)</label>
+            <input type="text" class="form-control" [(ngModel)]="editPublisher.company"
+                placeholder="Company/Organization name">
+        </div>
+
+        <!-- Website -->
+        <div class="form-group mb-3">
+            <label class="form-label">Website (Optional)</label>
+            <input type="url" class="form-control" [(ngModel)]="editPublisher.website"
+                placeholder="https://example.com">
+        </div>
+
+        <!-- Traffic Sources -->
+        <div class="form-group mb-3">
+            <label class="form-label">Traffic Sources (Optional)</label>
+            <input type="text" class="form-control" [(ngModel)]="editPublisher.trafficSources"
+                placeholder="Facebook, Google Ads, SEO">
+            <div class="form-text small">Comma-separated list of traffic sources</div>
+        </div>
+
+        <!-- Reference ID -->
+        <div class="form-group mb-3">
+            <label class="form-label">Reference ID</label>
+            <input type="text" class="form-control" [(ngModel)]="editPublisher.referenceId" placeholder="Reference ID">
+        </div>
+
+        <!-- Advanced Setup Toggle -->
+        <div class="form-check form-switch mb-3">
+            <input class="form-check-input" type="checkbox" id="advancedSetupToggle" [checked]="showAdvancedSetup"
+                (change)="toggleAdvancedSetup()">
+            <label class="form-check-label fw-bold" for="advancedSetupToggle">Advanced Setup</label>
+        </div>
+
+        <!-- Advanced Setup Fields -->
+        <div class="advanced-setup" *ngIf="showAdvancedSetup">
+            <!-- Password -->
+            <div class="form-group mb-3">
+                <label class="form-label">Password</label>
+                <input type="password" class="form-control" [(ngModel)]="editPublisher.password"
+                    placeholder="Leave empty to keep current password">
+            </div>
+
+            <!-- Account Manager -->
+            <div class="form-group mb-3">
+                <label class="form-label">Account Manager (Optional)</label>
+                <select class="form-select" [(ngModel)]="editPublisher.accountManager">
+                    <option value="">Select Account Manager</option>
+                    <option *ngFor="let manager of managerOptions" [value]="manager.name">{{manager.name}}</option>
+                </select>
+            </div>
+
+            <!-- Phone -->
+            <div class="form-group mb-3">
+                <label class="form-label">Phone (Optional)</label>
+                <input type="text" class="form-control" [(ngModel)]="editPublisher.phone" placeholder="Phone number">
+            </div>
+
+            <!-- Skype -->
+            <div class="form-group mb-3">
+                <label class="form-label">Skype (Optional)</label>
+                <input type="text" class="form-control" [(ngModel)]="editPublisher.skype" placeholder="Skype">
+            </div>
+
+            <!-- Address -->
+            <div class="form-group mb-3">
+                <label class="form-label">Address (Optional)</label>
+                <input type="text" class="form-control" [(ngModel)]="editPublisher.address" placeholder="Address">
+            </div>
+
+            <!-- City -->
+            <div class="form-group mb-3">
+                <label class="form-label">City (Optional)</label>
+                <input type="text" class="form-control" [(ngModel)]="editPublisher.city" placeholder="City">
+            </div>
+
+            <!-- State -->
+            <div class="form-group mb-3">
+                <label class="form-label">State (Optional)</label>
+                <input type="text" class="form-control" [(ngModel)]="editPublisher.state" placeholder="State">
+            </div>
+
+            <!-- Zipcode -->
+            <div class="form-group mb-3">
+                <label class="form-label">Zipcode (Optional)</label>
+                <input type="text" class="form-control" [(ngModel)]="editPublisher.zipcode" placeholder="Zipcode">
+            </div>
+
+            <!-- Tags -->
+            <div class="form-group mb-3">
+                <label class="form-label">Tags (Optional)</label>
+                <input type="text" class="form-control" [(ngModel)]="editPublisher.tags" placeholder="Publisher tags">
+            </div>
+
+            <!-- Tax ID -->
+            <div class="form-group mb-3">
+                <label class="form-label">Tax ID (Optional)</label>
+                <input type="text" class="form-control" [(ngModel)]="editPublisher.taxId" placeholder="Tax ID">
+                <div class="form-text small">VAT / GST</div>
+            </div>
+
+            <!-- Country (Advanced) -->
+            <div class="form-group mb-3">
+                <label class="form-label">Country (Optional)</label>
+                <select class="form-select" [(ngModel)]="editPublisher.advancedCountry">
+                    <option value="">--</option>
+                    <option *ngFor="let country of countryOptions" [value]="country.code">[{{country.code}}]
+                        {{country.name}}</option>
+                </select>
+            </div>
+
+            <!-- Username -->
+            <div class="form-group mb-3">
+                <label class="form-label">Username (Optional)</label>
+                <input type="text" class="form-control" [(ngModel)]="editPublisher.username"
+                    placeholder="Username of the publisher">
+            </div>
+
+            <!-- Notes -->
+            <div class="form-group mb-3">
+                <label class="form-label">Notes (Optional)</label>
+                <textarea class="form-control" rows="3" [(ngModel)]="editPublisher.notes"></textarea>
+                <div class="form-text small">The content will not be displayed to publisher</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar Footer -->
+    <div class="sidebar-footer" *ngIf="!loading && !error">
+        <button class="btn btn-primary btn-sm me-2" (click)="savePublisher()" [disabled]="saving">
+            <span *ngIf="!saving">
+                <i class="fas fa-check-circle me-1"></i> Save
+            </span>
+            <span *ngIf="saving">
+                <span class="spinner-border spinner-border-sm me-1" role="status" aria-hidden="true"></span>
+                Saving...
+            </span>
+        </button>
+        <button class="btn btn-outline-secondary btn-sm" (click)="closeSidebar()" [disabled]="saving">
+            Cancel
+        </button>
+    </div>
+</div>

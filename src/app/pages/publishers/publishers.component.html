@@ -285,7 +285,7 @@
             <!-- Full Name -->
             <div class="form-group mb-3">
                 <label class="form-label required">Full Name</label>
-                <input type="text" class="form-control" [(ngModel)]="newPublisher.fullName"
+                <input type="text" class="form-control" [(ngModel)]="newPublisher.name"
                     placeholder="Full name of the publisher">
             </div>
 
@@ -441,15 +441,6 @@
                     <div class="form-text small">The content will not be displayed to publisher</div>
                 </div>
             </div>
-
-            <!-- Notify Checkbox -->
-            <div class="form-check mb-3">
-                <input class="form-check-input" type="checkbox" id="notifyEmail"
-                    [(ngModel)]="newPublisher.notifyByEmail">
-                <label class="form-check-label" for="notifyEmail">Notify this user by email</label>
-                <div class="form-text small fst-italic">Setup SMTP first by <a href="javascript:void(0)">Clicking
-                        Here</a> to send email to the publisher</div>
-            </div>
         </div>
 
         <div class="sidebar-footer">
@@ -468,3 +459,8 @@
         </div>
     </div>
 </div>
+
+<!--Edit Publisher Sidebar -->
+<app-edit-publisher [publisherId]="editPublisherId" [(show)]="showEditPublisher"
+    (publisherUpdated)="onPublisherUpdated()">
+</app-edit-publisher>

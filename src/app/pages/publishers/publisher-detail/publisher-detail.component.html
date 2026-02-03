@@ -267,3 +267,8 @@
         </div>
     </div>
 </div>
+
+<!-- Edit Publisher Sidebar -->
+<app-edit-publisher [publisherId]="publisherDetail?.id || 0" [(show)]="showEditPublisher"
+    (publisherUpdated)="onPublisherUpdated()">
+</app-edit-publisher>

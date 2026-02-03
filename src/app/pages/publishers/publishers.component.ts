@@ -5,6 +5,8 @@ import { RouterModule } from '@angular/router';
 import { NgbPaginationModule } from '@ng-bootstrap/ng-bootstrap';
 import { PublisherService } from '../../core/services/publisher.service';
 import { Publisher } from '../../core/models/publisher.model';
+import { AddPublisherRequest } from '../../core/models/requests/addPublisherRequest';
+import { EditPublisherComponent } from './edit-publisher/edit-publisher.component';
 
 interface ColumnConfig {
   key: string;
@@ -22,7 +24,7 @@ interface StatusOption {
 @Component({
   selector: 'app-publishers',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule, NgbPaginationModule],
+  imports: [CommonModule, FormsModule, RouterModule, NgbPaginationModule, EditPublisherComponent],
   templateUrl: './publishers.component.html',
   styleUrls: ['./publishers.component.scss']
 })
@@ -39,31 +41,12 @@ export class PublishersComponent implements OnInit {
   selectAll = false;
   columnSearchQuery = '';
 
+  // Edit Publisher Sidebar
+  showEditPublisher = false;
+  editPublisherId: number = 0;
+
   // New Publisher Form Data
-  newPublisher = {
-    fullName: '',
-    email: '',
-    accountStatus: 'Active',
-    country: 'IN',
-    company: '',
-    website: '',
-    trafficSources: '',
-    referenceId: '',
-    password: '',
-    accountManager: '',
-    phone: '',
-    skype: '',
-    address: '',
-    city: '',
-    state: '',
-    zipcode: '',
-    tags: '',
-    taxId: '',
-    advancedCountry: '',
-    username: '',
-    notes: '',
-    notifyByEmail: false
-  };
+  newPublisher: AddPublisherRequest = new AddPublisherRequest();
 
   // Country options
   countryOptions = [
@@ -275,30 +258,7 @@ export class PublishersComponent implements OnInit {
   }
 
   resetNewPublisherForm(): void {
-    this.newPublisher = {
-      fullName: '',
-      email: '',
-      accountStatus: 'Active',
-      country: 'IN',
-      company: '',
-      website: '',
-      trafficSources: '',
-      referenceId: '',
-      password: '',
-      accountManager: '',
-      phone: '',
-      skype: '',
-      address: '',
-      city: '',
-      state: '',
-      zipcode: '',
-      tags: '',
-      taxId: '',
-      advancedCountry: '',
-      username: '',
-      notes: '',
-      notifyByEmail: false
-    };
+    this.newPublisher = new AddPublisherRequest();
     this.showAdvancedSetup = false;
   }
 
@@ -308,7 +268,7 @@ export class PublishersComponent implements OnInit {
 
   savePublisher(): void {
     // Validate required fields
-    if (!this.newPublisher.fullName || !this.newPublisher.email) {
+    if (!this.newPublisher.name || !this.newPublisher.email) {
       alert('Please fill in the required fields: Full Name and Email');
       return;
     }
@@ -320,31 +280,11 @@ export class PublishersComponent implements OnInit {
       return;
     }
 
-    // Prepare API request data
-    const requestData: any = {
-      name: this.newPublisher.fullName,
-      email: this.newPublisher.email,
-    };
-
-    // Add optional fields
-    if (this.newPublisher.password) {
-      requestData.password = this.newPublisher.password;
-    }
-    if (this.newPublisher.company) {
-      requestData.company_name = this.newPublisher.company;
-    }
-    if (this.newPublisher.website) {
-      requestData.website = this.newPublisher.website;
-    }
-    if (this.newPublisher.trafficSources) {
-      requestData.traffic_sources = this.newPublisher.trafficSources;
-    }
-
     // Set loading state
     this.loading = true;
 
     // Call the API
-    this.publisherService.addPublisher(requestData).subscribe({
+    this.publisherService.addPublisher(this.newPublisher).subscribe({
       next: (response) => {
         if (response.success) {
           console.log('Publisher created successfully:', response.data);
@@ -413,8 +353,15 @@ export class PublishersComponent implements OnInit {
     return value !== undefined && value !== null ? value : '-';
   }
 
+
   editPublisher(pub: Publisher): void {
-    console.log('Editing publisher:', pub.id);
+    this.editPublisherId = pub.id;
+    this.showEditPublisher = true;
+  }
+
+  onPublisherUpdated(): void {
+    // Reload publishers list after successful update
+    this.loadPublishers();
   }
 
   loginAsPublisher(pub: Publisher): void {

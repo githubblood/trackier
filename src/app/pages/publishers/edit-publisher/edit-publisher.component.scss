@@ -1,0 +1,209 @@
+// Same styles as Add Publisher Sidebar from publishers.component.scss
+
+// Sidebar Overlay
+.filter-sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 199;
+}
+
+// Add Publisher Sidebar (used for Edit Publisher too)
+.add-publisher-sidebar {
+    position: fixed;
+    top: 0;
+    right: -500px;
+    width: 500px;
+    height: 100vh;
+    background: #fff;
+    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
+    z-index: 200;
+    transition: right 0.3s ease;
+    display: flex;
+    flex-direction: column;
+
+    &.open {
+        right: 0;
+    }
+}
+
+.sidebar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 20px 25px;
+    border-bottom: 1px solid #e9ecef;
+    background: #f8f9fa;
+
+    .header-title {
+        h5 {
+            margin: 0 0 5px 0;
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .help-link {
+            font-size: 13px;
+            color: #17a2b8;
+            text-decoration: none;
+
+            &:hover {
+                text-decoration: underline;
+            }
+
+            i {
+                font-size: 11px;
+                margin-left: 4px;
+            }
+        }
+    }
+
+    .btn-close {
+        opacity: 0.5;
+
+        &:hover {
+            opacity: 1;
+        }
+    }
+}
+
+.sidebar-body {
+    flex: 1;
+    padding: 25px;
+    overflow-y: auto;
+
+    .section-title {
+        font-size: 14px;
+        font-weight: 600;
+        color: #17a2b8;
+        margin-bottom: 20px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-label {
+        font-size: 13px;
+        font-weight: 600;
+        color: #555;
+        margin-bottom: 8px;
+
+        &.required:after {
+            content: "*";
+            color: #dc3545;
+            margin-left: 4px;
+        }
+    }
+
+    .form-control,
+    .form-select {
+        font-size: 14px;
+        padding: 10px 12px;
+        border-color: #dee2e6;
+        border-radius: 4px;
+        background-color: #fcfcfc;
+
+        &:focus {
+            background-color: #fff;
+            border-color: #17a2b8;
+            box-shadow: 0 0 0 2px rgba(23, 162, 184, 0.15);
+        }
+
+        &::placeholder {
+            color: #adb5bd;
+            font-size: 13px;
+        }
+    }
+
+    .form-text {
+        font-size: 12px;
+        color: #6c757d;
+        margin-top: 4px;
+    }
+}
+
+.sidebar-footer {
+    padding: 20px 25px;
+    border-top: 1px solid #e9ecef;
+    background: #f8f9fa;
+    display: flex;
+    justify-content: flex-start;
+
+    .btn {
+        min-width: 100px;
+    }
+}
+
+.form-switch {
+    padding-left: 2.5em;
+
+    .form-check-input {
+        width: 2.5em;
+        height: 1.25em;
+        cursor: pointer;
+
+        &:checked {
+            background-color: #17a2b8;
+            border-color: #17a2b8;
+        }
+    }
+
+    .form-check-label {
+        padding-left: 10px;
+        cursor: pointer;
+        padding-top: 2px;
+    }
+}
+
+.advanced-setup {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px dashed #dee2e6;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+// Loading Container
+.loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 400px;
+    color: #6c757d;
+}
+
+// Error Container
+.error-container {
+    text-align: center;
+
+    .alert {
+        text-align: left;
+    }
+}
+
+// Responsive
+@media (max-width: 768px) {
+    .add-publisher-sidebar {
+        width: 100%;
+        right: -100%;
+    }
+}

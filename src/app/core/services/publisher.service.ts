@@ -1,7 +1,9 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ApiService } from './api.service';
-import { PublisherListResponse, PublisherListParams, PublisherDetailResponse, AddPublisherRequest, AddPublisherResponse } from '../models/publisher.model';
+import { PublisherListResponse, PublisherListParams, PublisherDetailResponse, AddPublisherResponse, UpdatePublisherResponse } from '../models/publisher.model';
+import { AddPublisherRequest } from '../models/requests/addPublisherRequest';
+import { UpdatePublisherRequest } from '../models/requests/updatePublisherRequest';
 
 @Injectable({
     providedIn: 'root'
@@ -31,5 +33,9 @@ export class PublisherService {
 
     addPublisher(data: AddPublisherRequest): Observable<AddPublisherResponse> {
         return this.apiService.post<AddPublisherResponse>('/admin/publisher/add', data);
+    }
+
+    updatePublisher(id: number, data: UpdatePublisherRequest): Observable<UpdatePublisherResponse> {
+        return this.apiService.put<UpdatePublisherResponse>(`/admin/publisher/edit/${id}`, data);
     }
 }

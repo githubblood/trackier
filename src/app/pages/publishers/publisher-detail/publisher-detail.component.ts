@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { PublisherService } from '../../../core/services/publisher.service';
 import { PublisherDetail } from '../../../core/models/publisher.model';
+import { EditPublisherComponent } from '../edit-publisher/edit-publisher.component';
 
 interface Publisher {
     id: number;
@@ -26,7 +27,7 @@ interface Publisher {
 @Component({
     selector: 'app-publisher-detail',
     standalone: true,
-    imports: [CommonModule, FormsModule, RouterModule],
+    imports: [CommonModule, FormsModule, RouterModule, EditPublisherComponent],
     templateUrl: './publisher-detail.component.html',
     styleUrls: ['./publisher-detail.component.scss']
 })
@@ -37,6 +38,9 @@ export class PublisherDetailComponent implements OnInit {
     generatedLink: string = '';
     loading: boolean = false;
     error: string = '';
+
+    // Edit publisher sidebar
+    showEditPublisher: boolean = false;
 
     // API Data
     publisherDetail: PublisherDetail | null = null;
@@ -183,7 +187,13 @@ export class PublisherDetailComponent implements OnInit {
     }
 
     editPublisher(): void {
-        console.log('Editing publisher:', this.publisher.id);
+        // Open edit publisher sidebar
+        this.showEditPublisher = true;
+    }
+
+    onPublisherUpdated(): void {
+        // Reload publisher details after successful update
+        this.loadPublisherDetails();
     }
 
     editSettings(): void {

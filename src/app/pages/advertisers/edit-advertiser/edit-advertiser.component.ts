@@ -2,6 +2,9 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
+import { NgSelectModule } from '@ng-select/ng-select';
+import { AdvertiserService } from '../../../core/services/advertiser.service';
+import { AdvertiserDetail } from '../../../core/models/advertiser.model';
 
 interface TimelineEntry {
     user: string;
@@ -22,7 +25,7 @@ interface TimelineDetail {
 @Component({
     selector: 'app-edit-advertiser',
     standalone: true,
-    imports: [CommonModule, FormsModule, RouterModule],
+    imports: [CommonModule, FormsModule, RouterModule, NgSelectModule],
     templateUrl: './edit-advertiser.component.html',
     styleUrls: ['./edit-advertiser.component.scss']
 })
@@ -36,7 +39,7 @@ export class EditAdvertiserComponent implements OnInit {
     skype: string = '';
     tags: string[] = [];
     companyName: string = '';
-    status: string = 'Active';
+    status: string = 'active';
     address: string = '';
     country: string = 'ALL';
     state: string = '';
@@ -47,15 +50,215 @@ export class EditAdvertiserComponent implements OnInit {
     accountManager: string[] = [];
     changePassword: string = '';
 
+    // API-required fields (hidden from UI but needed for API)
+    website: string = '';
+    industry: string = '';
+
+    // State
+    loading: boolean = false;
+    saving: boolean = false;
+    error: string = '';
+
     // Dropdown options
-    statusOptions = ['Active', 'Pending', 'Disabled', 'Rejected', 'Banned'];
+    statusOptions = ['active', 'pending', 'disabled', 'rejected', 'banned'];
 
     countryOptions = [
         { code: 'ALL', name: 'ALL' },
-        { code: 'US', name: 'United States' },
+        { code: 'AF', name: 'Afghanistan' },
+        { code: 'AL', name: 'Albania' },
+        { code: 'DZ', name: 'Algeria' },
+        { code: 'AD', name: 'Andorra' },
+        { code: 'AO', name: 'Angola' },
+        { code: 'AG', name: 'Antigua and Barbuda' },
+        { code: 'AR', name: 'Argentina' },
+        { code: 'AM', name: 'Armenia' },
+        { code: 'AU', name: 'Australia' },
+        { code: 'AT', name: 'Austria' },
+        { code: 'AZ', name: 'Azerbaijan' },
+        { code: 'BS', name: 'Bahamas' },
+        { code: 'BH', name: 'Bahrain' },
+        { code: 'BD', name: 'Bangladesh' },
+        { code: 'BB', name: 'Barbados' },
+        { code: 'BY', name: 'Belarus' },
+        { code: 'BE', name: 'Belgium' },
+        { code: 'BZ', name: 'Belize' },
+        { code: 'BJ', name: 'Benin' },
+        { code: 'BT', name: 'Bhutan' },
+        { code: 'BO', name: 'Bolivia' },
+        { code: 'BA', name: 'Bosnia and Herzegovina' },
+        { code: 'BW', name: 'Botswana' },
+        { code: 'BR', name: 'Brazil' },
+        { code: 'BN', name: 'Brunei' },
+        { code: 'BG', name: 'Bulgaria' },
+        { code: 'BF', name: 'Burkina Faso' },
+        { code: 'BI', name: 'Burundi' },
+        { code: 'CV', name: 'Cabo Verde' },
+        { code: 'KH', name: 'Cambodia' },
+        { code: 'CM', name: 'Cameroon' },
+        { code: 'CA', name: 'Canada' },
+        { code: 'CF', name: 'Central African Republic' },
+        { code: 'TD', name: 'Chad' },
+        { code: 'CL', name: 'Chile' },
+        { code: 'CN', name: 'China' },
+        { code: 'CO', name: 'Colombia' },
+        { code: 'KM', name: 'Comoros' },
+        { code: 'CG', name: 'Congo' },
+        { code: 'CR', name: 'Costa Rica' },
+        { code: 'HR', name: 'Croatia' },
+        { code: 'CU', name: 'Cuba' },
+        { code: 'CY', name: 'Cyprus' },
+        { code: 'CZ', name: 'Czech Republic' },
+        { code: 'CD', name: 'Democratic Republic of the Congo' },
+        { code: 'DK', name: 'Denmark' },
+        { code: 'DJ', name: 'Djibouti' },
+        { code: 'DM', name: 'Dominica' },
+        { code: 'DO', name: 'Dominican Republic' },
+        { code: 'EC', name: 'Ecuador' },
+        { code: 'EG', name: 'Egypt' },
+        { code: 'SV', name: 'El Salvador' },
+        { code: 'GQ', name: 'Equatorial Guinea' },
+        { code: 'ER', name: 'Eritrea' },
+        { code: 'EE', name: 'Estonia' },
+        { code: 'SZ', name: 'Eswatini' },
+        { code: 'ET', name: 'Ethiopia' },
+        { code: 'FJ', name: 'Fiji' },
+        { code: 'FI', name: 'Finland' },
+        { code: 'FR', name: 'France' },
+        { code: 'GA', name: 'Gabon' },
+        { code: 'GM', name: 'Gambia' },
+        { code: 'GE', name: 'Georgia' },
+        { code: 'DE', name: 'Germany' },
+        { code: 'GH', name: 'Ghana' },
+        { code: 'GR', name: 'Greece' },
+        { code: 'GD', name: 'Grenada' },
+        { code: 'GT', name: 'Guatemala' },
+        { code: 'GN', name: 'Guinea' },
+        { code: 'GW', name: 'Guinea-Bissau' },
+        { code: 'GY', name: 'Guyana' },
+        { code: 'HT', name: 'Haiti' },
+        { code: 'HN', name: 'Honduras' },
+        { code: 'HU', name: 'Hungary' },
+        { code: 'IS', name: 'Iceland' },
         { code: 'IN', name: 'India' },
-        { code: 'UK', name: 'United Kingdom' },
-        { code: 'CA', name: 'Canada' }
+        { code: 'ID', name: 'Indonesia' },
+        { code: 'IR', name: 'Iran' },
+        { code: 'IQ', name: 'Iraq' },
+        { code: 'IE', name: 'Ireland' },
+        { code: 'IL', name: 'Israel' },
+        { code: 'IT', name: 'Italy' },
+        { code: 'CI', name: 'Ivory Coast' },
+        { code: 'JM', name: 'Jamaica' },
+        { code: 'JP', name: 'Japan' },
+        { code: 'JO', name: 'Jordan' },
+        { code: 'KZ', name: 'Kazakhstan' },
+        { code: 'KE', name: 'Kenya' },
+        { code: 'KI', name: 'Kiribati' },
+        { code: 'KW', name: 'Kuwait' },
+        { code: 'KG', name: 'Kyrgyzstan' },
+        { code: 'LA', name: 'Laos' },
+        { code: 'LV', name: 'Latvia' },
+        { code: 'LB', name: 'Lebanon' },
+        { code: 'LS', name: 'Lesotho' },
+        { code: 'LR', name: 'Liberia' },
+        { code: 'LY', name: 'Libya' },
+        { code: 'LI', name: 'Liechtenstein' },
+        { code: 'LT', name: 'Lithuania' },
+        { code: 'LU', name: 'Luxembourg' },
+        { code: 'MG', name: 'Madagascar' },
+        { code: 'MW', name: 'Malawi' },
+        { code: 'MY', name: 'Malaysia' },
+        { code: 'MV', name: 'Maldives' },
+        { code: 'ML', name: 'Mali' },
+        { code: 'MT', name: 'Malta' },
+        { code: 'MH', name: 'Marshall Islands' },
+        { code: 'MR', name: 'Mauritania' },
+        { code: 'MU', name: 'Mauritius' },
+        { code: 'MX', name: 'Mexico' },
+        { code: 'FM', name: 'Micronesia' },
+        { code: 'MD', name: 'Moldova' },
+        { code: 'MC', name: 'Monaco' },
+        { code: 'MN', name: 'Mongolia' },
+        { code: 'ME', name: 'Montenegro' },
+        { code: 'MA', name: 'Morocco' },
+        { code: 'MZ', name: 'Mozambique' },
+        { code: 'MM', name: 'Myanmar' },
+        { code: 'NA', name: 'Namibia' },
+        { code: 'NR', name: 'Nauru' },
+        { code: 'NP', name: 'Nepal' },
+        { code: 'NL', name: 'Netherlands' },
+        { code: 'NZ', name: 'New Zealand' },
+        { code: 'NI', name: 'Nicaragua' },
+        { code: 'NE', name: 'Niger' },
+        { code: 'NG', name: 'Nigeria' },
+        { code: 'KP', name: 'North Korea' },
+        { code: 'MK', name: 'North Macedonia' },
+        { code: 'NO', name: 'Norway' },
+        { code: 'OM', name: 'Oman' },
+        { code: 'PK', name: 'Pakistan' },
+        { code: 'PW', name: 'Palau' },
+        { code: 'PS', name: 'Palestine' },
+        { code: 'PA', name: 'Panama' },
+        { code: 'PG', name: 'Papua New Guinea' },
+        { code: 'PY', name: 'Paraguay' },
+        { code: 'PE', name: 'Peru' },
+        { code: 'PH', name: 'Philippines' },
+        { code: 'PL', name: 'Poland' },
+        { code: 'PT', name: 'Portugal' },
+        { code: 'QA', name: 'Qatar' },
+        { code: 'RO', name: 'Romania' },
+        { code: 'RU', name: 'Russia' },
+        { code: 'RW', name: 'Rwanda' },
+        { code: 'KN', name: 'Saint Kitts and Nevis' },
+        { code: 'LC', name: 'Saint Lucia' },
+        { code: 'VC', name: 'Saint Vincent and the Grenadines' },
+        { code: 'WS', name: 'Samoa' },
+        { code: 'SM', name: 'San Marino' },
+        { code: 'ST', name: 'Sao Tome and Principe' },
+        { code: 'SA', name: 'Saudi Arabia' },
+        { code: 'SN', name: 'Senegal' },
+        { code: 'RS', name: 'Serbia' },
+        { code: 'SC', name: 'Seychelles' },
+        { code: 'SL', name: 'Sierra Leone' },
+        { code: 'SG', name: 'Singapore' },
+        { code: 'SK', name: 'Slovakia' },
+        { code: 'SI', name: 'Slovenia' },
+        { code: 'SB', name: 'Solomon Islands' },
+        { code: 'SO', name: 'Somalia' },
+        { code: 'ZA', name: 'South Africa' },
+        { code: 'KR', name: 'South Korea' },
+        { code: 'SS', name: 'South Sudan' },
+        { code: 'ES', name: 'Spain' },
+        { code: 'LK', name: 'Sri Lanka' },
+        { code: 'SD', name: 'Sudan' },
+        { code: 'SR', name: 'Suriname' },
+        { code: 'SE', name: 'Sweden' },
+        { code: 'CH', name: 'Switzerland' },
+        { code: 'SY', name: 'Syria' },
+        { code: 'TJ', name: 'Tajikistan' },
+        { code: 'TZ', name: 'Tanzania' },
+        { code: 'TH', name: 'Thailand' },
+        { code: 'TL', name: 'Timor-Leste' },
+        { code: 'TG', name: 'Togo' },
+        { code: 'TO', name: 'Tonga' },
+        { code: 'TT', name: 'Trinidad and Tobago' },
+        { code: 'TN', name: 'Tunisia' },
+        { code: 'TR', name: 'Turkey' },
+        { code: 'TM', name: 'Turkmenistan' },
+        { code: 'TV', name: 'Tuvalu' },
+        { code: 'UG', name: 'Uganda' },
+        { code: 'UA', name: 'Ukraine' },
+        { code: 'AE', name: 'United Arab Emirates' },
+        { code: 'GB', name: 'United Kingdom' },
+        { code: 'US', name: 'United States' },
+        { code: 'UY', name: 'Uruguay' },
+        { code: 'UZ', name: 'Uzbekistan' },
+        { code: 'VU', name: 'Vanuatu' },
+        { code: 'VA', name: 'Vatican City' },
+        { code: 'VE', name: 'Venezuela' },
+        { code: 'VN', name: 'Vietnam' },
+        { code: 'YE', name: 'Yemen' },
+        { code: 'ZM', name: 'Zambia' },
+        { code: 'ZW', name: 'Zimbabwe' }
     ];
 
     tagOptions = [
@@ -82,7 +285,8 @@ export class EditAdvertiserComponent implements OnInit {
 
     constructor(
         private route: ActivatedRoute,
-        private router: Router
+        private router: Router,
+        private advertiserService: AdvertiserService
     ) { }
 
     ngOnInit(): void {
@@ -93,83 +297,104 @@ export class EditAdvertiserComponent implements OnInit {
     }
 
     loadAdvertiser(): void {
-        // Mock data - would come from API
-        this.name = 'Betmen Affiliates- Jan\'26';
-        this.email = '1234560718@gmail.com';
-        this.phone = '';
-        this.skype = '';
-        this.tags = [];
-        this.companyName = 'Betmen Affiliates- Jan\'26';
-        this.status = 'Active';
-        this.address = '';
-        this.country = 'ALL';
-        this.state = '';
-        this.city = '';
-        this.zipcode = '';
-        this.taxId = '';
-        this.referenceId = '';
-        this.accountManager = ['David Arora'];
+        this.loading = true;
+        this.error = '';
 
-        // Load timeline
-        this.timeline = [
-            {
-                user: 'Betmen Affiliates- Jan\'26',
-                action: 'A user was created Name: Betmen Affiliates- Jan\'26, Email: id_560, Email Address: 1234560718@gmail.com, Company: Betmen Affiliates- Jan\'26, Status: Active, Created At: Jan 9, 2026 at 4:30 pm, IP: 49.36.161.20 on January 9, 2026 at 4:30 pm',
-                timestamp: 'Jan 9, 2026 at 4:30 pm',
-                ip: '49.36.161.20',
-                type: 'created'
+        this.advertiserService.getAdvertiserById(this.advertiserId).subscribe({
+            next: (response) => {
+                if (response.success && response.data) {
+                    const data: AdvertiserDetail = response.data;
+
+                    // Map API data to form fields
+                    this.name = data.name || '';
+                    this.email = data.email || '';
+                    this.phone = data.phone || '';
+                    this.skype = data.skype || '';
+                    this.companyName = data.company_name || '';
+                    this.status = data.status || 'active';
+                    this.address = data.address || '';
+                    this.country = data.country || 'ALL';
+                    this.state = data.state || '';
+                    this.city = data.city || '';
+                    this.zipcode = data.zipcode || '';
+                    this.taxId = data.tax_id || '';
+                    this.referenceId = data.reference_id || '';
+
+                    // Store API-required fields for later use
+                    this.website = data.website || '';
+                    this.industry = data.industry || 'General';
+
+                    // Handle tags if present
+                    if (data.tags && Array.isArray(data.tags)) {
+                        this.tags = data.tags;
+                    }
+
+                    // Handle manager (if present in API response)
+                    if (data.manager) {
+                        this.accountManager = [data.manager];
+                    }
+
+                    this.loading = false;
+                }
             },
-            {
-                user: 'Betmen Affiliates- Jan\'26',
-                action: 'A user was updated Name changed from to Betmen Affiliates- Jan\'26, Skype_Id changed from to , Email changed from to 1234560718@gmail.com, Real changed from to , Company_Name changed from to , Status changed from to active, IP: 49.36.161.20 on January 9, 2026 at 4:30 pm',
-                timestamp: 'Jan 9, 2026 at 4:30 pm',
-                ip: '49.36.161.20',
-                type: 'updated'
+            error: (err) => {
+                console.error('Error loading advertiser:', err);
+                this.error = 'Failed to load advertiser details. Please try again.';
+                this.loading = false;
             }
-        ];
+        });
     }
 
-    toggleTag(tag: string): void {
-        const index = this.tags.indexOf(tag);
-        if (index > -1) {
-            this.tags.splice(index, 1);
-        } else {
-            this.tags.push(tag);
-        }
-    }
-
-    toggleManager(managerName: string): void {
-        const index = this.accountManager.indexOf(managerName);
-        if (index > -1) {
-            this.accountManager.splice(index, 1);
-        } else {
-            this.accountManager.push(managerName);
-        }
-    }
 
     save(): void {
-        console.log('Saving advertiser:', {
-            id: this.advertiserId,
+        // Validate required fields
+        if (!this.name || !this.email) {
+            this.error = 'Name and Email are required';
+            return;
+        }
+
+        this.saving = true;
+        this.error = '';
+
+        // Prepare API request - include all form fields
+        const request = {
             name: this.name,
-            email: this.email,
+            company_name: this.companyName || this.name,
+            website: this.website || `https://${this.email.split('@')[1]}`,
+            industry: this.industry || 'General',
+            status: this.status,
             phone: this.phone,
             skype: this.skype,
             tags: this.tags,
-            companyName: this.companyName,
-            status: this.status,
             address: this.address,
             country: this.country,
             state: this.state,
             city: this.city,
             zipcode: this.zipcode,
-            taxId: this.taxId,
-            referenceId: this.referenceId,
-            accountManager: this.accountManager,
-            changePassword: this.changePassword
-        });
+            tax_id: this.taxId,
+            reference_id: this.referenceId,
+            account_manager: this.accountManager,
+            password: this.changePassword || undefined
+        };
 
-        // Navigate back to manage advertisers
-        this.router.navigate(['/advertisers/manage']);
+        this.advertiserService.editAdvertiser(this.advertiserId, request).subscribe({
+            next: (response) => {
+                console.log('Advertiser updated:', response);
+
+                if (response.success) {
+                    alert(`Advertiser "${this.name}" updated successfully!`);
+                    this.router.navigate(['/advertisers/manage']);
+                } else {
+                    this.error = response.error?.message || 'Failed to update advertiser';
+                }
+                this.saving = false;
+            },
+            error: (err) => {
+                console.error('Error updating advertiser:', err);
+                this.error = err.error?.message || 'Failed to update advertiser. Please try again.';
+                this.saving = false;
+            }
+        });
     }
 
     cancel(): void {

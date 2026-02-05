@@ -2,23 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule, ActivatedRoute, Router } from '@angular/router';
-
-interface Advertiser {
-    id: number;
-    name: string;
-    email: string;
-    company: string;
-    status: string;
-    createdDate: string;
-    hashId: string;
-    manager: string;
-    securityToken: string;
-    postbackUrl: string;
-    redirectType: string;
-    emailNotifications: boolean;
-    currency: string;
-    locale: string;
-}
+import { AdvertiserService } from '../../../core/services/advertiser.service';
+import { AdvertiserDetail } from '../../../core/models/advertiser.model';
 
 @Component({
     selector: 'app-advertiser-detail',
@@ -29,7 +14,9 @@ interface Advertiser {
 })
 export class AdvertiserDetailComponent implements OnInit {
     advertiserId: number = 0;
-    advertiser: Advertiser | null = null;
+    advertiser: AdvertiserDetail | null = null;
+    loading: boolean = false;
+    error: string = '';
 
     // Settings
     redirectType: string = 'Default';
@@ -54,7 +41,8 @@ export class AdvertiserDetailComponent implements OnInit {
 
     constructor(
         private route: ActivatedRoute,
-        private router: Router
+        private router: Router,
+        private advertiserService: AdvertiserService
     ) { }
 
     ngOnInit(): void {
@@ -65,32 +53,39 @@ export class AdvertiserDetailComponent implements OnInit {
     }
 
     loadAdvertiser(): void {
-        // Mock data - would come from API
-        this.advertiser = {
-            id: this.advertiserId,
-            name: 'Betmen Affiliates- Jan\'26',
-            email: '1234560718@gmail.com',
-            company: 'Betmen Affiliates- Jan\'26',
-            status: 'Active',
-            createdDate: 'January 9, 2026 at 4:30 pm',
-            hashId: '6966dffbeb6b75816ad7206bb',
-            manager: 'David Arora',
-            securityToken: '5b5d7f9c22dd27f16ec',
-            postbackUrl: 'https://spaxads.trackier.co/acquisition?click_id={click_id}&security_token=5b5d7f6220d327f1bec',
-            redirectType: 'Default',
-            emailNotifications: false,
-            currency: 'INR',
-            locale: 'en'
-        };
+        this.loading = true;
+        this.error = '';
 
-        this.securityToken = this.advertiser.securityToken;
-        this.postbackUrl = this.advertiser.postbackUrl;
-        this.redirectType = this.advertiser.redirectType;
-        this.emailNotifications = this.advertiser.emailNotifications;
-        this.currency = this.advertiser.currency;
-        this.locale = this.advertiser.locale;
+        this.advertiserService.getAdvertiserById(this.advertiserId).subscribe({
+            next: (response) => {
+                console.log('Advertiser Details API Response:', response);
 
-        this.pixelCode = `<img src="https://spaxads.gotrackier.com/pixel?av=6960cf9ebbd670816ad7206bb">`;
+                if (response && response.data) {
+                    this.advertiser = response.data;
+
+                    // Set security token and postback URL if available
+                    this.securityToken = this.advertiser.uid || '';
+                    this.postbackUrl = `https://spaxads.trackier.co/acquisition?click_id={click_id}&security_token=${this.securityToken}`;
+
+                    // Set other default values
+                    this.redirectType = 'Default';
+                    this.emailNotifications = false;
+                    this.currency = this.advertiser.country?.toLowerCase() === 'india' ? 'INR' : 'USD';
+                    this.locale = 'en';
+
+                    // Generate pixel code
+                    this.pixelCode = `<img src="https://spaxads.gotrackier.com/pixel?av=${this.advertiser.uid}">`;
+                } else {
+                    this.error = response.error?.message || 'Failed to load advertiser details';
+                }
+                this.loading = false;
+            },
+            error: (err) => {
+                console.error('Error loading advertiser details:', err);
+                this.error = 'Failed to load advertiser details. Please try again.';
+                this.loading = false;
+            }
+        });
     }
 
     disableAdvertiser(): void {
@@ -99,8 +94,7 @@ export class AdvertiserDetailComponent implements OnInit {
     }
 
     editAdvertiser(): void {
-        console.log('Editing advertiser:', this.advertiserId);
-        // Open edit modal or navigate to edit page
+        this.router.navigate(['/advertisers/edit', this.advertiserId]);
     }
 
     editSettings(): void {

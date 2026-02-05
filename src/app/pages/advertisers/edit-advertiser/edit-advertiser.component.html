@@ -43,27 +43,9 @@
                     <!-- Tags -->
                     <div class="form-row">
                         <label class="form-label">Tags</label>
-                        <div class="tags-container">
-                            <div class="selected-tags">
-                                <span class="tag-badge" *ngFor="let tag of tags">
-                                    {{tag}}
-                                    <i class="fas fa-times" (click)="toggleTag(tag)"></i>
-                                </span>
-                            </div>
-                            <div class="tag-dropdown">
-                                <button type="button" class="btn-add-tag" data-bs-toggle="dropdown">
-                                    Add Tag <i class="fas fa-chevron-down"></i>
-                                </button>
-                                <ul class="dropdown-menu">
-                                    <li *ngFor="let tag of tagOptions">
-                                        <a class="dropdown-item" (click)="toggleTag(tag)">
-                                            <input type="checkbox" [checked]="tags.includes(tag)">
-                                            {{tag}}
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
+                        <ng-select [items]="tagOptions" [multiple]="true" [addTag]="true"
+                            placeholder="Select or add tags" [(ngModel)]="tags" name="tags">
+                        </ng-select>
                     </div>
 
                     <!-- Company Name -->
@@ -89,9 +71,15 @@
                     <!-- Country -->
                     <div class="form-row">
                         <label class="form-label">Country</label>
-                        <select class="form-control" [(ngModel)]="country" name="country">
-                            <option *ngFor="let c of countryOptions" [value]="c.code">{{c.name}}</option>
-                        </select>
+                        <ng-select [items]="countryOptions" bindLabel="name" bindValue="code" [searchable]="true"
+                            [(ngModel)]="country" name="country">
+                            <ng-template ng-label-tmp let-item="item">
+                                [{{item.code}}] {{item.name}}
+                            </ng-template>
+                            <ng-template ng-option-tmp let-item="item" let-index="index">
+                                [{{item.code}}] {{item.name}}
+                            </ng-template>
+                        </ng-select>
                     </div>
 
                     <!-- State -->
@@ -133,27 +121,12 @@
                     <!-- Account Manager -->
                     <div class="form-row">
                         <label class="form-label">Account Manager (Optional)</label>
-                        <div class="tags-container">
-                            <div class="selected-tags">
-                                <span class="tag-badge manager-badge" *ngFor="let mgr of accountManager">
-                                    {{mgr}}
-                                    <i class="fas fa-times" (click)="toggleManager(mgr)"></i>
-                                </span>
-                            </div>
-                            <div class="tag-dropdown">
-                                <button type="button" class="btn-add-tag" data-bs-toggle="dropdown">
-                                    Select Manager <i class="fas fa-chevron-down"></i>
-                                </button>
-                                <ul class="dropdown-menu">
-                                    <li *ngFor="let mgr of managerOptions">
-                                        <a class="dropdown-item" (click)="toggleManager(mgr.name)">
-                                            <input type="checkbox" [checked]="accountManager.includes(mgr.name)">
-                                            {{mgr.name}} - ({{mgr.role}})
-                                        </a>
-                                    </li>
-                                </ul>
-                            </div>
-                        </div>
+                        <ng-select [items]="managerOptions" [multiple]="true" bindLabel="name" bindValue="name"
+                            placeholder="Select Manager(s)" [(ngModel)]="accountManager" name="accountManager">
+                            <ng-template ng-option-tmp let-item="item">
+                                {{item.name}} - ({{item.role}})
+                            </ng-template>
+                        </ng-select>
                     </div>
 
                     <!-- Change Password -->

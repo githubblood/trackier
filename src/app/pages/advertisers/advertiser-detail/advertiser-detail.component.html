@@ -1,4 +1,22 @@
-<div class="advertiser-detail-page" *ngIf="advertiser">
+<!-- Loading State -->
+<div class="loading-container" *ngIf="loading">
+    <div class="loading-spinner">
+        <i class="fas fa-spinner fa-spin"></i>
+        <p>Loading advertiser details...</p>
+    </div>
+</div>
+
+<!-- Error State -->
+<div class="error-container" *ngIf="error && !loading">
+    <div class="error-message">
+        <i class="fas fa-exclamation-triangle"></i>
+        <p>{{error}}</p>
+        <button class="btn btn-primary" (click)="loadAdvertiser()">Try Again</button>
+    </div>
+</div>
+
+<!-- Advertiser Details -->
+<div class="advertiser-detail-page" *ngIf="advertiser && !loading && !error">
     <!-- Breadcrumb -->
     <div class="breadcrumb-nav">
         <a routerLink="/advertisers/manage">Advertisers</a>
@@ -37,7 +55,15 @@
                         </div>
                         <div class="info-row">
                             <span class="label">Company</span>
-                            <span class="value">{{advertiser.company}}</span>
+                            <span class="value">{{advertiser.company_name}}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">Website</span>
+                            <span class="value">{{advertiser.website || 'N/A'}}</span>
+                        </div>
+                        <div class="info-row">
+                            <span class="label">Industry</span>
+                            <span class="value">{{advertiser.industry || 'N/A'}}</span>
                         </div>
                         <div class="info-row">
                             <span class="label">Status</span>
@@ -49,13 +75,13 @@
                         </div>
                         <div class="info-row">
                             <span class="label">Created</span>
-                            <span class="value">{{advertiser.createdDate}}</span>
+                            <span class="value">{{advertiser.created_at | date:'MMMM d, yyyy \'at\' h:mm a'}}</span>
                         </div>
                         <div class="info-row">
-                            <span class="label">Hash ID</span>
-                            <span class="value code">{{advertiser.hashId}}</span>
+                            <span class="label">UID</span>
+                            <span class="value code">{{advertiser.uid}}</span>
                         </div>
-                        <div class="info-row">
+                        <div class="info-row" *ngIf="advertiser.manager">
                             <span class="label">Advertiser Manager</span>
                             <span class="value link">{{advertiser.manager}}</span>
                         </div>

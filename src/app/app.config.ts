@@ -1,6 +1,7 @@
-import { ApplicationConfig, provideZoneChangeDetection, APP_INITIALIZER } from '@angular/core';
+import { ApplicationConfig, provideZoneChangeDetection, APP_INITIALIZER, importProvidersFrom } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
 
 import { routes } from './app.routes';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
@@ -25,6 +26,8 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(
       withInterceptors([authInterceptor, errorInterceptor])
     ),
+    // Import ngx-daterangepicker-material module
+    importProvidersFrom(NgxDaterangepickerMd.forRoot()),
     // APP_INITIALIZER - runs before app starts
     {
       provide: APP_INITIALIZER,

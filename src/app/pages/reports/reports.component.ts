@@ -1,21 +1,64 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ReportsService } from '../../core/services/reports.service';
+import { CampaignReportItem } from '../../core/models/report.model';
+import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
+import moment, { Moment } from 'moment';
 
 @Component({
   selector: 'app-reports',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, NgxDaterangepickerMd],
   templateUrl: './reports.component.html',
   styleUrls: ['./reports.component.scss']
 })
-export class ReportsComponent {
+export class ReportsComponent implements OnInit {
+  // API State
+  loading = false;
+  error = '';
+  currentPage = 1;
+  totalItems = 0;
+
+  // Applied filters state (updated only on Submit)
+  appliedGroupByOptions: any[] = [];
+  appliedMetricsOptions: any[] = [];
+
   // View toggle
   viewMode: 'table' | 'chart' = 'table';
 
-  // Date range
-  startDate = '2026-01-15';
-  endDate = '2026-01-15';
+  // Date range picker
+  selected: { startDate: Moment | null, endDate: Moment | null } = {
+    startDate: moment(),
+    endDate: moment()
+  };
+
+  ranges: any = {
+    'Today': [moment(), moment()],
+    'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+    'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+    'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+    'This Month': [moment().startOf('month'), moment().endOf('month')],
+    'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+  };
+
+  locale: any = {
+    format: 'YYYY-MM-DD',
+    displayFormat: 'YYYY-MM-DD',
+    separator: ' - ',
+    cancelLabel: 'Cancel',
+    applyLabel: 'Submit',
+    customRangeLabel: 'Custom'
+  };
+
+  // Keep for backward compatibility
+  get startDate(): string {
+    return this.selected.startDate ? this.selected.startDate.format('YYYY-MM-DD') : '';
+  }
+
+  get endDate(): string {
+    return this.selected.endDate ? this.selected.endDate.format('YYYY-MM-DD') : '';
+  }
 
   // Dropdowns
   switchReport = 'campaign';
@@ -195,15 +238,148 @@ export class ReportsComponent {
     { value: 'report2', label: 'Monthly Summary' }
   ];
 
+  constructor(private reportsService: ReportsService) { }
+
+  ngOnInit(): void {
+    // Initialize applied options with currently checked options
+    this.appliedGroupByOptions = this.groupByOptions.filter(opt => opt.checked);
+    this.appliedMetricsOptions = this.metricsOptions.filter(opt => opt.checked);
+
+    this.loadCampaignReport();
+  }
+
+  // Date range picker change handler
+  choosedDate(e: any): void {
+    if (e.startDate && e.endDate) {
+      this.selected = {
+        startDate: e.startDate,
+        endDate: e.endDate
+      };
+      // Auto-load report when date range is selected
+      this.loadCampaignReport();
+    }
+  }
+
+  submitDateRange(): void {
+    // Validate date range
+    if (!this.startDate || !this.endDate) {
+      alert('Please select both start and end dates');
+      return;
+    }
+
+    if (new Date(this.startDate) > new Date(this.endDate)) {
+      alert('Start date cannot be after end date');
+      return;
+    }
+
+    // Load campaign report with selected date range
+    this.loadCampaignReport();
+  }
+
+  loadCampaignReport(): void {
+    this.loading = true;
+    this.error = '';
+
+    const params = {
+      start_date: this.startDate,
+      end_date: this.endDate,
+      page: this.currentPage,
+      limit: 100
+    };
+
+    this.reportsService.getCampaignReport(params).subscribe({
+      next: (response) => {
+        if (response.success && response.data) {
+          this.reportData = response.data.map(item => this.mapApiToReportData(item));
+          this.totalItems = response.pagination?.total || this.reportData.length;
+        } else {
+          this.error = response.error?.message || 'Failed to load campaign report';
+          console.error('Campaign report error:', response.error);
+        }
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('Error loading campaign report:', err);
+        this.error = 'Failed to load campaign report. Please try again.';
+        this.loading = false;
+      }
+    });
+  }
+
+  mapApiToReportData(item: CampaignReportItem): any {
+    return {
+      // Group By fields
+      campaign: item.campaign_name,
+      campaignId: item.campaign_id,
+      date: item.date,
+
+      // Metrics from API
+      clicks: item.clicks,
+      uniqueClicks: item.unique_clicks,
+      grossClicks: item.clicks,
+      approvedConversions: item.conversions,
+      payout: item.payout,
+      revenue: item.revenue,
+      profit: item.revenue - item.payout,
+      cr: item.cr,
+      epc: item.epc,
+      conversionRate: item.cr,
+
+      // Placeholder values for other fields (can be extended based on API)
+      pendingConversions: 0,
+      cancelledConversions: 0,
+      rejectedConversions: 0,
+      rejectedClicks: 0,
+      impressions: 0
+    };
+  }
+
+  // Selected group by options (checked items)
+  get selectedGroupByOptions() {
+    return this.groupByOptions.filter(opt => opt.checked);
+  }
+
+  // Selected metrics options (checked items)
+  get selectedMetricsOptions() {
+    return this.metricsOptions.filter(opt => opt.checked);
+  }
+
   // Totals
   get totals() {
-    return {
-      grossClicks: this.reportData.reduce((sum, item) => sum + item.grossClicks, 0),
-      approvedConversions: this.reportData.reduce((sum, item) => sum + item.approvedConversions, 0),
-      payout: this.reportData.reduce((sum, item) => sum + item.payout, 0),
-      revenue: this.reportData.reduce((sum, item) => sum + item.revenue, 0),
-      profit: this.reportData.reduce((sum, item) => sum + item.profit, 0)
-    };
+    const total: any = {};
+
+    // Calculate totals for all possible metrics
+    const numericMetrics = [
+      'grossClicks', 'uniqueClicks', 'rejectedClicks', 'clicks',
+      'approvedConversions', 'pendingConversions', 'cancelledConversions',
+      'rejectedConversions', 'extendedConversions', 'sampledConversions',
+      'grossConversions', 'impressions',
+      'payout', 'revenue', 'profit',
+      'pendingPayout', 'pendingRevenue', 'sampledPayout', 'sampledRevenue',
+      'grossPayout', 'grossRevenue', 'grossProfit',
+      'extendedPayout', 'extendedRevenue', 'cancelledPayout', 'cancelledRevenue',
+      'rejectedPayout', 'rejectedRevenue',
+      'saleAmount', 'pendingSaleAmount', 'extendedSaleAmount',
+      'cancelledSaleAmount', 'rejectedSaleAmount', 'sampledSaleAmount',
+      'grossSaleAmount', 'netConversions', 'netSaleAmount',
+      'netPayout', 'netRevenue', 'netProfit', 'campaignPayout', 'campaignRevenue'
+    ];
+
+    numericMetrics.forEach(metric => {
+      total[metric] = this.reportData.reduce((sum: number, item: any) => {
+        return sum + (item[metric] || 0);
+      }, 0);
+    });
+
+    // Calculate averages for rate metrics
+    if (this.reportData.length > 0) {
+      total.conversionRate = (total.approvedConversions / total.grossClicks * 100) || 0;
+      total.cr = total.conversionRate;
+      total.epc = (total.payout / total.grossClicks) || 0;
+      total.ctr = (total.clicks / total.impressions * 100) || 0;
+    }
+
+    return total;
   }
 
   // Filtered group by options
@@ -244,6 +420,14 @@ export class ReportsComponent {
       otherOptions: this.otherOptions,
       conditions: this.conditions
     });
+
+    // Update applied options with currently selected options
+    this.appliedGroupByOptions = this.groupByOptions.filter(opt => opt.checked);
+    this.appliedMetricsOptions = this.metricsOptions.filter(opt => opt.checked);
+
+    // Reload data with new filter settings
+    this.loadCampaignReport();
+
     this.closeFilterPanel();
   }
 
@@ -355,6 +539,57 @@ export class ReportsComponent {
   // Format number
   formatNumber(value: number): string {
     return value.toLocaleString();
+  }
+
+  // Get column value for Group By columns
+  getColumnValue(item: any, key: string): string {
+    // Map the key to actual data field
+    const value = item[key];
+
+    if (value === undefined || value === null) {
+      return '-';
+    }
+
+    // Special handling for different column types
+    if (key === 'date') {
+      return new Date(value).toLocaleDateString();
+    }
+
+    return value.toString();
+  }
+
+  // Format metric value for Report Options columns
+  formatMetricValue(item: any, key: string): string {
+    const value = item[key];
+
+    if (value === undefined || value === null) {
+      return '0';
+    }
+
+    // Currency metrics
+    const currencyMetrics = [
+      'payout', 'revenue', 'profit', 'campaignPayout', 'campaignRevenue',
+      'pendingPayout', 'pendingRevenue', 'sampledPayout', 'sampledRevenue',
+      'grossPayout', 'grossRevenue', 'grossProfit',
+      'extendedPayout', 'extendedRevenue', 'cancelledPayout', 'cancelledRevenue',
+      'rejectedPayout', 'rejectedRevenue',
+      'saleAmount', 'pendingSaleAmount', 'extendedSaleAmount',
+      'cancelledSaleAmount', 'rejectedSaleAmount', 'sampledSaleAmount',
+      'grossSaleAmount', 'netSaleAmount', 'netPayout', 'netRevenue', 'netProfit'
+    ];
+
+    // Percentage metrics
+    const percentageMetrics = ['conversionRate', 'cr', 'ctr'];
+
+    if (currencyMetrics.includes(key)) {
+      return this.formatCurrency(value);
+    } else if (percentageMetrics.includes(key)) {
+      return value.toFixed(2) + '%';
+    } else if (key === 'epc') {
+      return this.formatCurrency(value);
+    } else {
+      return this.formatNumber(value);
+    }
   }
 
   // Filter data by search

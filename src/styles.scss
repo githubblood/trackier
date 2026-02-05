@@ -45,3 +45,72 @@ body {
         border-bottom: 2px solid #dee2e6;
     }
 }
+/* Date Range Picker Styling */
+.md-drppicker {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+    border: 1px solid #e9ecef !important;
+    border-radius: 8px !important;
+
+    .buttons {
+        padding: 8px 12px !important;
+        border-top: 1px solid #e9ecef !important;
+        display: flex !important;
+        justify-content: flex-start !important;
+        gap: 8px !important;
+
+        button {
+            padding: 7px 16px !important;
+            font-size: 14px !important;
+            border-radius: 5px !important;
+            min-width: 80px !important;
+
+            &.btn-success {
+                background-color: #138fc2 !important;
+                border-color: #138fc2 !important;
+                color: #ffffff !important;
+                box-shadow: 0 0 17px 0 rgba(204, 204, 204, 0.5) !important;
+
+                &:hover {
+                    background-color: #28a5d4 !important;
+                }
+            }
+
+            &.btn-default {
+                background-color: #fff !important;
+                border-color: #dee2e6 !important;
+                color: #666 !important;
+
+                &:hover {
+                    background-color: #f8f9fa !important;
+                }
+            }
+        }
+    }
+}
+
+/* Position date picker dropdown to show on left side */
+.md-drppicker.double {
+    left: auto !important;
+    right: 0 !important;
+}
+
+.md-drppicker {
+    left: auto !important;
+    right: 0 !important;
+    
+    &.shown {
+        left: auto !important;
+        right: 0 !important;
+    }
+}
+
+/* Alternative: Use left positioning if needed */
+.md-drppicker.opensleft {
+    left: auto !important;
+    right: 0 !important;
+}
+
+.md-drppicker.opensright {
+    right: auto !important;
+    left: 0 !important;
+}

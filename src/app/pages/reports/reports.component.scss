@@ -109,6 +109,20 @@
         color: #666;
     }
 
+    .date-picker-input {
+        border: none;
+        min-width: 230px;
+        font-size: 14px;
+        padding: 4px 8px;
+        background: transparent;
+        cursor: pointer;
+
+        &:focus {
+            box-shadow: none;
+            outline: none;
+        }
+    }
+
     .form-control {
         border: none;
         width: 130px;
@@ -123,6 +137,17 @@
     .date-separator {
         color: #999;
         margin: 0 5px;
+    }
+
+    .btn-primary {
+        padding: 6px 16px;
+        font-size: 13px;
+        white-space: nowrap;
+
+        &:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
     }
 }
 
@@ -728,5 +753,91 @@
 
     .other-options-grid {
         grid-template-columns: 1fr;
+    }
+}
+
+// Date Range Picker Dropdown Styling
+::ng-deep {
+    .ngx-daterangepicker-action {
+        padding: 8px 12px !important;
+        border-top: 1px solid #e9ecef;
+        display: flex;
+        justify-content: flex-start;
+        gap: 8px;
+        background: #fff;
+
+        button {
+            padding: 7px 16px !important;
+            font-size: 14px !important;
+            border-radius: 5px !important;
+            font-weight: 400;
+            transition: all 0.15s ease-in-out;
+            border: 1px solid;
+
+            &.btn-primary {
+                background-color: #138fc2 !important;
+                border-color: #138fc2 !important;
+                color: #ffffff !important;
+                box-shadow: 0 0 17px 0 rgba(204, 204, 204, 0.5);
+
+                &:hover {
+                    background-color: #28a5d4 !important;
+                    border-color: #28a5d4 !important;
+                    opacity: 0.9;
+                }
+            }
+
+            &.btn-default {
+                background-color: #fff !important;
+                border-color: #dee2e6 !important;
+                color: #666 !important;
+
+                &:hover {
+                    background-color: #f8f9fa !important;
+                }
+            }
+        }
+    }
+
+    .md-drppicker {
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+        border: 1px solid #e9ecef !important;
+        border-radius: 8px !important;
+
+        .ranges {
+            ul {
+                li {
+                    padding: 8px 12px !important;
+                    font-size: 14px !important;
+                    cursor: pointer;
+
+                    &:hover {
+                        background-color: #f8f9fa !important;
+                    }
+
+                    &.active {
+                        background-color: #138fc2 !important;
+                        color: #fff !important;
+                    }
+                }
+            }
+        }
+
+        .calendar {
+
+            th,
+            td {
+                font-size: 13px !important;
+            }
+
+            td.active {
+                background-color: #138fc2 !important;
+                color: #fff !important;
+            }
+
+            td.in-range {
+                background-color: rgba(19, 143, 194, 0.1) !important;
+            }
+        }
     }
 }

@@ -40,12 +40,14 @@
                 </button>
             </div>
 
-            <!-- Date Range -->
+            <!-- Date Range Picker -->
             <div class="date-range">
                 <i class="fas fa-calendar-alt me-2"></i>
-                <input type="date" class="form-control form-control-sm" [(ngModel)]="startDate">
-                <span class="date-separator">-</span>
-                <input type="date" class="form-control form-control-sm" [(ngModel)]="endDate">
+                <input type="text" ngxDaterangepickerMd [(ngModel)]="selected" [ranges]="ranges"
+                    [showCustomRangeLabel]="true" [alwaysShowCalendars]="false" [linkedCalendars]="true"
+                    [showClearButton]="false" [locale]="locale" (datesUpdated)="choosedDate($event)" [autoApply]="false"
+                    [showRangeLabelOnInput]="true" [drops]="'down'" [opens]="'left'"
+                    class="form-control form-control-sm date-picker-input" placeholder="Select date range" readonly />
             </div>
         </div>
     </div>
@@ -89,53 +91,65 @@
 
     <!-- Content Card -->
     <div class="content-card">
+        <!-- Loading State -->
+        <div class="text-center py-5" *ngIf="loading">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2 text-muted">Loading campaign report...</p>
+        </div>
+
+        <!-- Error State -->
+        <div class="alert alert-danger m-3" *ngIf="error && !loading">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            {{error}}
+        </div>
+
         <!-- Table View -->
-        <div class="table-responsive" *ngIf="viewMode === 'table'">
+        <div class="table-responsive" *ngIf="viewMode === 'table' && !loading">
             <table class="table table-striped table-hover align-middle mb-0">
                 <thead>
                     <tr>
-                        <th class="sortable">
-                            Campaign <i class="fas fa-sort ms-1"></i>
+                        <!-- Dynamic Group By Columns -->
+                        <th class="sortable" *ngFor="let option of appliedGroupByOptions">
+                            {{option.label}} <i class="fas fa-sort ms-1"></i>
                         </th>
-                        <th class="text-end sortable">
-                            Gross Clicks <i class="fas fa-sort ms-1"></i>
-                        </th>
-                        <th class="text-end sortable">
-                            Approved Conversions <i class="fas fa-sort ms-1"></i>
-                        </th>
-                        <th class="text-end sortable">
-                            Payout <i class="fas fa-sort ms-1"></i>
-                        </th>
-                        <th class="text-end sortable">
-                            Revenue <i class="fas fa-sort ms-1"></i>
-                        </th>
-                        <th class="text-end sortable">
-                            Profit <i class="fas fa-sort ms-1"></i>
+                        <!-- Dynamic Metrics Columns -->
+                        <th class="text-end sortable" *ngFor="let metric of appliedMetricsOptions">
+                            {{metric.label}} <i class="fas fa-sort ms-1"></i>
                         </th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr *ngFor="let item of filteredData">
-                        <td>
-                            <a href="#" class="campaign-link">{{item.campaign}}</a>
+                        <!-- Dynamic Group By Data -->
+                        <td *ngFor="let option of appliedGroupByOptions">
+                            <a href="#" class="campaign-link"
+                                *ngIf="option.key === 'campaign' || option.key === 'publisher' || option.key === 'advertiser'; else textCell">
+                                {{getColumnValue(item, option.key)}}
+                            </a>
+                            <ng-template #textCell>{{getColumnValue(item, option.key)}}</ng-template>
                         </td>
-                        <td class="text-end">{{formatNumber(item.grossClicks)}}</td>
-                        <td class="text-end">
-                            <a href="#" class="conversion-link">{{item.approvedConversions}}</a>
+                        <!-- Dynamic Metrics Data -->
+                        <td class="text-end" *ngFor="let metric of appliedMetricsOptions">
+                            <a href="#" class="conversion-link"
+                                *ngIf="metric.key === 'approvedConversions' || metric.key === 'pendingConversions'; else metricCell">
+                                {{formatMetricValue(item, metric.key)}}
+                            </a>
+                            <ng-template #metricCell>{{formatMetricValue(item, metric.key)}}</ng-template>
                         </td>
-                        <td class="text-end">{{formatCurrency(item.payout)}}</td>
-                        <td class="text-end">{{formatCurrency(item.revenue)}}</td>
-                        <td class="text-end">{{formatCurrency(item.profit)}}</td>
                     </tr>
                 </tbody>
                 <tfoot>
                     <tr class="totals-row">
-                        <td><strong>Total</strong></td>
-                        <td class="text-end"><strong>{{formatNumber(totals.grossClicks)}}</strong></td>
-                        <td class="text-end"><strong>{{totals.approvedConversions}}</strong></td>
-                        <td class="text-end"><strong>{{formatCurrency(totals.payout)}}</strong></td>
-                        <td class="text-end"><strong>{{formatCurrency(totals.revenue)}}</strong></td>
-                        <td class="text-end"><strong>{{formatCurrency(totals.profit)}}</strong></td>
+                        <!-- Dynamic Totals for Group By Columns -->
+                        <td *ngFor="let option of appliedGroupByOptions; let isFirst = first">
+                            <strong *ngIf="isFirst">Total</strong>
+                        </td>
+                        <!-- Dynamic Totals for Metrics Columns -->
+                        <td class="text-end" *ngFor="let metric of appliedMetricsOptions">
+                            <strong>{{formatMetricValue(totals, metric.key)}}</strong>
+                        </td>
                     </tr>
                 </tfoot>
             </table>

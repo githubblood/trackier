@@ -280,12 +280,20 @@ export class ReportsComponent implements OnInit {
     this.loading = true;
     this.error = '';
 
-    const params = {
+    const params: any = {
       start_date: this.startDate,
       end_date: this.endDate,
       page: this.currentPage,
-      limit: 100
+      limit: 10
     };
+
+    // Add campaign_id if search by ID is enabled and value is a number
+    if (this.filters.campaign && this.filters.campaignSearchById) {
+      const campaignId = parseInt(this.filters.campaign, 10);
+      if (!isNaN(campaignId)) {
+        params.campaign_id = campaignId;
+      }
+    }
 
     this.reportsService.getCampaignReport(params).subscribe({
       next: (response) => {

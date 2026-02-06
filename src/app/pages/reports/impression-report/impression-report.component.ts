@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
+import moment, { Moment } from 'moment';
 
 interface FieldOption {
   id: string;
@@ -11,7 +13,7 @@ interface FieldOption {
 @Component({
   selector: 'app-impression-report',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, NgxDaterangepickerMd],
   templateUrl: './impression-report.component.html',
   styleUrls: ['./impression-report.component.scss']
 })
@@ -21,8 +23,44 @@ export class ImpressionReportComponent {
   showDownloadMenu = false;
   showFieldsModal = false;
   fieldSearch = '';
-  startDate = '2026-01-14';
-  endDate = '2026-01-15';
+
+  // Date range picker
+  selected: { startDate: Moment | null, endDate: Moment | null } = {
+    startDate: moment().subtract(1, 'days'),
+    endDate: moment()
+  };
+
+  ranges: any = {
+    'Today': [moment(), moment()],
+    'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+    'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+    'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+    'This Month': [moment().startOf('month'), moment().endOf('month')],
+    'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+  };
+
+  locale: any = {
+    format: 'YYYY-MM-DD',
+    displayFormat: 'YYYY-MM-DD',
+    separator: ' - ',
+    cancelLabel: 'Cancel',
+    applyLabel: 'Submit',
+    customRangeLabel: 'Custom'
+  };
+
+  get startDate(): string {
+    return this.selected.startDate ? this.selected.startDate.format('YYYY-MM-DD') : '';
+  }
+
+  get endDate(): string {
+    return this.selected.endDate ? this.selected.endDate.format('YYYY-MM-DD') : '';
+  }
+
+  choosedDate(e: any): void {
+    if (e.startDate && e.endDate) {
+      this.selected = { startDate: e.startDate, endDate: e.endDate };
+    }
+  }
 
   // Temporary field selections for the modal (only applied on "Apply" click)
   tempFieldSelections: { [key: string]: boolean } = {};

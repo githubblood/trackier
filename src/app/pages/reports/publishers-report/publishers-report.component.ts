@@ -1,18 +1,22 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
+import moment, { Moment } from 'moment';
+import { NgbPaginationModule } from '@ng-bootstrap/ng-bootstrap';
+import { ReportsService } from '../../../core/services/reports.service';
+import { PublisherReportItem } from '../../../core/models/report.model';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-publishers-report',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, NgxDaterangepickerMd, NgbPaginationModule],
   templateUrl: './publishers-report.component.html',
   styleUrls: ['./publishers-report.component.scss']
 })
-export class PublishersReportComponent {
+export class PublishersReportComponent implements OnInit {
   viewMode: 'table' | 'chart' = 'table';
-  startDate = '2026-01-15';
-  endDate = '2026-01-15';
   searchQuery = '';
   groupBySearch = '';
   metricsSearch = '';
@@ -20,6 +24,146 @@ export class PublishersReportComponent {
   showNewReportModal = false;
   newReportName = '';
   showDownloadMenu = false;
+
+  // Loading & Error States
+  loading = false;
+  error = '';
+
+  // Pagination
+  currentPage = 1;
+  pageSize = 10;
+  totalCount = 0;
+
+  // Date range picker
+  selected: { startDate: Moment | null, endDate: Moment | null } = {
+    startDate: moment(),
+    endDate: moment()
+  };
+
+  ranges: any = {
+    'Today': [moment(), moment()],
+    'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+    'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+    'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+    'This Month': [moment().startOf('month'), moment().endOf('month')],
+    'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+  };
+
+  locale: any = {
+    format: 'YYYY-MM-DD',
+    displayFormat: 'YYYY-MM-DD',
+    separator: ' - ',
+    cancelLabel: 'Cancel',
+    applyLabel: 'Submit',
+    customRangeLabel: 'Custom'
+  };
+
+  get startDate(): string {
+    return this.selected.startDate ? this.selected.startDate.format('YYYY-MM-DD') : '';
+  }
+
+  get endDate(): string {
+    return this.selected.endDate ? this.selected.endDate.format('YYYY-MM-DD') : '';
+  }
+
+  choosedDate(e: any): void {
+    if (e.startDate && e.endDate) {
+      this.selected = { startDate: e.startDate, endDate: e.endDate };
+      this.currentPage = 1;
+      this.loadPublisherReport();
+    }
+  }
+
+  constructor(private reportsService: ReportsService) { }
+
+  ngOnInit(): void {
+    this.loadPublisherReport();
+  }
+
+  loadPublisherReport(): void {
+    this.loading = true;
+    this.error = '';
+
+    const params: any = {
+      start_date: this.startDate,
+      end_date: this.endDate,
+      page: this.currentPage,
+      limit: this.pageSize
+    };
+
+    this.reportsService.getPublisherReport(params)
+      .pipe(
+        finalize(() => {
+          this.loading = false;
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.reportData = this.mapApiData(response.data);
+            this.totalCount = response.pagination?.total;
+            this.currentPage = response.pagination?.page;
+            this.pageSize = response.pagination?.limit;
+          } else {
+            this.error = response.error?.message || 'Failed to load publisher report';
+          }
+        },
+        error: (err) => {
+          console.error('Error loading publisher report:', err);
+          this.error = 'An error occurred while loading the report.';
+        }
+      });
+  }
+
+  private mapApiData(apiData: PublisherReportItem[]): any[] {
+    return apiData.map(item => ({
+      publisher: item.publisher_name,
+      publisherId: item.publisher_id,
+
+      // Mapped Metrics
+      clicks: item.clicks,
+      uniqueClicks: item.unique_clicks,
+      grossClicks: item.clicks, // Assumption: API clicks = Gross Clicks
+      approvedConversions: item.conversions,
+      conversions: item.conversions,
+      payout: item.payout,
+      conversionRate: item.cr,
+      epc: item.epc,
+
+      // Defaults for missing data
+      revenue: 0,
+      profit: 0,
+      impressions: 0,
+      rejectedClicks: 0,
+      pendingConversions: 0,
+      cancelledConversions: 0,
+      rejectedConversions: 0,
+      ctr: 0
+    }));
+  }
+
+  getVisibleColumns() {
+    const visibleGroups = this.groupByOptions.filter(opt => opt.checked);
+    const visibleMetrics = this.metricsOptions.filter(opt => opt.checked);
+    return [...visibleGroups, ...visibleMetrics];
+  }
+
+  getColumnType(key: string): 'currency' | 'percent' | 'number' | 'text' {
+    if (this.currencyKeys.includes(key)) return 'currency';
+    if (this.percentageKeys.includes(key)) return 'percent';
+    if (this.metricsOptions.some(m => m.key === key)) return 'number';
+    return 'text';
+  }
+
+  onPageChange(page: number): void {
+    this.currentPage = page;
+    this.loadPublisherReport();
+  }
+
+  onPageSizeChange(): void {
+    this.currentPage = 1;
+    this.loadPublisherReport();
+  }
 
   // Main filters - Same as Campaign Report
   filters = {
@@ -68,27 +212,42 @@ export class PublishersReportComponent {
     { key: 'os', label: 'Operating System', checked: false },
     { key: 'country', label: 'Country (GEO)', checked: false },
     { key: 'date', label: 'Date', checked: false },
-    { key: 'month', label: 'Month', checked: false },
-    { key: 'week', label: 'Week', checked: false },
     { key: 'year', label: 'Year', checked: false },
     { key: 'category', label: 'Category', checked: false }
   ];
 
+  // Column Types Identification
+  private currencyKeys = [
+    'payout', 'revenue', 'profit', 'epc', 'saleAmount',
+    'campaignPayout', 'campaignRevenue',
+    'pendingPayout', 'pendingRevenue',
+    'sampledPayout', 'sampledRevenue',
+    'grossPayout', 'grossRevenue', 'grossProfit',
+    'extendedPayout', 'extendedRevenue',
+    'cancelledPayout', 'cancelledRevenue',
+    'rejectedPayout', 'rejectedRevenue',
+    'pendingSaleAmount', 'extendedSaleAmount',
+    'cancelledSaleAmount', 'rejectedSaleAmount', 'sampledSaleAmount',
+    'grossSaleAmount', 'netSaleAmount', 'netPayout', 'netRevenue', 'netProfit'
+  ];
+
+  private percentageKeys = ['conversionRate', 'ctr'];
+
   // Report Options / Metrics - Complete list from Trackier
   metricsOptions = [
-    { key: 'uniqueClicks', label: 'Unique Clicks', checked: false },
-    { key: 'rejectedClicks', label: 'Rejected Clicks', checked: false },
-    { key: 'clicks', label: 'Clicks', checked: false },
+    { key: 'uniqueClicks', label: 'Unique Clicks', checked: true },
+    { key: 'rejectedClicks', label: 'Rejected Clicks', checked: true },
+    { key: 'clicks', label: 'Clicks', checked: true },
     { key: 'grossClicks', label: 'Gross Clicks', checked: true },
     { key: 'approvedConversions', label: 'Approved Conversions', checked: true },
     { key: 'pendingConversions', label: 'Pending Conversions', checked: false },
     { key: 'cancelledConversions', label: 'Cancelled Conversions', checked: false },
     { key: 'rejectedConversions', label: 'Rejected Conversions', checked: false },
-    { key: 'extendedConversions', label: 'Extended Conversions', checked: false },
+    { key: 'extendedConversions', label: 'Extended Conversions', checked: true },
     { key: 'sampledConversions', label: 'Sampled Conversions', checked: false },
     { key: 'grossConversions', label: 'Gross Conversions', checked: false },
     { key: 'conversionRate', label: 'Conversion Rate (CR)', checked: false },
-    { key: 'impressions', label: 'Impressions', checked: false },
+    { key: 'impressions', label: 'Impressions', checked: true },
     { key: 'campaignPayout', label: 'Campaign Payout', checked: false },
     { key: 'campaignRevenue', label: 'Campaign Revenue', checked: false },
     { key: 'payout', label: 'Payout', checked: true },
@@ -136,27 +295,15 @@ export class PublishersReportComponent {
   conditions: any[] = [];
 
   // Report data
-  reportData = [
-    { publisher: 'ATUL Kumar', publisherId: 303, grossClicks: 12450, approvedConversions: 245, payout: 2450.00, revenue: 3200.00, profit: 750.00 },
-    { publisher: 'IG Link', publisherId: 404, grossClicks: 8920, approvedConversions: 178, payout: 1780.00, revenue: 2340.00, profit: 560.00 },
-    { publisher: 'Shivai Networks', publisherId: 405, grossClicks: 15670, approvedConversions: 312, payout: 3120.00, revenue: 4100.00, profit: 980.00 },
-    { publisher: 'Digital Media Pro', publisherId: 424, grossClicks: 6340, approvedConversions: 127, payout: 1270.00, revenue: 1650.00, profit: 380.00 },
-    { publisher: 'AdNetwork Plus', publisherId: 450, grossClicks: 9800, approvedConversions: 196, payout: 1960.00, revenue: 2580.00, profit: 620.00 }
-  ];
+  reportData: any[] = [];
 
   savedReportsList = [
     { value: '', label: '--' },
     { value: 'report1', label: 'Weekly Publisher Overview' }
   ];
 
-  get totals() {
-    return {
-      grossClicks: this.reportData.reduce((sum, item) => sum + item.grossClicks, 0),
-      approvedConversions: this.reportData.reduce((sum, item) => sum + item.approvedConversions, 0),
-      payout: this.reportData.reduce((sum, item) => sum + item.payout, 0),
-      revenue: this.reportData.reduce((sum, item) => sum + item.revenue, 0),
-      profit: this.reportData.reduce((sum, item) => sum + item.profit, 0)
-    };
+  getTotal(key: string): number {
+    return this.reportData.reduce((sum, item) => sum + (Number(item[key]) || 0), 0);
   }
 
   get filteredGroupByOptions() {
@@ -170,14 +317,17 @@ export class PublishersReportComponent {
   }
 
   get filteredData() {
-    if (!this.searchQuery) return this.reportData;
-    return this.reportData.filter(item => item.publisher.toLowerCase().includes(this.searchQuery.toLowerCase()));
+    return this.reportData;
   }
 
   setViewMode(mode: 'table' | 'chart') { this.viewMode = mode; }
   toggleFilterPanel() { this.showFilterPanel = !this.showFilterPanel; }
   closeFilterPanel() { this.showFilterPanel = false; }
-  applyFilters() { console.log('Applying filters:', this.filters); this.closeFilterPanel(); }
+  applyFilters() {
+    this.currentPage = 1;
+    this.loadPublisherReport();
+    this.closeFilterPanel();
+  }
   clearGroupBy() { this.groupByOptions.forEach(opt => opt.checked = false); }
   selectAllGroupBy() { this.filteredGroupByOptions.forEach(opt => opt.checked = true); }
   clearMetrics() { this.metricsOptions.forEach(opt => opt.checked = false); }

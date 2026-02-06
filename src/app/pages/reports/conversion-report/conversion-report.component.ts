@@ -1,26 +1,173 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
+import moment, { Moment } from 'moment';
+import { NgbPaginationModule } from '@ng-bootstrap/ng-bootstrap';
+import { ReportsService } from '../../../core/services/reports.service';
+import { ConversionReportItem } from '../../../core/models/report.model';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-conversion-report',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, NgxDaterangepickerMd, NgbPaginationModule],
   templateUrl: './conversion-report.component.html',
   styleUrls: ['./conversion-report.component.scss']
 })
-export class ConversionReportComponent {
+export class ConversionReportComponent implements OnInit {
+  // Loading & Error States
+  loading = false;
+  error = '';
+
+  // Pagination
+  currentPage = 1;
+  pageSize = 10;
+  totalCount = 0;
+
   searchQuery = '';
   showFilterPanel = false;
   showDownloadMenu = false;
   showNewReportModal = false;
+  showFieldsModal = false;
   newReportName = '';
-  startDate = '2026-01-14';
-  endDate = '2026-01-15';
   selectAll = false;
   filterView: 'old' | 'new' = 'old';
   reportOptionSearch = '';
+
+  // Date range picker
+  selected: { startDate: Moment | null, endDate: Moment | null } = {
+    startDate: moment().subtract(1, 'days'),
+    endDate: moment()
+  };
+
+  ranges: any = {
+    'Today': [moment(), moment()],
+    'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+    'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+    'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+    'This Month': [moment().startOf('month'), moment().endOf('month')],
+    'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+  };
+
+  locale: any = {
+    format: 'YYYY-MM-DD',
+    displayFormat: 'YYYY-MM-DD',
+    separator: ' - ',
+    cancelLabel: 'Cancel',
+    applyLabel: 'Submit',
+    customRangeLabel: 'Custom'
+  };
+
+  get startDate(): string {
+    return this.selected.startDate ? this.selected.startDate.format('YYYY-MM-DD') : '';
+  }
+
+  get endDate(): string {
+    return this.selected.endDate ? this.selected.endDate.format('YYYY-MM-DD') : '';
+  }
+
+  choosedDate(e: any): void {
+    if (e.startDate && e.endDate) {
+      this.selected = { startDate: e.startDate, endDate: e.endDate };
+      this.currentPage = 1;
+      this.loadConversionReport();
+    }
+  }
+
+  constructor(private reportsService: ReportsService) { }
+
+  ngOnInit(): void {
+    this.loadConversionReport();
+  }
+
+  loadConversionReport(): void {
+    this.loading = true;
+    this.error = '';
+
+    const params: any = {
+      start_date: this.startDate,
+      end_date: this.endDate,
+      page: this.currentPage,
+      limit: this.pageSize
+    };
+
+    // Add filters if provided
+    if (this.filters.campaign) {
+      const campaignId = parseInt(this.filters.campaign, 10);
+      if (!isNaN(campaignId)) {
+        params.campaign_id = campaignId;
+      }
+    }
+
+    if (this.filters.publisher) {
+      const publisherId = parseInt(this.filters.publisher, 10);
+      if (!isNaN(publisherId)) {
+        params.publisher_id = publisherId;
+      }
+    }
+
+    if (this.filters.status && this.filters.status !== 'all') {
+      params.status = this.filters.status;
+    }
+
+    console.log('Loading conversion report with params:', params);
+
+    this.reportsService.getConversionReport(params)
+      .pipe(
+        finalize(() => {
+          console.log('API call completed, setting loading to false');
+          this.loading = false;
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          console.log('Conversion report response:', response);
+          if (response.success) {
+            this.conversions = this.mapApiData(response.data);
+            this.totalCount = response.pagination.total;
+            this.currentPage = response.pagination.page;
+            this.pageSize = response.pagination.limit;
+          } else {
+            this.error = response.error?.message || 'Failed to load conversion report';
+          }
+        },
+        error: (err) => {
+          console.error('Error loading conversion report:', err);
+          this.error = 'An error occurred while loading the report. Please try again.';
+        }
+      });
+  }
+
+  private mapApiData(apiData: ConversionReportItem[]): any[] {
+    return apiData.map(item => ({
+      publisher: item.publisher_name,
+      publisherId: item.publisher_id,
+      campaign: item.campaign_name,
+      campaignId: item.campaign_id,
+      goalName: item.goal_name,
+      goalId: item.goal_id,
+      payout: item.payout,
+      revenue: item.revenue,
+      status: item.status,
+      txnId: item.txn_id,
+      clickId: item.click_id,
+      created: new Date(item.created_at).toLocaleString(),
+      conversionId: item.id,
+      selected: false
+    }));
+  }
+
+  onPageChange(page: number): void {
+    this.currentPage = page;
+    this.loadConversionReport();
+  }
+
+  onPageSizeChange(): void {
+    this.currentPage = 1;
+    this.loadConversionReport();
+  }
 
   filters = {
     campaign: '',
@@ -152,191 +299,7 @@ export class ConversionReportComponent {
     { id: 'opt_created', label: 'Created', selected: true }
   ];
 
-  // All columns for the conversion report
-  columns = [
-    { key: 'selected', label: '', type: 'checkbox' },
-    { key: 'publisher', label: 'Publisher Name', type: 'link' },
-    { key: 'source', label: 'Source', type: 'text' },
-    { key: 'p1', label: 'P1', type: 'badge' },
-    { key: 'campaign', label: 'Campaign Name', type: 'link' },
-    { key: 'goalName', label: 'Goal Name', type: 'text' },
-    { key: 'goalValue', label: 'Goal Value', type: 'currency' },
-    { key: 'payout', label: 'Payout', type: 'currency' },
-    { key: 'revenue', label: 'Revenue', type: 'currency' },
-    { key: 'clickIp', label: 'Click IP', type: 'code' },
-    { key: 'city', label: 'City', type: 'text' },
-    { key: 'country', label: 'Country', type: 'country' },
-    { key: 'region', label: 'Region', type: 'text' },
-    { key: 'conversionId', label: 'Conversion ID', type: 'code' },
-    { key: 'clickId', label: 'Click ID', type: 'code' },
-    { key: 'clickToConversionTime', label: 'Click To Conversion Time', type: 'text' },
-    { key: 'conversionMethod', label: 'Conversion Method', type: 'badge' },
-    { key: 'advertiser', label: 'Advertiser', type: 'link' },
-    { key: 'device', label: 'Device', type: 'text' },
-    { key: 'os', label: 'OS', type: 'text' },
-    { key: 'browser', label: 'Browser', type: 'text' },
-    { key: 'note', label: 'Note', type: 'text' },
-    { key: 'created', label: 'Created', type: 'datetime' },
-    { key: 'status', label: 'Status', type: 'status' },
-    { key: 'action', label: 'Action', type: 'action' }
-  ];
-
-  conversions = [
-    {
-      selected: false,
-      publisher: 'GF Gaming Pub Jan\'26', publisherId: '553',
-      source: '', p1: '',
-      campaign: 'Boho- CA- Dec\'25', campaignId: '943',
-      goalName: 'registration', goalValue: 0.01, payout: 0.01, revenue: 0.01,
-      clickIp: '260x.3d09.s716.8a00.d581.29c7.4318.8155', city: 'Blairmore',
-      country: 'CA', countryCode: 'CA', region: 'Alberta',
-      conversionId: 'CNV001', clickId: 'CLK001',
-      clickToConversionTime: '2m 34s', conversionMethod: 'Postback',
-      advertiser: 'Gulfstream Dec\'25', advertiserId: '529',
-      device: 'Desktop', os: 'Windows 10', browser: 'Chrome',
-      note: '', created: '2026-01-14 10:23:45', status: 'approved'
-    },
-    {
-      selected: false,
-      publisher: 'GF Gaming Pub Jan\'26', publisherId: '553',
-      source: '', p1: '',
-      campaign: 'Boho- CA- Dec\'25', campaignId: '943',
-      goalName: 'registration', goalValue: 0.01, payout: 0.01, revenue: 0.01,
-      clickIp: '192.30.234.90', city: 'Trenton',
-      country: 'CA', countryCode: 'CA', region: 'Ontario',
-      conversionId: 'CNV002', clickId: 'CLK002',
-      clickToConversionTime: '5m 12s', conversionMethod: 'Postback',
-      advertiser: 'Gulfstream Dec\'25', advertiserId: '529',
-      device: 'Mobile', os: 'iOS 17', browser: 'Safari',
-      note: '', created: '2026-01-14 10:22:30', status: 'approved'
-    },
-    {
-      selected: false,
-      publisher: 'GF Gaming Pub Jul\'26', publisherId: '553',
-      source: '', p1: '',
-      campaign: 'Boho- CA- Dec\'25', campaignId: '943',
-      goalName: 'registration', goalValue: 0.01, payout: 0.01, revenue: 0.01,
-      clickIp: '192.168.1.3', city: 'Brampton',
-      country: 'CA', countryCode: 'CA', region: 'Ontario',
-      conversionId: 'CNV003', clickId: 'CLK003',
-      clickToConversionTime: '1m 45s', conversionMethod: 'Pixel',
-      advertiser: 'Gulfstream Dec\'25', advertiserId: '529',
-      device: 'Tablet', os: 'Android 13', browser: 'Firefox',
-      note: '', created: '2026-01-14 10:21:15', status: 'approved'
-    },
-    {
-      selected: false,
-      publisher: 'KA David Pub- Jan\'26', publisherId: '510',
-      source: '', p1: '',
-      campaign: 'Winner Casino CA', campaignId: '992',
-      goalName: 'Complete_Registration', goalValue: 1.00, payout: 1.00, revenue: 1.30,
-      clickIp: '142.188.100.35', city: 'Brampton',
-      country: 'CA', countryCode: 'CA', region: 'Ontario',
-      conversionId: 'CNV004', clickId: 'CLK004',
-      clickToConversionTime: '8m 22s', conversionMethod: 'Postback',
-      advertiser: 'Winner Casino', advertiserId: '530',
-      device: 'Desktop', os: 'macOS 14', browser: 'Safari',
-      note: '', created: '2026-01-14 10:20:00', status: 'approved'
-    },
-    {
-      selected: false,
-      publisher: 'Betmen Pub Jan\'26', publisherId: '560',
-      source: '', p1: '',
-      campaign: 'Spingranny- CA- Jan\'26', campaignId: '964',
-      goalName: 'registration', goalValue: 0.01, payout: 0.01, revenue: 0.01,
-      clickIp: '192.80.164.50', city: 'Burnaby',
-      country: 'CA', countryCode: 'CA', region: 'BC',
-      conversionId: 'CNV005', clickId: 'CLK005',
-      clickToConversionTime: '3m 15s', conversionMethod: 'Postback',
-      advertiser: 'Spingranny', advertiserId: '531',
-      device: 'Mobile', os: 'Android 14', browser: 'Chrome',
-      note: '', created: '2026-01-14 10:19:45', status: 'pending'
-    },
-    {
-      selected: false,
-      publisher: 'KA David Pub- Jan\'26', publisherId: '510',
-      source: '', p1: '',
-      campaign: 'Winner Casino CA', campaignId: '992',
-      goalName: 'Complete_Registration', goalValue: 1.00, payout: 1.00, revenue: 1.30,
-      clickIp: '2607.fea8.6080.0500.b4d7.4b70.b818.b6b4', city: 'Cambridge',
-      country: 'CA', countryCode: 'CA', region: 'Ontario',
-      conversionId: 'CNV006', clickId: 'CLK006',
-      clickToConversionTime: '12m 08s', conversionMethod: 'Postback',
-      advertiser: 'Winner Casino', advertiserId: '530',
-      device: 'Desktop', os: 'Windows 11', browser: 'Edge',
-      note: '', created: '2026-01-14 10:18:30', status: 'approved'
-    },
-    {
-      selected: false,
-      publisher: 'KA David Pub- Jan\'26', publisherId: '510',
-      source: '', p1: '',
-      campaign: 'Winner Casino CA', campaignId: '992',
-      goalName: 'Complete_Registration', goalValue: 1.00, payout: 1.00, revenue: 1.30,
-      clickIp: '2001.569f.9706.6800.3068.81db.5399.235x', city: 'Kamloops',
-      country: 'CA', countryCode: 'CA', region: 'BC',
-      conversionId: 'CNV007', clickId: 'CLK007',
-      clickToConversionTime: '4m 56s', conversionMethod: 'Postback',
-      advertiser: 'Winner Casino', advertiserId: '530',
-      device: 'Mobile', os: 'iOS 16', browser: 'Safari',
-      note: '', created: '2026-01-14 10:17:15', status: 'approved'
-    },
-    {
-      selected: false,
-      publisher: 'KA David Pub- Jan\'26', publisherId: '510',
-      source: '', p1: '',
-      campaign: 'Winner Casino CA', campaignId: '992',
-      goalName: 'Complete_Registration', goalValue: 1.00, payout: 1.00, revenue: 1.30,
-      clickIp: '24.150.254.369', city: 'St Catharines',
-      country: 'CA', countryCode: 'CA', region: 'Ontario',
-      conversionId: 'CNV008', clickId: 'CLK008',
-      clickToConversionTime: '6m 33s', conversionMethod: 'Pixel',
-      advertiser: 'Winner Casino', advertiserId: '530',
-      device: 'Desktop', os: 'Linux', browser: 'Firefox',
-      note: '', created: '2026-01-14 10:16:00', status: 'rejected'
-    },
-    {
-      selected: false,
-      publisher: 'Gentle Partners Pub Gaming Jan\'26', publisherId: '553',
-      source: '', p1: '',
-      campaign: 'Spinsto- DE- Jan\'26', campaignId: '962',
-      goalName: 'Registration', goalValue: 0.01, payout: 0.01, revenue: 0.01,
-      clickIp: '2a02.8109.9ca3.1700.b1b2.7ad8c.9fc4.dc80', city: 'Berlin',
-      country: 'DE', countryCode: 'DE', region: 'Berlin',
-      conversionId: 'CNV009', clickId: 'CLK009',
-      clickToConversionTime: '2m 18s', conversionMethod: 'Postback',
-      advertiser: 'Spinsto', advertiserId: '532',
-      device: 'Desktop', os: 'Windows 10', browser: 'Chrome',
-      note: '', created: '2026-01-14 10:15:45', status: 'approved'
-    },
-    {
-      selected: false,
-      publisher: 'Gentle Partners Pub Gaming Jan\'26', publisherId: '553',
-      source: '', p1: '',
-      campaign: 'Oceanpoq- DE- Jan\'26', campaignId: '963',
-      goalName: 'Registration', goalValue: 0.01, payout: 0.01, revenue: 0.01,
-      clickIp: '2a02.8070.185b.6a8b.9cae.efbc.919bc.c54a', city: 'Stuttgart',
-      country: 'DE', countryCode: 'DE', region: 'BW',
-      conversionId: 'CNV010', clickId: 'CLK010',
-      clickToConversionTime: '9m 41s', conversionMethod: 'Postback',
-      advertiser: 'Oceanpoq', advertiserId: '533',
-      device: 'Mobile', os: 'Android 12', browser: 'Samsung Internet',
-      note: '', created: '2026-01-14 10:14:30', status: 'approved'
-    }
-  ];
-
-  get filteredData() {
-    return this.conversions.filter(item => {
-      const matchesSearch = !this.searchQuery ||
-        item.publisher.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-        item.campaign.toLowerCase().includes(this.searchQuery.toLowerCase());
-      const matchesStatus = this.filters.status === 'all' || item.status === this.filters.status;
-      return matchesSearch && matchesStatus;
-    });
-  }
-
-  get totalConversions(): number {
-    return this.conversions.length;
-  }
+  conversions: any[] = [];
 
   toggleSelectAll(): void {
     this.conversions.forEach(item => item.selected = this.selectAll);
@@ -406,7 +369,6 @@ export class ConversionReportComponent {
   }
 
   // Fields Modal Methods
-  showFieldsModal = false;
 
   openFieldsModal(): void {
     this.showFieldsModal = true;

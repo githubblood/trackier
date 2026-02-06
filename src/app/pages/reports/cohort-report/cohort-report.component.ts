@@ -1,6 +1,8 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
+import moment, { Moment } from 'moment';
 
 interface CohortMetric {
   field: string;
@@ -16,14 +18,12 @@ interface CohortPublisher {
 @Component({
   selector: 'app-cohort-report',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, NgxDaterangepickerMd],
   templateUrl: './cohort-report.component.html',
   styleUrls: ['./cohort-report.component.scss']
 })
 export class CohortReportComponent {
   viewMode: 'table' | 'chart' = 'table';
-  startDate = '2026-01-08';
-  endDate = '2026-01-14';
   searchQuery = '';
   groupBySearch = '';
   metricsSearch = '';
@@ -34,6 +34,45 @@ export class CohortReportComponent {
 
   // Date columns for cohort view
   dateColumns: string[] = [];
+
+  // Date range picker
+  selected: { startDate: Moment | null, endDate: Moment | null } = {
+    startDate: moment().subtract(6, 'days'),
+    endDate: moment()
+  };
+
+  ranges: any = {
+    'Today': [moment(), moment()],
+    'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+    'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+    'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+    'This Month': [moment().startOf('month'), moment().endOf('month')],
+    'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+  };
+
+  locale: any = {
+    format: 'YYYY-MM-DD',
+    displayFormat: 'YYYY-MM-DD',
+    separator: ' - ',
+    cancelLabel: 'Cancel',
+    applyLabel: 'Submit',
+    customRangeLabel: 'Custom'
+  };
+
+  get startDate(): string {
+    return this.selected.startDate ? this.selected.startDate.format('YYYY-MM-DD') : '';
+  }
+
+  get endDate(): string {
+    return this.selected.endDate ? this.selected.endDate.format('YYYY-MM-DD') : '';
+  }
+
+  choosedDate(e: any): void {
+    if (e.startDate && e.endDate) {
+      this.selected = { startDate: e.startDate, endDate: e.endDate };
+      this.generateDateColumns();
+    }
+  }
 
   // Main filters - Same as Campaign Report
   filters = {

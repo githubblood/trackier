@@ -13,9 +13,11 @@
         <div class="header-right">
             <div class="date-range">
                 <i class="fas fa-calendar-alt me-2"></i>
-                <input type="date" class="form-control form-control-sm" [(ngModel)]="startDate">
-                <span class="date-separator">-</span>
-                <input type="date" class="form-control form-control-sm" [(ngModel)]="endDate">
+                <input type="text" ngxDaterangepickerMd [(ngModel)]="selected" [ranges]="ranges"
+                    [showCustomRangeLabel]="true" [alwaysShowCalendars]="false" [linkedCalendars]="true"
+                    [showClearButton]="false" [locale]="locale" (datesUpdated)="choosedDate($event)" [autoApply]="false"
+                    [showRangeLabelOnInput]="true" [drops]="'down'" [opens]="'left'"
+                    class="form-control form-control-sm date-picker-input" placeholder="Select date range" readonly />
             </div>
         </div>
     </div>

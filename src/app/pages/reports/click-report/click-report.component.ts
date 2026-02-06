@@ -1,7 +1,13 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
+import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
+import moment, { Moment } from 'moment';
+import { ReportsService } from '../../../core/services/reports.service';
+import { ClickReportItem } from '../../../core/models/report.model';
+import { finalize } from 'rxjs/operators';
+import { NgbPaginationModule } from '@ng-bootstrap/ng-bootstrap';
 
 interface ClickLog {
   // Campaign Info
@@ -67,16 +73,141 @@ interface ClickLog {
 @Component({
   selector: 'app-click-report',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule, NgxDaterangepickerMd, NgbPaginationModule],
   templateUrl: './click-report.component.html',
   styleUrls: ['./click-report.component.scss']
 })
-export class ClickReportComponent {
+export class ClickReportComponent implements OnInit {
+  // Loading & Error States
+  loading = false;
+  error = '';
+
   // Top Controls
-  totalClicks = 6959;
-  rowsPerPage = 100;
-  dateRange = '2026-01-15 - 2026-01-15';
+  totalClicks = 0;
+  currentPage = 1;
+  rowsPerPage = 10;
   showFilterPanel = false;
+
+  // Date range picker
+  selected: { startDate: Moment | null, endDate: Moment | null } = {
+    startDate: moment(),
+    endDate: moment()
+  };
+
+  ranges: any = {
+    'Today': [moment(), moment()],
+    'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+    'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+    'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+    'This Month': [moment().startOf('month'), moment().endOf('month')],
+    'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+  };
+
+  locale: any = {
+    format: 'YYYY-MM-DD',
+    displayFormat: 'YYYY-MM-DD',
+    separator: ' - ',
+    cancelLabel: 'Cancel',
+    applyLabel: 'Submit',
+    customRangeLabel: 'Custom'
+  };
+
+  get startDate(): string {
+    return this.selected.startDate ? this.selected.startDate.format('YYYY-MM-DD') : '';
+  }
+
+  get endDate(): string {
+    return this.selected.endDate ? this.selected.endDate.format('YYYY-MM-DD') : '';
+  }
+
+  choosedDate(e: any): void {
+    if (e.startDate && e.endDate) {
+      this.selected = { startDate: e.startDate, endDate: e.endDate };
+      this.loadClickReport();
+    }
+  }
+
+  constructor(private reportsService: ReportsService) { }
+
+  ngOnInit(): void {
+    this.loadClickReport();
+  }
+
+  loadClickReport(): void {
+    this.loading = true;
+    this.error = '';
+
+    const params: any = {
+      start_date: this.startDate,
+      end_date: this.endDate,
+      page: this.currentPage,
+      limit: this.rowsPerPage
+    };
+
+    // Add campaign filter if provided
+    if (this.filters.campaign) {
+      const campaignId = parseInt(this.filters.campaign, 10);
+      if (!isNaN(campaignId)) {
+        params.campaign_id = campaignId;
+      }
+    }
+
+    // Add publisher filter if provided
+    if (this.filters.publisher) {
+      const publisherId = parseInt(this.filters.publisher, 10);
+      if (!isNaN(publisherId)) {
+        params.publisher_id = publisherId;
+      }
+    }
+
+    console.log('Loading click report with params:', params);
+
+    this.reportsService.getClickReport(params)
+      .pipe(
+        finalize(() => {
+          console.log('API call completed, setting loading to false');
+          this.loading = false;
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          console.log('Click report response:', response);
+          if (response.success) {
+            this.clickLogs = this.mapApiDataToClickLogs(response.data);
+            this.totalClicks = response.pagination.total;
+            this.currentPage = response.pagination.page;
+          } else {
+            this.error = response.error?.message || 'Failed to load click report';
+          }
+        },
+        error: (err) => {
+          console.error('Error loading click report:', err);
+          this.error = 'An error occurred while loading the report. Please try again.';
+        }
+      });
+  }
+
+  private mapApiDataToClickLogs(apiData: ClickReportItem[]): ClickLog[] {
+    return apiData.map(item => ({
+      campaignName: item.campaign_name,
+      campaignId: item.campaign_id,
+      ipAddress: item.ip_address,
+      city: '',
+      region: '',
+      countryCode: item.country,
+      device: item.device,
+      clickId: item.click_id,
+      referrer: '',
+      created: new Date(item.created_at).toLocaleString(),
+      publisher: item.publisher_name,
+      publisherId: item.publisher_id.toString(),
+      p1: item.sub1 || undefined,
+      p2: item.sub2 || undefined,
+      source: item.source_id,
+      userAgent: item.user_agent,
+      gaid: ''
+    }));
+  }
 
   filters = {
     campaign: '', publisher: '', clickId: '', clickIp: '', region: '', city: '',
@@ -147,34 +278,15 @@ export class ClickReportComponent {
   ];
   metricsSearch = '';
 
-  clickLogs: ClickLog[] = [
-    {
-      campaignName: 'Slotozen Casino- CA- Dec\'25', campaignId: 913, ipAddress: '66.23.26.193',
-      city: 'Toronto', region: 'Ontario', countryCode: 'CA', device: 'mobile',
-      clickId: '69688e637bc8ba0347093c32', referrer: '', created: 'Jan 15, 2026 15:46:03',
-      publisher: 'AdNetwork Inc', publisherId: 'PUB-101', p1: 'sub_123', gaid: 'a7b3c2d4-e5f6',
-      source: 'app_source', browser: 'Chrome', os: 'Android'
-    },
-    {
-      campaignName: 'Pistolo- DE- Nov\'25', campaignId: 914, ipAddress: '2003:cd:af40:7e8e:99d0:45d3:5a61:9096',
-      city: 'Flensburg', region: 'Schleswig-Holstein', countryCode: 'DE', device: 'mobile',
-      clickId: '69688e61c608a4034dc5d990', referrer: '', created: 'Jan 15, 2026 15:45:55',
-      publisher: 'MediaBuy LLC', source: 'web', p1: 'ref_998', gaid: '',
-      isUnique: 'Yes', isRejected: 'No'
-    },
-    {
-      campaignName: 'Ivybet- CA- Nov\'25', campaignId: 919, ipAddress: '2607:fea8:21e1:1300:47dd...',
-      city: 'Etobicoke', region: 'Ontario', countryCode: 'CA', device: 'mobile',
-      clickId: '69688e6048dba20351efce7b', referrer: 'google.com', created: 'Jan 15, 2026 15:44:12',
-      publisher: 'Direct Pub', source: 'organic', p1: 'click_001', gaid: 'b8c4d3e5-f6g7'
-    }
-  ];
+  clickLogs: ClickLog[] = [];
 
   get filteredLogs(): ClickLog[] {
-    return this.clickLogs.filter(log => {
-      const search = this.filters.campaign.toLowerCase();
-      return !search || log.campaignName.toLowerCase().includes(search);
-    });
+    return this.clickLogs;
+  }
+
+  onPageChange(page: number): void {
+    this.currentPage = page;
+    this.loadClickReport();
   }
 
   get filteredMetricsOptions() {
@@ -188,7 +300,18 @@ export class ClickReportComponent {
 
   toggleFilterPanel() { this.showFilterPanel = !this.showFilterPanel; }
   closeFilterPanel() { this.showFilterPanel = false; }
-  applyFilters() { console.log('Filters:', this.filters); this.closeFilterPanel(); }
+
+  onRowsPerPageChange() {
+    this.currentPage = 1; // Reset to first page
+    this.loadClickReport();
+  }
+
+  applyFilters() {
+    console.log('Filters:', this.filters);
+    this.currentPage = 1;
+    this.loadClickReport();
+    this.closeFilterPanel();
+  }
   copyToClipboard() { console.log('Copied'); }
   downloadCSV() { console.log('CSV'); }
   downloadExcel() { console.log('Excel'); }

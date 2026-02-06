@@ -1,18 +1,22 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { NgxDaterangepickerMd } from 'ngx-daterangepicker-material';
+import moment, { Moment } from 'moment';
+import { NgbPaginationModule } from '@ng-bootstrap/ng-bootstrap';
+import { ReportsService } from '../../../core/services/reports.service';
+import { AdvertiserReportItem } from '../../../core/models/report.model';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-advertisers-report',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, NgxDaterangepickerMd, NgbPaginationModule],
   templateUrl: './advertisers-report.component.html',
   styleUrls: ['./advertisers-report.component.scss']
 })
-export class AdvertisersReportComponent {
+export class AdvertisersReportComponent implements OnInit {
   viewMode: 'table' | 'chart' = 'table';
-  startDate = '2026-01-15';
-  endDate = '2026-01-15';
   searchQuery = '';
   groupBySearch = '';
   metricsSearch = '';
@@ -20,6 +24,138 @@ export class AdvertisersReportComponent {
   showNewReportModal = false;
   newReportName = '';
   showDownloadMenu = false;
+
+  // Loading & Error States
+  loading = false;
+  error = '';
+
+  // Pagination
+  currentPage = 1;
+  pageSize = 10;
+  totalCount = 0;
+
+  // Date range picker
+  selected: { startDate: Moment | null, endDate: Moment | null } = {
+    startDate: moment(),
+    endDate: moment()
+  };
+
+  ranges: any = {
+    'Today': [moment(), moment()],
+    'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+    'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+    'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+    'This Month': [moment().startOf('month'), moment().endOf('month')],
+    'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+  };
+
+  locale: any = {
+    format: 'YYYY-MM-DD',
+    displayFormat: 'YYYY-MM-DD',
+    separator: ' - ',
+    cancelLabel: 'Cancel',
+    applyLabel: 'Submit',
+    customRangeLabel: 'Custom'
+  };
+
+  get startDate(): string {
+    return this.selected.startDate ? this.selected.startDate.format('YYYY-MM-DD') : '';
+  }
+
+  get endDate(): string {
+    return this.selected.endDate ? this.selected.endDate.format('YYYY-MM-DD') : '';
+  }
+
+  choosedDate(e: any): void {
+    if (e.startDate && e.endDate) {
+      this.selected = { startDate: e.startDate, endDate: e.endDate };
+      this.currentPage = 1;
+      this.loadAdvertiserReport();
+    }
+  }
+
+  constructor(private reportsService: ReportsService) { }
+
+  ngOnInit(): void {
+    this.loadAdvertiserReport();
+  }
+
+  loadAdvertiserReport(): void {
+    this.loading = true;
+    this.error = '';
+
+    const params: any = {
+      start_date: this.startDate,
+      end_date: this.endDate,
+      page: this.currentPage,
+      limit: this.pageSize
+    };
+
+    this.reportsService.getAdvertiserReport(params)
+      .pipe(
+        finalize(() => {
+          this.loading = false;
+        })
+      )
+      .subscribe({
+        next: (response) => {
+          if (response.success) {
+            this.reportData = this.mapApiData(response.data);
+            this.totalCount = response.pagination?.total || 0;
+            this.currentPage = response.pagination?.page || 1;
+            this.pageSize = response.pagination?.limit || 10;
+          } else {
+            this.error = response.error?.message || 'Failed to load advertiser report';
+          }
+        },
+        error: (err) => {
+          console.error('Error loading advertiser report:', err);
+          this.error = 'An error occurred while loading the report.';
+        }
+      });
+  }
+
+  private mapApiData(apiData: AdvertiserReportItem[]): any[] {
+    return apiData.map(item => ({
+      advertiser: item.advertiser_name,
+      advertiserId: item.advertiser_id,
+      offers: item.offers,
+      approvedConversions: item.conversions,
+      revenue: item.revenue,
+
+      // Defaults
+      grossClicks: 0,
+      payout: 0,
+      profit: 0
+    }));
+  }
+
+  getVisibleColumns() {
+    const visibleGroups = this.groupByOptions.filter(opt => opt.checked);
+    const visibleMetrics = this.metricsOptions.filter(opt => opt.checked);
+    return [...visibleGroups, ...visibleMetrics];
+  }
+
+  getColumnType(key: string): 'currency' | 'percent' | 'number' | 'text' {
+    if (this.currencyKeys.includes(key)) return 'currency';
+    if (this.percentageKeys.includes(key)) return 'percent';
+    if (this.metricsOptions.some(m => m.key === key)) return 'number';
+    return 'text';
+  }
+
+  getTotal(key: string): number {
+    return this.reportData.reduce((sum, item) => sum + (Number(item[key]) || 0), 0);
+  }
+
+  onPageChange(page: number): void {
+    this.currentPage = page;
+    this.loadAdvertiserReport();
+  }
+
+  onPageSizeChange(): void {
+    this.currentPage = 1;
+    this.loadAdvertiserReport();
+  }
 
   // Main filters - Same as Campaign Report
   filters = {
@@ -74,8 +210,26 @@ export class AdvertisersReportComponent {
     { key: 'category', label: 'Category', checked: false }
   ];
 
+  // Column Types Identification
+  private currencyKeys = [
+    'payout', 'revenue', 'profit', 'epc', 'saleAmount',
+    'campaignPayout', 'campaignRevenue',
+    'pendingPayout', 'pendingRevenue',
+    'sampledPayout', 'sampledRevenue',
+    'grossPayout', 'grossRevenue', 'grossProfit',
+    'extendedPayout', 'extendedRevenue',
+    'cancelledPayout', 'cancelledRevenue',
+    'rejectedPayout', 'rejectedRevenue',
+    'pendingSaleAmount', 'extendedSaleAmount',
+    'cancelledSaleAmount', 'rejectedSaleAmount', 'sampledSaleAmount',
+    'grossSaleAmount', 'netSaleAmount', 'netPayout', 'netRevenue', 'netProfit'
+  ];
+
+  private percentageKeys = ['conversionRate', 'ctr'];
+
   // Report Options / Metrics - Complete list from Trackier
   metricsOptions = [
+    { key: 'offers', label: 'Offers', checked: true },
     { key: 'uniqueClicks', label: 'Unique Clicks', checked: false },
     { key: 'rejectedClicks', label: 'Rejected Clicks', checked: false },
     { key: 'clicks', label: 'Clicks', checked: false },
@@ -133,25 +287,12 @@ export class AdvertisersReportComponent {
 
   conditions: any[] = [];
 
-  reportData = [
-    { advertiser: 'Fomento Shivani', advertiserId: 350, grossClicks: 25670, approvedConversions: 512, payout: 5120.00, revenue: 6800.00, profit: 1680.00 },
-    { advertiser: 'Li- David', advertiserId: 330, grossClicks: 18920, approvedConversions: 378, payout: 3780.00, revenue: 4980.00, profit: 1200.00 },
-    { advertiser: 'AdNetwork Inc', advertiserId: 320, grossClicks: 32450, approvedConversions: 648, payout: 6480.00, revenue: 8520.00, profit: 2040.00 },
-    { advertiser: 'Global Media', advertiserId: 360, grossClicks: 14300, approvedConversions: 286, payout: 2860.00, revenue: 3750.00, profit: 890.00 },
-    { advertiser: 'Digital Ventures', advertiserId: 370, grossClicks: 21200, approvedConversions: 424, payout: 4240.00, revenue: 5580.00, profit: 1340.00 }
-  ];
+  // Report data
+  reportData: any[] = [];
 
   savedReportsList = [{ value: '', label: '--' }, { value: 'report1', label: 'Weekly Advertiser Overview' }];
 
-  get totals() {
-    return {
-      grossClicks: this.reportData.reduce((sum, item) => sum + item.grossClicks, 0),
-      approvedConversions: this.reportData.reduce((sum, item) => sum + item.approvedConversions, 0),
-      payout: this.reportData.reduce((sum, item) => sum + item.payout, 0),
-      revenue: this.reportData.reduce((sum, item) => sum + item.revenue, 0),
-      profit: this.reportData.reduce((sum, item) => sum + item.profit, 0)
-    };
-  }
+
 
   get filteredGroupByOptions() {
     if (!this.groupBySearch) return this.groupByOptions;
@@ -164,18 +305,49 @@ export class AdvertisersReportComponent {
   }
 
   get filteredData() {
-    if (!this.searchQuery) return this.reportData;
-    return this.reportData.filter(item => item.advertiser.toLowerCase().includes(this.searchQuery.toLowerCase()));
+    return this.reportData;
   }
 
   setViewMode(mode: 'table' | 'chart') { this.viewMode = mode; }
   toggleFilterPanel() { this.showFilterPanel = !this.showFilterPanel; }
   closeFilterPanel() { this.showFilterPanel = false; }
-  applyFilters() { console.log('Applying filters:', this.filters); this.closeFilterPanel(); }
-  clearGroupBy() { this.groupByOptions.forEach(opt => opt.checked = false); }
-  selectAllGroupBy() { this.filteredGroupByOptions.forEach(opt => opt.checked = true); }
-  clearMetrics() { this.metricsOptions.forEach(opt => opt.checked = false); }
-  selectAllMetrics() { this.filteredMetricsOptions.forEach(opt => opt.checked = true); }
+  applyFilters() {
+    console.log('Applying filters:', this.filters);
+    this.currentPage = 1;
+    this.loadAdvertiserReport();
+    this.closeFilterPanel();
+  }
+  clearGroupBy() {
+    this.groupByOptions = this.groupByOptions.map(opt => ({ ...opt, checked: false }));
+  }
+
+  selectAllGroupBy() {
+    const filteredKeys = new Set(this.filteredGroupByOptions.map(opt => opt.key));
+    this.groupByOptions = this.groupByOptions.map(opt => {
+      if (filteredKeys.has(opt.key)) {
+        return { ...opt, checked: true };
+      }
+      return opt;
+    });
+  }
+
+  clearMetrics() {
+    this.metricsOptions = this.metricsOptions.map(opt => ({ ...opt, checked: false }));
+  }
+
+  selectAllMetrics() {
+    const filteredKeys = new Set(this.filteredMetricsOptions.map(opt => opt.key));
+    this.metricsOptions = this.metricsOptions.map(opt => {
+      if (filteredKeys.has(opt.key)) {
+        return { ...opt, checked: true };
+      }
+      return opt;
+    });
+  }
+
+  trackByKey(index: number, item: any): string {
+    return item.key;
+  }
   toggleDownloadMenu() { this.showDownloadMenu = !this.showDownloadMenu; }
   downloadCSV() { console.log('Downloading CSV'); this.showDownloadMenu = false; }
   downloadExcel() { console.log('Downloading Excel'); this.showDownloadMenu = false; }
@@ -191,6 +363,13 @@ export class AdvertisersReportComponent {
       this.closeNewReportModal();
     } else { alert('Please enter a report name'); }
   }
-  formatCurrency(value: number): string { return '₹ ' + value.toFixed(2); }
-  formatNumber(value: number): string { return value.toLocaleString(); }
+  formatCurrency(value: number): string {
+    if (value === undefined || value === null) return '₹ 0.00';
+    return '₹ ' + Number(value).toFixed(2);
+  }
+
+  formatNumber(value: number): string {
+    if (value === undefined || value === null) return '0';
+    return Number(value).toLocaleString();
+  }
 }
